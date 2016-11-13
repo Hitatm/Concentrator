@@ -6,5 +6,5 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 
 |&|time|task|     
 |:--|:--|:--|    
-|start|2016-11-01|finished login and time select module|    
+|start|2016-11-01|begin|    
 |１|2016-11-10|finished login and time select module|    
