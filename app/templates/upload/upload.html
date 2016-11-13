@@ -33,25 +33,35 @@
     <script type="text/javascript" src="../../static/daterangepicker/moment.js"></script>
     <script type="text/javascript" src="../../static/daterangepicker/daterangepicker-1.3.7.js"></script>
     
+    <style type="text/css">
+      .demo { position: relative; }
+      .demo i {
+        position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;
+      }
+    </style>
+
     <script type="text/javascript">
         $(document).ready(function (){
                     // 时间插件
-                    $('#reportrange p').html(moment().subtract('hours', 1).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
-        
+                    $('#reportrange span').html(moment().subtract('hours', 6).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
+                    $('#timesrange').val(($('#reportrange span').html()));
+                    
                     $('#reportrange').daterangepicker(
                             {
                                 // startDate: moment().startOf('day'),
                                 //endDate: moment(),
-                                //minDate: '01/01/2012',    //×îÐ¡Ê±¼ä
+                                // minDate: '01/01/2016',    //　
+                                // minDate: '2016-11-04 00:00:00'
                                 maxDate : moment(), // 
                                 dateLimit : {
-                                    days : 30
+                                    days : 60
                                 },  
                                 showDropdowns : true,
                                 showWeekNumbers : false,  
                                 timePicker : true,  
-                                timePickerIncrement : 60,  
-                                timePicker12Hour : false,  
+                                timePickerIncrement : 5,  
+                                timePicker12Hour : false,
+                                timePickerSeconds :true,  
                                   ranges : {
                   //'最近1小时': [moment().subtract('hours',1), moment()],
                   '今日': [moment().startOf('day'), moment()],
@@ -76,11 +86,11 @@
                                             '七月', '八月', '九月', '十月', '十一月', '十二月' ],
                                           firstDay : 1
                                 }
-                            }, function(start, end, label) {//格式化日期显示框
-                                
-                                $('#reportrange p').html(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
+                            }, function(start, end, label) {//格式化日期显示框                                
+                                $('#reportrange span').html(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
+                                $('#timesrange').val(($('#reportrange span').html()));
                            });
-
+         
       // 设置日期菜单被选项  --开始--
         var dateOption ;  
         if("${riqi}"=='day') {  
@@ -102,12 +112,28 @@
         }  
         if(dateOption==$(this).html()){  
         $(this).addClass("active");  
-        }  
-        });  
-      // 设置日期菜单被选项  --结束--
-        })
-    </script>
 
+        }  
+        }); 
+      // 设置日期菜单被选项  --结束--
+
+        });
+
+
+    </script>
+    <script type="text/javascript">
+    //     $.ajax({
+    //         type : 'POST',
+    //         contentType:'application/json',
+    //         data:JSON.stringify($('#reportrange span').html()),
+    //         dataType:'json',
+    //         url:'',
+    //         success:function(){   
+    //          alert("$('#reportrange span').html()");
+    //         }
+    //       });
+    // 
+    </script>
 </head>
 
 <body>
@@ -289,35 +315,28 @@
             </form> -->
 
 
-<div class="form-group">  
-<div class="controls">  
-   <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}">
+            <div class="form-group">  
+            <div class="controls">  
+            <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}">
 
-                   <h4>请选择时间段:</h4>
-                    <div class="controls">
-                    <div id="reportrange" class="pull-left dateRange" style="width:400px">
-                       <div style="float:left">  
-                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                               <h4>请选择时间段:</h4>
+                        <div class="controls">
+                            <div id="reportrange" class="pull-left dateRange" style="width:400px">
+                           
+                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+                            <span id="searchDateRange" name="searchDateRange"> {{selectedtime}} </span>          
+                                     <b class="caret"></b>
+                                     <input type="hidden" id="timesrange" name="field_name" value="value" />
+                            </div>
                         </div>
 
-                        <div style="float:center">
-                        <p name="searchDateRange"></p>
-                         </div>
-                         <!-- <input  name="searchDateRange" /> -->
+                                 <br>
+                                 <br>
 
-                      
-                        <!-- <b class="caret"></b> -->
-                        
-                    </div>
-                </div>
+                    <button type="submit" class="button button-royal button-pill" style="float:left">确定</button>
+            　</form> 
+             </div>  
 
-                     <br>
-                     <br>
-
-                <button type="submit" class="button button-royal button-pill" style="float:left">检索</button>
-            </form> 
-
-</div>  
 
 
   <!--           <div class="controls">  
@@ -343,10 +362,11 @@
         </div>
     </div>
     <br>
-    <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div>
+    <div class="container">
+    <p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div>
 </div>
 
-
+  <!-- <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div> -->
 
 
 

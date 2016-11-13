@@ -4,10 +4,12 @@ __author__ = 'dj'
 from flask_wtf import Form
 from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, AnyOf
-from wtforms import StringField
+from wtforms import StringField,TextField
+
 
 class Upload(Form):
-    reportrange = FileField('searchDateRange', validators=[DataRequired()])
+	reportrange = FileField('timesrange', validators=[DataRequired()])
+
 
 #协议过滤表单
 class ProtoFilter(Form):

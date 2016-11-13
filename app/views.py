@@ -13,7 +13,8 @@ from utils.ipmap_tools import getmyip, get_ipmap, get_geo
 from utils.data_extract import web_data, telnet_ftp_data, mail_data, sen_data
 from utils.except_info import exception_warning
 from utils.file_extract import web_file, ftp_file, mail_file, all_files
-from scapy.all import rdpcap
+# from scapy.all import rdpcap
+
 import os
 
 #导入函数到模板中
@@ -24,7 +25,9 @@ PCAP_NAME = ''     #上传文件名
 PD = PcapDecode() #解析器
 PCAPS = None #数据包
 HIT_USER ='root'#用户名
-HIT_PWD  = 'xiaoming'  #默认密码
+HIT_PWD  ='xiaoming'  #默认密码
+TIME_START = ''
+TIME_END   = ''
 #--------------------------------------------------------首页，上传---------------------------------------------
 #首页
 @app.route('/', methods=['POST', 'GET'])
@@ -37,17 +40,39 @@ def index():
         # return render_template('./login/login.html')
 
 
-#数据包上传
-@app.route('/upload/', methods=['POST', 'GET'])
+#历史数据时间选择
+@app.route('/upload', methods=['POST', 'GET'])
 def upload():
-    timestamp = Upload()
+    if PCAPS==None:
+        redirect(url_for('login'))
+    
     if request.method == 'GET':
         return render_template('./upload/upload.html')
         # return render_template('./upload/timestamp.html',time=timestamp.searchDateRange.data)
     elif request.method == 'POST':
-        # return "hello world"
-        return render_template('./upload/timestamp.html',)
+        selectime  =  request.form['field_name']
+        global TIME_START,TIME_END
+        TIME_START = selectime[0:20]
+        TIME_END   = selectime[22:42]
+        # comment_message="DateRange: from " + TIME_START+" to "+TIME_END
+        if len(selectime)<40:
+            flash(u'请选择检索时间!')
+        else :
+            flash(u'检索时间:'+str(selectime))
+        try:
+            TopoPath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
+            DataPath=os.path.join(app.config['DATA_FOLDER'],"data.txt")
+            flash(TopoPath+DataPath)
+            return render_template('./upload/upload.html',selectedtime=selectime)
+        except Exception, e:
+            flash(u'上传错误,错误信息:' + unicode(e.message))
+            return render_template('./upload/upload.html')
+    else:
+        return render_template('./upload/upload.html')
 
+        # return selectime
+        # return render_template('./upload/timestamp.html')
+        # return render_template('./upload/upload.html')
         # pcap = upload.pcap.data
         # if upload.validate_on_submit():
         #     pcapname = pcap.filename
