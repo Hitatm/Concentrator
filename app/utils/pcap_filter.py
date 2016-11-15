@@ -12,8 +12,6 @@ def get_all_pcap(PCAPS, PD):
     for p in PCAPS:
         count += 1
         pcap = PD.ether_decode(p)
-        print pcaps
-        break
         pcaps[count] = pcap
     return pcaps
 
@@ -65,20 +63,8 @@ def proto_filter(filter_type, value, PCAPS, PD):
     return pcaps
 
 
-def showdata_from_id(PCAPS, dataid):
-    pcap = PCAPS[dataid]
-    #输出重定向数据
-    show_temp_name = tempfile.NamedTemporaryFile(prefix='show_', dir='/tmp')
-    old = sys.stdout
-    show_file = open(show_temp_name.name, 'w')
-    sys.stdout = show_file
-    pcap.show()
-    sys.stdout = old
-    show_file.close()
-    #读取数据
-    with open(show_temp_name.name, 'r') as showf:
-        data = showf.read()
-    result = data.strip().split('###')[1:]
+def showdata_from_id(DATA_DICT, dataid):
+    Dict = DATA_DICT[dataid]
     html = '''
             <div class="accordion-group">
                 <div class="accordion-heading">
@@ -92,19 +78,13 @@ def showdata_from_id(PCAPS, dataid):
                     </div>
                 </div>
             </div>
-'''
+    '''
     all_html = ''
     id = 0
-    for proto, value in zip(result[::2], result[1::2]):
+    for proto, value in Dict.items():
         id += 1
-        html_proto = proto.strip()[1:-1].strip()
-        html_values = ''
-        values = value.strip().split('\n')
-        for v in values:
-            val = v.split('  =')
-            if len(val) == 2:
-                html_values += '<b>{0} = {1}</b><br>'.format(val[0].strip(), val[1].strip())
-            elif len(val) == 1:
-                html_values += '<b>{0} = {1}</b><br>'.format('options', 'None')
+        html_proto = proto
+        html_values = value
         all_html += html.format(proto=html_proto, values=html_values, id=str(id))
     return all_html
+

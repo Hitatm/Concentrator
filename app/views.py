@@ -13,21 +13,30 @@ from utils.ipmap_tools import getmyip, get_ipmap, get_geo
 from utils.data_extract import web_data, telnet_ftp_data, mail_data, sen_data
 from utils.except_info import exception_warning
 from utils.file_extract import web_file, ftp_file, mail_file, all_files
-# from scapy.all import rdpcap
+#---------------------------------------
+from utils.gxn_topo_handler import getfile_content,getall_topo
+from utils.gxn_topo_decode  import TopoDecode
+ 
 
 import os
-
+import collections
 #导入函数到模板中
 app.jinja_env.globals['enumerate'] = enumerate
 
 #全局变量
 PCAP_NAME = ''     #上传文件名
-PD = PcapDecode() #解析器
-PCAPS = None #数据包
+# PD = PcapDecode() #解析器
+
+# ---------------------------------------------------------------------------
+PCAPS = 'yeslogin' #login
 HIT_USER ='root'#用户名
 HIT_PWD  ='xiaoming'  #默认密码
 TIME_START = ''
 TIME_END   = ''
+TOPODATA   = None #login
+REALDATA   = None #login
+TPDECODE   =TopoDecode()
+TOPODATA_DICT =collections.OrderedDict()
 #--------------------------------------------------------首页，上传---------------------------------------------
 #首页
 @app.route('/', methods=['POST', 'GET'])
@@ -60,41 +69,20 @@ def upload():
         else :
             flash(u'检索时间:'+str(selectime))
         try:
+            global TOPODATA
             TopoPath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
-            DataPath=os.path.join(app.config['DATA_FOLDER'],"data.txt")
-            flash(TopoPath+DataPath)
+            # DataPath=os.path.join(app.config['DATA_FOLDER'],"data.txt")
+            TOPODATA=getfile_content(str(TopoPath))
+            # REALDATA=getfile_content(str(DataPath))
+            flash(u',数据读取成功')
+            flash('\n'+str(len(TOPODATA)))
+            # flash('\n'+str(len(REALDATA)))
             return render_template('./upload/upload.html',selectedtime=selectime)
         except Exception, e:
-            flash(u'上传错误,错误信息:' + unicode(e.message))
+            flash(u'文件提取,错误信息:' + unicode(e.message))
             return render_template('./upload/upload.html')
     else:
         return render_template('./upload/upload.html')
-
-        # return selectime
-        # return render_template('./upload/timestamp.html')
-        # return render_template('./upload/upload.html')
-        # pcap = upload.pcap.data
-        # if upload.validate_on_submit():
-        #     pcapname = pcap.filename
-        #     if allowed_file(pcapname):
-        #         name1 = random_name()
-        #         name2 = get_filetype(pcapname)
-        #         global PCAP_NAME, PCAPS
-        #         PCAP_NAME = name1 + name2
-        #         try:
-        #             pcap.save(os.path.join(app.config['UPLOAD_FOLDER'], PCAP_NAME))
-        #             PCAPS = rdpcap(os.path.join(app.config['UPLOAD_FOLDER'], PCAP_NAME))
-        #             print PCAPS
-        #             flash(u'恭喜你,上传成功！')
-        #             return render_template('./upload/upload.html')
-        #         except Exception as e:
-        #             flash(u'上传错误,错误信息:' + unicode(e.message))
-        #             return render_template('./upload/upload.html')
-        #     else:
-        #         flash(u'上传失败,请上传允许的数据包格式!')
-        #         return render_template('./upload/upload.html')
-        # else:
-        #     return render_template('./upload/upload.html')
 
 #--------------------------------------------认证登陆---------------------------------------------------
 @app.route('/login/',methods=['POST', 'GET'])
@@ -133,8 +121,10 @@ def basedata():
         if value and filter_type:
             pcaps = proto_filter(filter_type, value, PCAPS, PD)
         else:
-            pcaps = get_all_pcap(PCAPS, PD)
-        return render_template('./dataanalyzer/basedata.html', pcaps=pcaps)
+            # pcaps = get_all_pcap(PCAPS, PD)
+            global TPDECODE,TOPODATA_DICT
+            TOPODATA_DICT=getall_topo(TOPODATA,TPDECODE)
+        return render_template('./dataanalyzer/basedata.html',pcaps=TOPODATA_DICT)
 
 PDF_NAME = ''
 #详细数据
@@ -146,10 +136,11 @@ def datashow():
     else:
         global PDF_NAME
         dataid = request.args.get('id')
-        dataid = int(dataid) - 1
-        data = showdata_from_id(PCAPS, dataid)
+        # return dataid
+        dataid = int(dataid)
+        data = showdata_from_id(TOPODATA_DICT, dataid)
         PDF_NAME = random_name() + '.pdf'
-        PCAPS[dataid].pdfdump(app.config['PDF_FOLDER'] + PDF_NAME)
+        # TOPODATA[dataid].pdfdump(app.config['PDF_FOLDER'] + PDF_NAME)
         return data
 
 #将数据包保存为pdf
@@ -411,3 +402,38 @@ def internal_error(error):
 @app.errorhandler(500)
 def internal_error(error):
     return render_template('./error/500.html'), 500
+
+
+
+
+
+
+
+
+
+#-------------------------------upload----------------------------------------------- 
+        # return selectime
+        # return render_template('./upload/timestamp.html')
+        # return render_template('./upload/upload.html')
+        # pcap = upload.pcap.data
+        # if upload.validate_on_submit():
+        #     pcapname = pcap.filename
+        #     if allowed_file(pcapname):
+        #         name1 = random_name()
+        #         name2 = get_filetype(pcapname)
+        #         global PCAP_NAME, PCAPS
+        #         PCAP_NAME = name1 + name2
+        #         try:
+        #             pcap.save(os.path.join(app.config['UPLOAD_FOLDER'], PCAP_NAME))
+        #             PCAPS = rdpcap(os.path.join(app.config['UPLOAD_FOLDER'], PCAP_NAME))
+        #             print PCAPS
+        #             flash(u'恭喜你,上传成功！')
+        #             return render_template('./upload/upload.html')
+        #         except Exception as e:
+        #             flash(u'上传错误,错误信息:' + unicode(e.message))
+        #             return render_template('./upload/upload.html')
+        #     else:
+        #         flash(u'上传失败,请上传允许的数据包格式!')
+        #         return render_template('./upload/upload.html')
+        # else:
+        #     return render_template('./upload/upload.html')
