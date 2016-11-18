@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>协议分析</title>
+
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+
+    <script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+
+</head>
+<body>
+<br>
+<br>
+<div class="container" id="first" style="height:800px; width: 100%;float:left"></div>
+
+<br>
+<br><!--常见协议和数据包长度图-->
+<!-- <h3> 节点总数　{{nodecount}}</h3> -->
+<div id="topo" style="height:800px;width:100%;float:left"></div>
+<br>
+<br>
+<div class="container" id="http" style="height:800px; width: 100%;float:left"></div>
+
+<!-- <div class="container" style="height: 400px; width: 90%">
+    <div id="pcap_len" style="height:400px; width:25%; float:left;"></div>
+    <div id="proto" style="height:400; width:100%; float:center;"></div>
+    <div id="pcap_count" style="height:400px; width:25%; float:left;"></div>
+</div> -->
+<!-- <div class="container" id="dns" style="height: 400px; width: 90%"></div> -->
+{% autoescape false %}
+    <!-- ECharts单文件引入 -->
+    <script src="../../static/echarts-2.27/build/dist/echarts.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: '../../static/echarts-2.27/build/dist/'
+            }
+        });
+
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/line',// 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/scatter' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('first'));
+
+                var  option = {
+                tooltip : {
+                    trigger: 'axis',
+                    axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                        type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                title : {
+                    text: '拓扑每轮上报统计图(哈工大CPS－威海天罡仪表)',
+                    // subtext: '',
+                    x: 'center',
+                    y:'top'
+                },
+                    dataZoom: {
+                    show: true,
+                    start : 0,
+                    end   :70
+                },
+                legend: {
+                    data:['others', '-1 minute','0 minute','1 minute','2 minute','3 minute','4 minute'],
+                    x:'center',
+                    y:40,
+                    // orient : 'vertical'
+
+                },
+                toolbox: {
+                    show : true,
+                    orient : 'vertical',
+                    x: 'left', 
+                    y: 'center',
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                calculable : false,
+                yAxis : [
+                    {
+                        type : 'value'
+                    }
+                ],
+                xAxis : [
+                    {
+                        type : 'category',
+                        data : {{timeline}}
+                    }
+                ],
+                series :{{templist}}
+                    // {
+                    //     name:'4 minute',
+                    //     type:'bar',
+                    //     stack: 'total',
+                    //     itemStyle : { 
+                    //     normal:{
+                    //     color: '#fff',
+                    //     barBorderColor: 'tomato',
+                    //     barBorderWidth: 6,
+                    //     barBorderRadius:0,
+                    //     label :{ 
+                    //                 show: true, 
+                    //                 position:top,
+                    //                 formatter: function (params) 
+                    //                 {
+                    //                     for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) 
+                    //                     {
+                    //                         if (option.xAxis[0].data[i] == params.name) 
+                    //                         {
+                    //                             var total=0;
+                    //                             for(var j=0,h=option.series.length;j<h;j++)
+                    //                               total += option.series[j].data[i] ; 
+                    //                               return total 
+                    //                         }
+                    //                     }
+                    //                 },
+                    //                 textStyle: {color: 'tomato'}
+                    //             }
+                    //             }
+                    //         },
+                    //     data:{{last_list}}
+
+                    // }
+                 
+            };
+                    
+                // 为echarts对象加载数据
+                myChart.setOption(option);
+            }
+        );
+    </script>
+
+
+<script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: '../../static/echarts-2.27/build/dist/'
+            }
+        });
+
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/line',// 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/scatter' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('topo'));
+
+                var option  = {
+    title : {
+        text : '拓扑上报个数随时间变化情况',
+        // subtext : '',
+        x:'center',
+        y:'top'
+    },
+    tooltip : {
+
+        trigger: 'item',
+        formatter : function (params) {
+            var date = params.value[0];
+            data = date.getFullYear() + '-'
+                   + (date.getMonth() + 1) + '-'
+                   + date.getDate() + ' '
+                   + date.getHours() + ':'
+                   + date.getMinutes()
+                   +':'+ date.getSeconds()
+                   ;
+            return data + '<br/>'+ params.value[1] 
+        }
+    },
+    toolbox: {
+        show : true,
+        orient : 'vertical',
+        x: 'left', 
+        y: 'center',
+        feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            dataZoom : {show: true},
+            magicType : {show: true, type: [ 'bar','line']},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+
+    // dataRange: {
+    //     min: 0,
+    //     max: 100,
+    //     orient: 'horizontal',
+    //     y: 30,
+    //     x: 'center',
+    //     //text:['高','低'],           // 文本，默认为数值文本
+    //     color:['lightgreen'],
+    //     splitNumber: 5
+    // },
+    dataZoom: {
+        show: true,
+        start : 0,
+        end:100
+    },
+    legend : {
+        data : ['number of topo message'],
+        x:'center',
+        y:45
+    },
+    grid: {
+        y2: 80
+    },
+    xAxis : [
+        {
+            type : 'time',
+            splitNumber:10
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name: 'number of topo message',
+            type: 'line',
+            showAllSymbol: true,
+            // symbol:'rectangle',
+            // symbolSize: function (value){
+            //     return Math.round(5);
+            // },
+            markPoint : {
+                data : [
+                    {type : 'max', name: '最大值'},
+                ]
+            },
+            legendHoverLink:true,
+            itemStyle : { 
+                normal: {
+                    label : 
+                    {
+                     show: true,
+                     position: 'left',
+                      formatter : function (params) {
+                                 var date = params.value[0];
+                                     data = date.getMinutes()%10;
+                            return ''
+                            // '批次:'+data + '个数:'+ params.value[1] 
+                        }
+                    }
+                }},
+            data: (function () {
+                var d = [];
+                var Things= {{topo_traffic_key}}
+                var Values= {{topo_traffic_value}};
+                for (var i = Things.length - 1; i >= 0; i--) {
+                    d.push([
+                        new Date(Things[i]),
+                        Values[i]
+                    ]);
+                };
+                    
+                
+                return d;
+            })()
+        }
+    ]
+};
+                    
+                // 为echarts对象加载数据
+                myChart.setOption(option);
+            }
+        );
+    </script>
+
+
+<!-- 
+
+<script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: '../../static/echarts-2.27/build/dist/'
+            }
+        });
+
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/line',// 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/scatter' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('http'));
+
+                var option = {
+    title : {
+        text: '网络流量统计图',
+        subtext: '哈尔滨工业大学-天罡仪表',
+        x: 'center'
+    },
+    tooltip : {
+        trigger: 'axis',
+        formatter: function(params) {
+            return params[0].name + '<br/>'
+                   + params[0].seriesName + ' : ' + params[0].value + ' (个/分钟)<br/>'
+                   + params[1].seriesName + ' : ' + -params[1].value + ' (个/分钟)';
+        }
+    },
+    legend: {
+        data:['拓扑','数据'],
+        x: 'left'
+    },
+    toolbox: {
+        show : true,
+        orient : 'vertical',
+        x: 'left', 
+        y: 'center',
+        feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            magicType : {show: true, type: ['line', 'bar','scatter']},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    dataZoom : {
+        show : true,
+        realtime : true,
+        start : 0,
+        end : 100
+    },
+    xAxis : [
+        {
+            type : 'category',
+            boundaryGap : [0,0.01],
+            axisLine: {onZero: false},
+            // axisLabel:{interval:0},
+            data : {{topo_traffic_key}}
+        }
+    ],
+    yAxis : [
+        {
+            name : '拓扑(个/分钟)',
+            type : 'value',
+            max : 100
+        },
+        {
+            name : '数据(个/分钟)',
+            type : 'value',
+            axisLabel : {
+                formatter: function(v){
+                    return - v;
+                }
+            }
+        }
+    ],
+    series : [
+        {
+            name:'拓扑',
+            type:'bar',
+            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+            data: {{topo_traffic_value}}
+        },
+        {
+            name:'数据',
+            type:'bar',
+            yAxisIndex:1,
+            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+            data: [20]
+        }
+    ]
+};
+                    
+                // 为echarts对象加载数据
+                myChart.setOption(option);
+            }
+        );
+    </script>
+   -->
+
+
+
+
+
+
+
+{% endautoescape %}
+</body>
+</html>
+

@@ -5,18 +5,19 @@ from app import app
 from flask import render_template, request, flash, redirect, url_for, send_from_directory
 from forms import Upload, ProtoFilter,User_and_pwd
 from utils.upload_tools import allowed_file, get_filetype, random_name
-from utils.pcap_decode import PcapDecode
-from utils.pcap_filter import get_all_pcap, proto_filter, showdata_from_id
-from utils.proto_analyzer import common_proto_statistic, pcap_len_statistic, http_statistic, dns_statistic, most_proto_statistic
+# from utils.pcap_decode import PcapDecode
+# from utils.pcap_filter import get_all_pcap, proto_filter
+from utils.proto_analyzer import common_proto_statistic, pcap_len_statistic, dns_statistic, most_proto_statistic
 from utils.flow_analyzer import time_flow, data_flow, get_host_ip, data_in_out_ip, proto_flow, most_flow_statistic
 from utils.ipmap_tools import getmyip, get_ipmap, get_geo
 from utils.data_extract import web_data, telnet_ftp_data, mail_data, sen_data
 from utils.except_info import exception_warning
 from utils.file_extract import web_file, ftp_file, mail_file, all_files
 #---------------------------------------
-from utils.gxn_topo_handler import getfile_content,getall_topo
+from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,topo_filter
 from utils.gxn_topo_decode  import TopoDecode
- 
+from utils.gxn_topo_analyzer import topo_statistic,topo_traffic_statistic,topo_traffic_analyzer
+from utils.gxn_get_sys_config import Congfig
 
 import os
 import collections
@@ -26,6 +27,7 @@ app.jinja_env.globals['enumerate'] = enumerate
 #全局变量
 PCAP_NAME = ''     #上传文件名
 # PD = PcapDecode() #解析器
+PDF_NAME = ''
 
 # ---------------------------------------------------------------------------
 PCAPS = 'yeslogin' #login
@@ -37,6 +39,8 @@ TOPODATA   = None #login
 REALDATA   = None #login
 TPDECODE   =TopoDecode()
 TOPODATA_DICT =collections.OrderedDict()
+# SYS_CONFIG = Congfig()
+
 #--------------------------------------------------------首页，上传---------------------------------------------
 #首页
 @app.route('/', methods=['POST', 'GET'])
@@ -50,15 +54,26 @@ def index():
 
 
 #历史数据时间选择
+@app.route('/upload/', methods=['POST', 'GET'])
 @app.route('/upload', methods=['POST', 'GET'])
 def upload():
     if PCAPS==None:
         redirect(url_for('login'))
     
     if request.method == 'GET':
+        # selectime =request.args.get('time')
         return render_template('./upload/upload.html')
-        # return render_template('./upload/timestamp.html',time=timestamp.searchDateRange.data)
+        # return render_template('./upload/timestamp.html',time=selectime)
     elif request.method == 'POST':
+        selectime =request.form.get('time', '')
+        flash(u'检索时间:')
+        flash(selectime)
+        # return selectime
+        # return render_template('./upload/timestamp.html',time=selectime)
+        # return render_template('./upload/upload.html')
+        # return redirect(url_for('login'))
+
+        # request.args.get
         selectime  =  request.form['field_name']
         global TIME_START,TIME_END
         TIME_START = selectime[0:20]
@@ -69,10 +84,12 @@ def upload():
         else :
             flash(u'检索时间:'+str(selectime))
         try:
-            global TOPODATA
+            global TOPODATA,TOPODATA_DICT
             TopoPath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
             # DataPath=os.path.join(app.config['DATA_FOLDER'],"data.txt")
             TOPODATA=getfile_content(str(TopoPath))
+            TOPODATA_DICT=getall_topo(TOPODATA,TPDECODE)
+
             # REALDATA=getfile_content(str(DataPath))
             flash(u',数据读取成功')
             flash('\n'+str(len(TOPODATA)))
@@ -111,6 +128,7 @@ def logout():
 #基本数据
 @app.route('/basedata/', methods=['POST', 'GET'])
 def basedata():
+    global TPDECODE,TOPODATA_DICT
     if PCAPS == None:
         flash(u"请完成认证登陆1!")
         return redirect(url_for('login'))
@@ -119,14 +137,13 @@ def basedata():
         filter_type = filter.filter_type.data
         value = filter.value.data
         if value and filter_type:
-            pcaps = proto_filter(filter_type, value, PCAPS, PD)
+            # return str(value)+" "+str(filter_type)
+            pcaps = topo_filter(filter_type, value, TOPODATA, TPDECODE)
+            return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
         else:
             # pcaps = get_all_pcap(PCAPS, PD)
-            global TPDECODE,TOPODATA_DICT
-            TOPODATA_DICT=getall_topo(TOPODATA,TPDECODE)
-        return render_template('./dataanalyzer/basedata.html',pcaps=TOPODATA_DICT)
+            return render_template('./dataanalyzer/basedata.html',pcaps=TOPODATA_DICT)
 
-PDF_NAME = ''
 #详细数据
 @app.route('/datashow/', methods=['POST', 'GET'])
 def datashow():
@@ -160,24 +177,30 @@ def protoanalyzer():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        data_dict = common_proto_statistic(PCAPS)
-        pcap_len_dict = pcap_len_statistic(PCAPS)
-        pcap_count_dict = most_proto_statistic(PCAPS, PD)
-        http_dict = http_statistic(PCAPS)
-        http_dict = sorted(http_dict.iteritems(), key=lambda d:d[1], reverse=False)
+        # data_dict = common_proto_statistic(PCAPS)
+        # pcap_len_dict = pcap_len_statistic(PCAPS)
+        # pcap_count_dict = most_proto_statistic(PCAPS, PD)
+        http_dict = topo_statistic(TOPODATA_DICT)
+        http_dict = sorted(http_dict.iteritems(), key=lambda d:d[1], reverse=True)
         http_key_list = list()
         http_value_list = list()
+        count=0
         for key, value in http_dict:
-            http_key_list.append(key)
+            count+=1
+            if count%2==0:
+                http_key_list.append(key)
+            else:
+                http_key_list.append(key+'     ')
             http_value_list.append(value)
-        dns_dict = dns_statistic(PCAPS)
-        dns_dict = sorted(dns_dict.iteritems(), key=lambda d:d[1], reverse=False)
-        dns_key_list = list()
-        dns_value_list = list()
-        for key, value in dns_dict:
-            dns_key_list.append(key)
-            dns_value_list.append(value)
-        return render_template('./dataanalyzer/protoanalyzer.html', data=data_dict.values(), pcap_len=pcap_len_dict, pcap_count=pcap_count_dict, http_key=http_key_list, http_value=http_value_list, dns_key=dns_key_list, dns_value=dns_value_list)
+        # dns_dict = dns_statistic(PCAPS)
+        # dns_dict = sorted(dns_dict.iteritems(), key=lambda d:d[1], reverse=False)
+        # dns_key_list = list()
+        # dns_value_list = list()
+        # for key, value in dns_dict:
+        #     dns_key_list.append(key)
+        #     dns_value_list.append(value)
+        # return render_template('./dataanalyzer/protoanalyzer.html', data=data_dict.values(), pcap_len=pcap_len_dict, pcap_count=pcap_count_dict, http_key=http_key_list, http_value=http_value_list, dns_key=dns_key_list, dns_value=dns_value_list)
+        return render_template('./dataanalyzer/protoanalyzer.html',http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
 
 #流量分析
 @app.route('/flowanalyzer/', methods=['POST', 'GET'])
@@ -186,19 +209,65 @@ def flowanalyzer():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        time_flow_dict = time_flow(PCAPS)
-        host_ip = get_host_ip(PCAPS)
-        data_flow_dict = data_flow(PCAPS, host_ip)
-        data_ip_dict = data_in_out_ip(PCAPS, host_ip)
-        proto_flow_dict = proto_flow(PCAPS)
-        most_flow_dict = most_flow_statistic(PCAPS, PD)
-        most_flow_dict = sorted(most_flow_dict.iteritems(), key=lambda d:d[1], reverse=True)
-        if len(most_flow_dict) > 10:
-            most_flow_dict = most_flow_dict[0:10]
-        most_flow_key = list()
-        for key, value in most_flow_dict:
-            most_flow_key.append(key)
-        return render_template('./dataanalyzer/flowanalyzer.html', time_flow=time_flow_dict, data_flow=data_flow_dict, ip_flow=data_ip_dict, proto_flow=proto_flow_dict.values(), most_flow_key=most_flow_key, most_flow_dict=most_flow_dict)
+        topo_traff_dict=topo_traffic_statistic(TOPODATA_DICT)
+        traffic_key_list = list()
+        traffic_value_list = list()
+        for key ,value in topo_traff_dict.items():
+            traffic_key_list.append(key)
+            traffic_value_list.append(value)
+        # time_flow_dict = time_flow(PCAPS)
+        # host_ip = get_host_ip(PCAPS)
+        # data_flow_dict = data_flow(PCAPS, host_ip)
+        # data_ip_dict = data_in_out_ip(PCAPS, host_ip)
+        # proto_flow_dict = proto_flow(PCAPS)
+        # most_flow_dict = most_flow_statistic(PCAPS, PD)
+        # most_flow_dict = sorted(most_flow_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        # if len(most_flow_dict) > 10:
+        #     most_flow_dict = most_flow_dict[0:10]
+        # most_flow_key = list()
+        # for key, value in most_flow_dict:
+        #     most_flow_key.append(key)
+        # global SYS_CONFIG
+        # return render_template('./dataanalyzer/trafficanalyzer.html', time_flow=time_flow_dict, data_flow=data_flow_dict, ip_flow=data_ip_dict, proto_flow=proto_flow_dict.values(), most_flow_key=most_flow_key, most_flow_dict=most_flow_dict)
+        # templist=str(lists[1])+','+str(lists[2])+','+str(lists[3])+','+str(lists[4])+','+str(lists[5])+','+str(lists[6])
+        # tempstr='''                    {
+        #                 name:'4 minute',
+        #                 type:'bar',
+        #                 stack: 'total',
+        #                 itemStyle : { 
+        #                 normal:{
+        #                 color: '#fff',
+        #                 barBorderColor: 'tomato',
+        #                 barBorderWidth: 6,
+        #                 barBorderRadius:0,
+        #                 label :{ 
+        #                             show: true, 
+        #                             position:top,
+        #                             formatter: function (params) 
+        #                             {
+        #                                 for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) 
+        #                                 {
+        #                                     if (option.xAxis[0].data[i] == params.name) 
+        #                                     {
+        #                                         var total=0;
+        #                                         for(var j=0,h=option.series.length;j<h;j++)
+        #                                           total += option.series[j].data[i] ; 
+        #                                           return total 
+        #                                     }
+        #                                 }
+        #                             },
+        #                             textStyle: {color: 'tomato'}
+        #                         }
+        #                         }
+        #                     },
+        #                 data:{{last_list}}
+
+        #             }'''
+        lists=topo_traffic_analyzer(TOPODATA_DICT)
+        templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
+        # templist.append(tempstr)
+        # return str(templist)
+        return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
 
 #访问地图
 @app.route('/ipmap/', methods=['POST', 'GET'])

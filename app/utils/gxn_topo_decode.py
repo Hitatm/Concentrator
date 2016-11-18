@@ -27,19 +27,25 @@ class TopoDecode:
             data['syntimediff']     =self.getvalueof(self.TOPO_DICT['syntimediff'],q,'bigendian','null')
             data['syntimestamp']    =self.getvalueof(self.TOPO_DICT['syntimestamp'],q,'littleendian',':')
             data['ID']              =self.getvalueof(self.TOPO_DICT['ID'],q,'bigendian','null')
-            data['ParentID']        =self.getvalueof(self.TOPO_DICT['ParentID'],q,'bigendian','null')
+            data['ParentID']        =hex(int(self.getvalueof(self.TOPO_DICT['ParentID'],q,'bigendian','null')))[2:]
 
             data['cpu']             =self.getvalueof(self.TOPO_DICT['cpu'],q,'bigendian','null')
             data['lpm']             =self.getvalueof(self.TOPO_DICT['lpm'],q,'bigendian','null')
             data['transmit']        =self.getvalueof(self.TOPO_DICT['transmit'],q,'bigendian','null')
             data['listen']          =self.getvalueof(self.TOPO_DICT['listen'],q,'bigendian','null')
 
+
+            # data['cpu']             =str(float(self.getvalueof(self.TOPO_DICT['cpu'],q,'bigendian','null'))/32768)+'s'
+            # data['lpm']             =str(float(self.getvalueof(self.TOPO_DICT['lpm'],q,'bigendian','null'))/32768)+'s'
+            # data['transmit']        =str(float(self.getvalueof(self.TOPO_DICT['transmit'],q,'bigendian','null'))/32768)+'s'
+            # data['listen']          =str(float(self.getvalueof(self.TOPO_DICT['listen'],q,'bigendian','null'))/32768)+'s'
+
             data['voltage']         =self.getvalueof(self.TOPO_DICT['voltage'],q,'bigendian','null')
             data['BeaconInterval']  =self.getvalueof(self.TOPO_DICT['BeaconInterval'],q,'bigendian','null')
             data['num_of_neighbour']=self.getvalueof(self.TOPO_DICT['num_of_neighbour'],q,'bigendian','null')
             data['rtx']             =self.getvalueof(self.TOPO_DICT['rtx'],q,'bigendian','null')
             data['restarttimes']    =self.getvalueof(self.TOPO_DICT['restarttimes'],q,'bigendian','null')
-            data['synparentID']     =self.getvalueof(self.TOPO_DICT['synparentID'],q,'bigendian','null')
+            data['synparentID']     =hex(int(self.getvalueof(self.TOPO_DICT['synparentID'],q,'littleendian','null')))[2:]
             data['synsqnum']        =self.getvalueof(self.TOPO_DICT['synsqnum'],q,'bigendian','null')
             data['synlevel']        =self.getvalueof(self.TOPO_DICT['synlevel'],q,'bigendian','null')
 
@@ -78,9 +84,9 @@ class TopoDecode:
     def odd_to_newFormat(self,x):
         index0= x.find('[')
         index1= x.find(']')
-        # templists= x[index0+1:index1].split(':')
-        # nodeid=templists[len(templists)-1]
-        temp= str(x[0:index0-1].split()[0]+'_'+x[0:index0-1].split()[1])+' '+x[index0+1:index1]+' '+x[index1+10:] 
+        templists= x[index0+1:index1].split(':')
+        nodeid=templists[len(templists)-1]
+        temp= str(x[0:index0-1].split()[0]+'_'+x[0:index0-1].split()[1])+' '+ nodeid+' '+x[index1+10:] 
         result=temp.split()
         result=result[0:2]+result[5:]
         strs=''

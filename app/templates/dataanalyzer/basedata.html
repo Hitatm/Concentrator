@@ -23,10 +23,10 @@
   <div class="form-group">
     <label for="proto">协议过滤 : </label>&nbsp;&nbsp;
       <select class="form-control" name="filter_type">&nbsp;&nbsp;
-          <option value="all" selected>所&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;有</option>
-          <option value="proto">Node&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ID</option>
-          <option value="ipsrc">x&nbsp;&nbsp;&nbsp;x&nbsp;&nbsp;&nbsp;x</option>
-          <option value="ipdst">x&nbsp;x&nbsp;x&nbsp;x</option>
+          <option value="all" selected>所&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;有</option>
+          <option value="ID">节点&nbsp;&nbsp;&nbsp;ID</option>
+          <option value="synparentID">同步父节点ID</option>
+          <option value="synlevel">同步等级</option>
       </select>&nbsp;&nbsp;
     <input type="text" class="form-control" id="proto" name="value">&nbsp;&nbsp;
   </div>
@@ -42,7 +42,7 @@
         <tr>
             <th class="text-center">序号</th>
             <th class="text-center">时间</th>
-            <th class="text-center">源地址</th>
+            <th class="text-center">源节点</th>
             <th class="text-center">父节点</th>
             <th class="text-center">同步时差</th>
             <th class="text-center">节点时间</th>
@@ -120,7 +120,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-          <button type="button" class="btn btn-info" data-dismiss="modal" onclick="window.location.href='{{ url_for('savepdf') }}'">保存为PDF</button>
+     <!--      <button type="button" class="btn btn-info" data-dismiss="modal" onclick="window.location.href='{{ url_for('savepdf') }}'">保存为PDF</button> -->
       </div>
     </div>
   </div>
