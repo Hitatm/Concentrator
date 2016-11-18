@@ -437,4 +437,30 @@ option = {
         }
 
 
-         formatter: function (params) {
+ itemStyle: {
+                normal: {
+                    color: '#fff',
+                    barBorderColor: 'tomato',
+                    barBorderWidth: 6,
+                    barBorderRadius:0,
+                    label : {
+                        show: true, 
+                        position: 'top',
+                        formatter: function (params) {
+                            for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) {
+                                if (option.xAxis[0].data[i] == params.name) {
+                                  {
+                                    var total=0;
+                                    for(var j=0,h=option.series.length;j<h;j++)
+                                     total += option.series[j].data[i] ;
+                                    return total
+                                  }
+                                }
+                            }
+                        },
+                        textStyle: {
+                            color: 'tomato'
+                        }
+                    }
+                }
+            },

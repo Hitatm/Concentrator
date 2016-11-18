@@ -373,6 +373,7 @@ def exceptinfo():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
+        return render_template('./exceptions/exception.html')#备注
         dataid = request.args.get('id')
         host_ip = get_host_ip(PCAPS)
         warning_list = exception_warning(PCAPS, host_ip)
@@ -461,7 +462,9 @@ def allfile():
 def nettools():
     return u'网络工具'
 
-
+@app.route('/protohelp/', methods=['POST', 'GET'])
+def protohelp():
+    return u'协议说明'
 
 # ----------------------------------------------错误处理页面---------------------------------------------
 @app.errorhandler(404)
