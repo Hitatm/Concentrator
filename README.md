@@ -8,6 +8,7 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |:--|:--|:--|    
 |start|2016-11-01|begin|    
 |１|2016-11-10|finished login and time select module|    
+|
 
 
 # 参数
@@ -61,3 +62,4 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 'synparentID'
 'synsqnum'
 'synlevel'
+
