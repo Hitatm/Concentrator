@@ -146,7 +146,7 @@
             <br>
             <p>哈工大无线网络控制系统</p>
             </div>
-            <div id="main" style="height:250px;width:40%;float:left;"></div>
+            <div id="main" style="height:250px;width:50%;float:left;"></div>
         </div>
     </div>
     <br>
@@ -305,7 +305,7 @@
     </script>
 
 
-    <div>
+     <div>
         <div class="container ">
 <!--             <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}">
                 <input id="file" name="pcap" class="file" type="file" data-min-file-count="1">
@@ -315,13 +315,12 @@
             </form> -->
 
 
-            <div class="form-group">  
-            <div class="controls">  
+           
             <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}">
 
                                <h4>请选择时间段:</h4>
                         <div class="controls">
-                            <div id="reportrange" class="pull-left dateRange" style="width:400px">
+                            <div id="reportrange" class="pull-left dateRange" >
                            
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span id="searchDateRange" name="searchDateRange"> {{selectedtime}} </span>          
@@ -332,41 +331,16 @@
 
                                  <br>
                                  <br>
+                                
 
                     <button type="submit" class="button button-royal button-pill" style="float:left">确定</button>
             　</form> 
              </div>  
-
-
-
-  <!--           <div class="controls">  
-                      <div id="reportrange" class="input-prepend input-group"  data-date-format="yyyy-mm-dd hh:ii:ss">  
-       
-                            <span class="add-on input-group-addon">  
-                                <i class="glyphicon glyphicon-calendar fa fa-calendar">  
-                                </i>  
-                            </span>  
-                     </div>  
-                        <input type="text" style="width: 10px" name="timeSection" id="searchDateRange" class="form-control" placeholder="choice time period" class="span4"/> 
-
-                      
-                     <br>
-                <button type="submit" class="button button-royal button-pill" style="height=34px">ok</button>
-            </div>   -->
- </div>  
-
-
-
-
-
-        </div>
     </div>
-    <br>
-    <div class="container">
-    <p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div>
-</div>
+ 
+                                 <br>
 
-<!--  <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div>  -->
+ <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div> 
 
 
 

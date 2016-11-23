@@ -371,7 +371,7 @@ Header and header elements.
   border: 0px;
   padding: 0px; 
   box-shadow: none;
-  height: 42px; 
+  height: 68px; 
 }
 
 .header .nav {
@@ -466,7 +466,7 @@ Page container
 }
 
 .page-header-fixed .page-container {
-  margin-top: 38px;
+  margin-top: 67px;
 }
 
 /***
@@ -510,7 +510,7 @@ ul.page-sidebar-menu > li > a {
   border: 0px;
   padding: 10px 15px;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 300;
 }
 
@@ -597,7 +597,7 @@ ul.page-sidebar-menu > li > ul.sub-menu > li > a {
   padding: 5px 0px;
   padding-left: 44px !important;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 300;
   background: none;
 }
@@ -652,7 +652,7 @@ ul.page-sidebar-menu > li > ul.sub-menu  li > ul.sub-menu > li > a {
   margin: 0px 0px 0px 0px;
   padding: 5px 0px;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 300;
   background: none;
 }
@@ -799,6 +799,7 @@ Sidebar toggler(show/hide)
 
 .page-sidebar-closed ul.page-sidebar-menu {
   width: 35px !important;
+  /*width: 0px !important;*/
 }
 
 .page-sidebar-closed ul.page-sidebar-menu > li > a {
@@ -814,6 +815,7 @@ Sidebar toggler(show/hide)
 
 .page-sidebar-closed ul.page-sidebar-menu > li:hover {
   width: 225px !important;
+  /*width: 0px !important;*/
   position: relative !important;
   z-index: 2000;
   display: block !important;
@@ -837,9 +839,11 @@ Sidebar toggler(show/hide)
 
 .page-sidebar-closed ul.page-sidebar-menu > li:hover > .sub-menu {  
   width: 189px;
+  /*width: 0px;*/
   position: absolute;
   z-index: 2000;
   left: 36px;
+  /*left: 0px;*/
   margin-top: 0;
   top: 100%;
   display: block !important;
@@ -848,27 +852,32 @@ Sidebar toggler(show/hide)
 .page-sidebar-closed ul.page-sidebar-menu > li:hover > .sub-menu > li > .sub-menu,
 .page-sidebar-closed ul.page-sidebar-menu > li:hover > .sub-menu > li > .sub-menu > li > .sub-menu {
   width: 189px;
+  /*width: 0px;*/
 }
 
 /* 2rd level sub menu*/
 .page-sidebar-closed ul.page-sidebar-menu > li:hover > .sub-menu > li > a {
   padding-left: 15px !important;
+  /*padding-left: 0px !important;*/
 }
 
 /* 3rd level sub menu*/
 .page-sidebar-closed ul.page-sidebar-menu > li > ul.sub-menu > li > .sub-menu > li > a {  
   padding-left: 30px !important;
+  /*padding-left: 0px !important;*/
 }
 
 /* 4rd level sub menu*/
 .page-sidebar-closed ul.page-sidebar-menu > li > ul.sub-menu > li > .sub-menu > li > .sub-menu > li > a {  
   padding-left: 45px !important;
+  /*padding-left: 0px !important;*/
 }
 
 /* sidebar container */
  
 .page-sidebar-closed  .page-sidebar {
   width: 35px;
+  /*width: 0px;*/
 }
 
 .page-sidebar-closed  .page-content {

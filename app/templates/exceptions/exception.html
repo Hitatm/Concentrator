@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="container">
-    <h2 class="text-center">异常数据警告</h2>
+    <h2 class="text-center">网络服务异常警告</h2>
 </div>
 <br>
 
@@ -24,7 +24,35 @@
       <thead>
         <tr>
             <th class="text-center">序号</th>
-            <th class="text-center">可疑地址(IP/MAC)</th>
+            <th class="text-center">节点编号</th>
+            <th class="text-center">异常信息</th>
+            <th class="text-center">时间/次数/数据</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for id, warn in enumerate(warning) %}
+      <tr data-toggle="modal" data-target="#myModal">
+      <th scope="row" class="text-center" id="id">{{ id + 1 }}</th>
+          <td class="text-nowrap text-center">{{ warn['ip_port'] }}</td>
+          <td class="text-center text-nowrap">{{ warn['warn'] }}</td>
+          <td class="text-center text-nowrap">{{ warn['time'] }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+
+<div class="container">
+    <h2 class="text-center">数据上报异常警告</h2>
+</div>
+<br>
+<div class="bs-example" data-example-id="hoverable-table">
+    <table class="table table-hover table-responsive  table-condensed table-striped">
+      <thead>
+        <tr>
+            <th class="text-center">序号</th>
+            <th class="text-center">节点编号</th>
             <th class="text-center">异常信息</th>
             <th class="text-center">时间/次数/数据</th>
         </tr>

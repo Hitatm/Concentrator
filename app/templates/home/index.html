@@ -52,14 +52,17 @@
 }
 	</style>
 
+
+
 </head>
 
 
 <body class="page-header-fixed">
 
 	<!-- BEGIN HEADER -->
+
  
- 
+   
 	<div class="header navbar navbar-inverse navbar-fixed-top">
 
 		<!-- BEGIN TOP NAVIGATION BAR -->
@@ -70,9 +73,36 @@
 
 				<!-- BEGIN LOGO -->
    
-    		<div style="float:left;">
+
+
+
+
+				<a class="brand" href="{{url_for('index')}}">
+
+				   &nbsp;&nbsp;Hit Concentrator
+
+				</a>
+
+
+				<a href="javascript:;" class="btn-navbar collapsed" data-toggle="collapse" data-target=".nav-collapse">
+
+				   <img src="../../static/media/image/menu-toggler.png" alt="" />
+
+				</a>
+
+
+
+
+
+
+
+
+
+
+
+    	<!-- 	<div style="float:left;">
 				<a  href="{{url_for('index')}}"  outline="0" style="display: inline-block;
-				    margin-top: -1px;
+				    margin-top: 10px;
 				    margin-right: 0;
 				    padding-left: 0;
 				    padding-right: 0; 
@@ -82,13 +112,13 @@
 				    font-size: 20px;
 				    font-weight: 200;
 				    color: #999;
-				    text-decoration:none"> &nbsp;&nbsp;HIT_Concentrator </a>
-		    </div>
+				    text-decoration:none"> HIT Concentrator </a>
+		    </div> -->
 				<!-- END LOGO -->
 
-            <div style="float:right;">
+<!--             <div style="float:right;">
 	       		<a  href="{{url_for('logout')}}" style="display: inline-block;
-				    margin-top: -1px;
+				    margin-top: 10px;
 				    margin-right: 0;
 				    padding-left: 0;
 				    padding-right: 0; 
@@ -102,10 +132,10 @@
 				   Logout
 				   <img src="../../static/media/image/portlet-reload-icon.png" alt="" />
 				</a>
-			 </div>
+			 </div> -->
 				<!-- BEGIN RESPONSIVE MENU TOGGLER -->
             
-               
+          <!--      
             <div style="float:center;">
              
 
@@ -113,7 +143,7 @@
 
 				   <img src="../../static/media/image/menu-toggler.png" alt="" />
 				</a>
- 			</div>
+ 			</div> -->
 				<!-- END RESPONSIVE MENU TOGGLER -->
 
 				<!-- END TOP NAVIGATION MENU -->
@@ -124,10 +154,15 @@
  
 
 		<!-- END TOP NAVIGATION BAR -->
-
 	</div>
  
 
+<!--  <div class="page-sidebar nav-collapse collapse">
+ <div style="position:fixed;right:50px;top:80px;margin-top:15px;width:30px;height:30px;opacity:1;background-color:#242424 ;" class="sidebar-toggler hidden-phone">
+</div>
+</div> -->
+
+ 
 	<!-- END HEADER -->
 
 <!-- style="position:fixed;right:15px;top:20px;" -->
@@ -138,9 +173,10 @@
 	<div class="page-container">
 
 		<!-- BEGIN SIDEBAR -->
-
+        <!-- <nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation"> -->
+  
 		<div class="page-sidebar nav-collapse collapse">
-
+      
 			<!-- BEGIN SIDEBAR MENU -->        
 
 			<ul class="page-sidebar-menu">
@@ -150,6 +186,7 @@
 					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
 
 					<div class="sidebar-toggler hidden-phone"></div>
+				<!-- 	 <div style="position:fixed;right:50px;top:80px;margin-top:15px;width:30px;height:30px;opacity:1;background-color:#242424 ;" class="sidebar-toggler hidden-phone"> -->
 
 					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
 
@@ -181,7 +218,7 @@
 
 					<i class="icon-bar-chart"></i>
 
-					<span class="title">数据分析</span>
+					<span class="title">网络服务</span>
 
 					<span class="arrow "></span>
 
@@ -191,7 +228,7 @@
 
 						<li >
 							<a href="{{ url_for('basedata') }}" target="main-content">
-							   基本信息
+							   网络基本信息
 							</a>
 						</li>
 						<li >
@@ -204,21 +241,28 @@
 							  拓扑流量分析
 							</a>
 						</li>
+						
+						<li >
+							<a href="{{ url_for('otheranalyzer') }}"  target="main-content">
+							  其他分析
+							</a>
+						</li>
+
                         <li >
 							<a href="#"  target="main-content">
-							  其他
+							  拓扑展示
 							</a>
 						</li>
 					</ul>
 
 				</li>
-<!-- 				<li class="">
+				<li class="">
 
 					<a href="javascript:;">
 
 					<i class="icon-eye-open"></i>
 
-					<span class="title">数据提取</span>
+					<span class="title">数据上报分析</span>
 
 					<span class="arrow "></span>
 
@@ -228,37 +272,25 @@
 
 						<li>
 							<a href="{{ url_for('webdata') }}" target="main-content">
-							   Web数据
+							   数据分析
 							</a>
 						</li>
 
 						<li>
 							<a href="{{ url_for('maildata') }}"  target="main-content">
-							  Mail数据
+							  随时间变化情况
 							</a>
 						</li>
 
                         <li>
 							<a href="{{ url_for('ftpdata') }}"  target="main-content">
-							  FTP数据
-							</a>
-						</li>
-
-                        <li>
-							<a href="{{ url_for('telnetdata') }}"  target="main-content">
-							  Telnet数据
-							</a>
-						</li>
-
-                        <li>
-							<a href="{{ url_for('sendata') }}"  target="main-content">
-							  敏感数据
+							  其他
 							</a>
 						</li>
 
 					</ul>
 
-				</li> -->
+				</li>
 								<li class="">
 
 					<a href="javascript:;">
@@ -283,71 +315,27 @@
 					</ul>
 
 				</li>
-				<!-- <li class="">
-
-					<a href="javascript:;">
-
-					<i class="icon-download-alt"></i>
-
-					<span class="title">文件提取</span>
-
-					<span class="arrow "></span>
-
-					</a>
-
-					<ul class="sub-menu">
-
-						<li >
-
-							<a href="{{ url_for('webfile') }}" target="main-content">
-							   Web文件
-							</a>
-
-						</li>
-
-						<li >
-
-							<a href="{{ url_for('mailfile') }}" target="main-content">
-							   Mail文件
-							</a>
-
-						</li>
-
-						<li >
-
-							<a href="{{ url_for('ftpfile') }}" target="main-content">
-							   FTP文件
-							</a>
-
-						</li>
-
-                        <li >
-
-							<a href="{{ url_for('allfile') }}" target="main-content">
-							   所有文件
-							</a>
-
-						</li>
-
-					</ul>
-
-				</li> -->
-
-
  				<li class=""> 
  
  					<a href="javascript:;"> 
  
  					<i class="icon-cogs"></i>  
  
- 					<span class="title">网络工具</span> 
+ 					<span class="title">系统工具</span> 
  
  					<span class="arrow "></span> 
  
  					</a> 
  
  					<ul class="sub-menu"> 
+ 						<li > 
  
+ 							<a href="{{ url_for('nettools') }}" target="main-content"> 
+                                系统基本配置情况
+ 							</a> 
+ 
+ 						</li> 
+
  						<li > 
  
  							<a href="{{ url_for('nettools') }}" target="main-content"> 
@@ -355,16 +343,33 @@
  							</a> 
  
  						</li> 
-                         <li > 
- 
- 							<a href="{{ url_for('protohelp') }}" target="main-content"> 
+
+ 						<li>
+ 								<a href="{{ url_for('protohelp') }}" target="main-content"> 
  							   协议说明 
  							</a> 
+ 						</li>
+
+                         <li> 
  
+ 						
+
+  							<a href="#" target="main-content"> 
+ 							   关于系统 
+ 							</a> 
  						</li> 
- 
- 
  					</ul> 
+ 
+ 				</li> 
+
+
+ 				<li class=""> 
+ 
+ 				    <a  href="{{url_for('logout')}}" >
+				       <img src="../../static/media/image/portlet-reload-icon.png" alt="" />
+ 						<span class="title"> &nbsp;&nbsp; 退出登录</span> 
+ 					<!-- <span class="arrow "></span>  -->
+				   </a>
  
  				</li> 
 
@@ -378,13 +383,17 @@
 		<!-- END SIDEBAR -->
 
 		<!-- BEGIN PAGE -->
+		<!--<iframe name="main-content" id="iframe-content" src="upload.html" frameborder="0" scrolling="auto"></iframe>-->
+
+
+
 		<div class="page-content" id="div-content">
-			<!--<iframe name="main-content" id="iframe-content" src="upload.html" frameborder="0" scrolling="auto"></iframe>-->
+		  
 			<iframe class="main-content" src="{{url_for('upload')}}" name="main-content" scrolling="auto"></iframe>
 		</div>
 		<!-- END PAGE -->
-	</div>
  
+	</div>
 
 	<!-- END CONTAINER -->
 

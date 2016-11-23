@@ -269,6 +269,31 @@ def flowanalyzer():
         # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
 
+
+# 其他分析
+@app.route('/otheranalyzer/', methods=['POST', 'GET'])
+def otheranalyzer():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        topo_traff_dict=topo_traffic_statistic(TOPODATA_DICT)
+        traffic_key_list = list()
+        traffic_value_list = list()
+        for key ,value in topo_traff_dict.items():
+            traffic_key_list.append(key)
+            traffic_value_list.append(value)
+        lists=topo_traffic_analyzer(TOPODATA_DICT)
+        templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
+        # templist.append(tempstr)
+        # return str(templist)
+        return render_template('./dataanalyzer/otheranalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
+
+
+
+
+
+
 #访问地图
 @app.route('/ipmap/', methods=['POST', 'GET'])
 def ipmap():
