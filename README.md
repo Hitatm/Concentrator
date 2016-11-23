@@ -8,7 +8,7 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |:--|:--|:--|    
 |start|2016-11-01|begin|    
 |１|2016-11-10|finished login and time select module|    
-|
+| 2|2016-11-23|finished topo analyse module and the adjust the web page to adapt to mobile phone display"|
 
 
 # 参数
@@ -46,20 +46,20 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |17|  34 					|  46|1   |接收序列号  |
 |18| 1 					|  47|1   |时间同步level  |
 
-
-'realtimestamp'
-'nodetimestamp'
-'syntimediff'
-'syntimestamp'
-'ID'
-'ParentID'
-'energy'
-'voltage'
-'BeaconInterval'
-'num_of_neighbour'
-'rtx'
-'restarttimes'
-'synparentID'
-'synsqnum'
-'synlevel'
+0
+1:'realtimestamp'
+2:'nodetimestamp'
+3:'syntimediff'
+4:'syntimestamp'
+5:'ID'
+6:'ParentID'
+7:'energy'
+8:'voltage'
+9:'BeaconInterval'
+10:'num_of_neighbour'
+11:'rtx'
+12:'restarttimes'
+13:'synparentID'
+14:'synsqnum'
+15:'synlevel'
 
