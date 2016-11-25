@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>系统配置</title>
+
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/upload/buttons.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/upload/default.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/upload/fileinput.min.css" rel="stylesheet" type="text/css"/>
+<script src="http://cdn.bootcss.com/jquery/2.1.2/jquery.min.js"></script>
+ 
+
+
+</head>
+
+<body>
+<div class="container">
+    <br>
+<!--     <div class="jumbotron">
+        <div class="container">
+            <div style="width: 50%;float:left;">
+            <h1>欢迎使用本系统</h1>
+            <br>
+            <p>哈工大无线网络控制系统</p>
+            </div>
+            <div id="main" style="height:250px;width: 50%;float:left;"></div>
+        </div>
+    </div> -->
+    <br>
+
+
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <!-- ECharts单文件引入 -->
+
+<div id="term" align="center"> </div>
+
+
+
+
+
+ 
+        <!-- <div class="container "> -->
+            <!-- <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}"> -->
+                <!-- <input id="file"   class="file" type="file" data-min-file-count="1"> -->
+              
+                <!-- <button type="submit" class="button button-royal button-pill button-giant">上传</button> -->
+                <!-- <textarea>asdfasfd</textarea> -->
+         
+            <!-- </form> -->
+        <!-- </div> -->
+     
+    <br>
+    <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div>
+</div>
+
+<script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="../../static/bootstrap-3.3.5/js/fileinput.min.js" type="text/javascript"></script>
+<script src="../../static/upload/fileinput_locale_zh.js" type="text/javascript"></script>
+<script>
+        $(document).ready(function(){
+            if ($("#uploadinfo").text() == "") {
+                $("#uploadinfo").hide()
+            }
+        })
+</script>
+
+</body>
+</html>

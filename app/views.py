@@ -295,23 +295,27 @@ def otheranalyzer():
 
 
 #访问地图
-@app.route('/ipmap/', methods=['POST', 'GET'])
-def ipmap():
+@app.route('/sysconfig/', methods=['POST', 'GET'])
+def sysconfig():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        myip = getmyip()
-        if myip:
-            host_ip = get_host_ip(PCAPS)
-            ipdata = get_ipmap(PCAPS, host_ip)
-            geo_dict = ipdata[0]
-            ip_value_list = ipdata[1]
-            myip_geo = get_geo(myip)
-            return render_template('./dataanalyzer/ipmap.html', geo_data=geo_dict, ip_value=ip_value_list, mygeo=myip_geo)
-        else:
-            return render_template('./error/neterror.html')
+        return redirect('http://192.168.1.152:6175/')
+        # return render_template('./systemctrl/index.html')
 
+
+# ----------------------------------------------系统配置工具---------------------------------------------
+
+#访问地图
+@app.route('/terminaltool/', methods=['POST', 'GET'])
+def terminaltool():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        return redirect('http://192.168.1.152:6175/')
+        # return render_template('./systemctrl/index.html')
 # ----------------------------------------------数据提取页面---------------------------------------------
 
 #Web数据
@@ -321,13 +325,8 @@ def webdata():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        dataid = request.args.get('id')
-        host_ip = get_host_ip(PCAPS)
-        webdata_list = web_data(PCAPS, host_ip)
-        if dataid:
-            return webdata_list[int(dataid)-1]['data'].replace('\r\n', '<br>')
-        else:
-            return render_template('./dataextract/webdata.html', webdata=webdata_list)
+        return redirect('https://192.168.1.152:6175/')
+
 
 #Mail数据
 @app.route('/maildata/', methods=['POST', 'GET'])
