@@ -55,28 +55,28 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 2.　配置shellinabox
 	sudo vim /etc/default/shellinabox 
 	配置如下:
-	  1 # Should shellinaboxd start automatically
-	  2 SHELLINABOX_DAEMON_START=1
-	  3 
-	  4 # TCP port that shellinboxd's webserver listens on
-	  5 SHELLINABOX_PORT=6175
-	  6 
-	  7 # Parameters that are managed by the system and usually should not need
-	  8 # changing:
-	  9 #SHELLINABOX_DATADIR=/var/lib/shellinabox
-	 10 #SHELLINABOX_USER=shellinabox
-	 11 #SHELLINABOX_GROUP=shellinabox
-	 12 
-	 13 # Any optional arguments (e.g. extra service definitions).  Make sure
-	 14 # that that argument is quoted.
-	 15 #
-	 16 #   Beeps are disabled because of reports of the VLC plugin crashing
-	 17 #   Firefox on Linux/x86_64.
-	 18 #SHELLINABOX_ARGS="--no-beep -t -s /:SSH:192.168.1.152"
-	 19 SHELLINABOX_ARGS="--no-beep -t -s /:AUTH:HOME:/bin/bash"
+	  1 # Should shellinaboxd start automatically              
+	  2 SHELLINABOX_DAEMON_START=1              
+	  3               
+	  4 # TCP port that shellinboxd's webserver listens on              
+	  5 SHELLINABOX_PORT=6175              
+	  6               
+	  7 # Parameters that are managed by the system and usually should not need              
+	  8 # changing:              
+	  9 #SHELLINABOX_DATADIR=/var/lib/shellinabox              
+	 10 #SHELLINABOX_USER=shellinabox              
+	 11 #SHELLINABOX_GROUP=shellinabox              
+	 12               
+	 13 # Any optional arguments (e.g. extra service definitions).  Make sure              
+	 14 # that that argument is quoted.              
+	 15 #              
+	 16 #   Beeps are disabled because of reports of the VLC plugin crashing              
+	 17 #   Firefox on Linux/x86_64.              
+	 18 #SHELLINABOX_ARGS="--no-beep -t -s /:SSH:192.168.1.152"              
+	 19 SHELLINABOX_ARGS="--no-beep -t -s /:AUTH:HOME:/bin/bash"              
 
 3.　重启shellinabox服务 
-sudo service shellinabox restart
+sudo service shellinabox restart   
 
 ４.别忘了配置服务开机自启动
 
