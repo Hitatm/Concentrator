@@ -48,8 +48,10 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |18| 1 					|  47|1   |时间同步level  |
 
 #备忘：
+
 1. 安装shellinbox 支持命令行工具
 	sudo apt-get install openssl shellinabox
+
 2.　配置shellinabox
 	sudo vim /etc/default/shellinabox 
 	配置如下:
@@ -72,7 +74,9 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 	 17 #   Firefox on Linux/x86_64.
 	 18 #SHELLINABOX_ARGS="--no-beep -t -s /:SSH:192.168.1.152"
 	 19 SHELLINABOX_ARGS="--no-beep -t -s /:AUTH:HOME:/bin/bash"
+
 3.　重启shellinabox服务 
 sudo service shellinabox restart
+
 ４.别忘了配置服务开机自启动
 
