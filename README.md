@@ -77,7 +77,7 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 	 19 SHELLINABOX_ARGS="--no-beep -t -s /:AUTH:HOME:/bin/bash"              
 ```
 ## 3.　重启shellinabox服务    
-sudo service shellinabox restart   
+	sudo service shellinabox restart   
 
 ## ４.别忘了配置服务开机自启动
 
