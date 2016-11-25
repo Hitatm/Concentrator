@@ -8,8 +8,8 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |:--|:--|:--|    
 |start|2016-11-01|begin|    
 |１|2016-11-10|finished login and time select module|    
-| 2|2016-11-23|finished topo analyse module and the adjust the web page to adapt to mobile phone display"|
-|3 |2016-11-24|add web terminal tool for user accessing the Concentrator system"|
+| 2|2016-11-23|finished topo analyse module and the adjust the web page to adapt to mobile phone display|
+|3 |2016-11-24|add web terminal tool for user accessing the Concentrator system|
 
 
 # 参数
@@ -47,20 +47,32 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |17|  34 					|  46|1   |接收序列号  |
 |18| 1 					|  47|1   |时间同步level  |
 
-0
-1:'realtimestamp'
-2:'nodetimestamp'
-3:'syntimediff'
-4:'syntimestamp'
-5:'ID'
-6:'ParentID'
-7:'energy'
-8:'voltage'
-9:'BeaconInterval'
-10:'num_of_neighbour'
-11:'rtx'
-12:'restarttimes'
-13:'synparentID'
-14:'synsqnum'
-15:'synlevel'
+#备忘：
+1. 安装shellinbox 支持命令行工具
+	sudo apt-get install openssl shellinabox
+2.　配置shellinabox
+	sudo vim /etc/default/shellinabox 
+	配置如下:
+	  1 # Should shellinaboxd start automatically
+	  2 SHELLINABOX_DAEMON_START=1
+	  3 
+	  4 # TCP port that shellinboxd's webserver listens on
+	  5 SHELLINABOX_PORT=6175
+	  6 
+	  7 # Parameters that are managed by the system and usually should not need
+	  8 # changing:
+	  9 #SHELLINABOX_DATADIR=/var/lib/shellinabox
+	 10 #SHELLINABOX_USER=shellinabox
+	 11 #SHELLINABOX_GROUP=shellinabox
+	 12 
+	 13 # Any optional arguments (e.g. extra service definitions).  Make sure
+	 14 # that that argument is quoted.
+	 15 #
+	 16 #   Beeps are disabled because of reports of the VLC plugin crashing
+	 17 #   Firefox on Linux/x86_64.
+	 18 #SHELLINABOX_ARGS="--no-beep -t -s /:SSH:192.168.1.152"
+	 19 SHELLINABOX_ARGS="--no-beep -t -s /:AUTH:HOME:/bin/bash"
+3.　重启shellinabox服务 
+sudo service shellinabox restart
+４.别忘了配置服务开机自启动
 
