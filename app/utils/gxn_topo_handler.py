@@ -2,7 +2,7 @@
 # @Author: Guoxuenan
 # @Date:   2016-11-10 17:16:50
 # @Last Modified by:   Guoxuenan
-# @Last Modified time: 2016-11-18 14:06:04
+# @Last Modified time: 2016-12-22 15:22:40
 __author__ ='gxn'
 
 import os 
@@ -34,13 +34,14 @@ def findline():
 	# linecache.clearcache()
 
 def getall_topo(TOPODATA,TPDECODE):
-	items = collections.OrderedDict()
-	count = 0
-	for p in TOPODATA:
-	    count += 1
-	    item = TPDECODE.topo_decode(p)
-	    items[count] = item
-	return items
+    items = collections.OrderedDict()
+    count = 0
+    for p in TOPODATA:
+        count += 1
+        item = TPDECODE.topo_decode(p)
+        # print item
+        items[count] = item
+    return items
 
 def get_filter_item(TOPODATA, TPDECODE, key, value):
     items = collections.OrderedDict()
@@ -135,10 +136,10 @@ def topo_traffic_statistic(TOPODICT):
 
 # if __name__ == '__main__':
 # 	TPDECODE =TopoDecode()
-# 	sysConfig=Congfig()
-# 	# print sysConfig.
+# # 	sysConfig=Congfig()
+# # 	# print sysConfig.
 # 	data__=getfile_content('/home/wangyu/myspace/Concentrator/datalog/topo.txt')
-# 	# print getall_topo(data__,TPDECODE)
+# 	print getall_topo(data__,TPDECODE)
 # 	# data= topo_filter('ID','',data__ ,TPDECODE)
 # 	data= getall_topo(data__,TPDECODE)
 # 	# print data

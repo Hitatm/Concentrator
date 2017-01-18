@@ -1,0 +1,1 @@
+{"nodeWaitAckDelay":20,"mcastReliValue":1,"ucastToMcastValue":0.7,"waitRetransDelay":350,"nodeTransDelay":10,"nodeHeartDelay":60,"mcastRetransTimes":1,"ucastRetransTimes":4}

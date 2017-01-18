@@ -1,0 +1,13 @@
+
+[program: spider]
+command = python /Users/tony/Dropbox/myproject/spider.py
+numprocess = 1
+autorestart = true
+stdout_logfile = /Users/tony/Dropbox/myproject/spider.stdout.log
+stderr_logfile = /Users/tony/Dropbox/myproject/spider.stderr.log
+
+
+    获得所有程序状态 supervisorctl status
+    关闭目标程序 supervisorctl stop spider
+    启动目标程序 supervisorctl start spider
+    关闭所有程序 supervisorctl shutdown
