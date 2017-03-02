@@ -3,6 +3,10 @@ __author__ = 'dj'
 
 import time
 import os
+import sqlite3
+
+numberoftopo = 0
+
 class TopoDecode:
     def __init__(self):
         self.BASE_DIR = os.path.dirname(__file__)        #获取当前文件夹的绝对路径
@@ -18,36 +22,50 @@ class TopoDecode:
     #解析以太网层协议
     def topo_decode(self, p):
         data = dict()
+        try:
+            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
+        except Exception, e:
+            print("no such database")
+
+        c = conn.cursor()
         if self.before_decode(p):
             # print p
             q = self.odd_to_newFormat(p)
             # print q
             data['realtimestamp']   =self.getvalueof(self.TOPO_DICT['realtimestamp'],q,'bigendian','null')
             data['nodetimestamp']   =self.getvalueof(self.TOPO_DICT['nodetimestamp'],q,'bigendian',':')
-            data['syntimediff']     =self.getvalueof(self.TOPO_DICT['syntimediff'],q,'bigendian','null')
+            data['syntimediff']     =int(self.getvalueof(self.TOPO_DICT['syntimediff'],q,'bigendian','null'))
             data['syntimestamp']    =self.getvalueof(self.TOPO_DICT['syntimestamp'],q,'littleendian',':')
             data['ID']              =self.getvalueof(self.TOPO_DICT['ID'],q,'bigendian','null')
             data['ParentID']        =hex(int(self.getvalueof(self.TOPO_DICT['ParentID'],q,'bigendian','null')))[2:]
 
-            data['cpu']             =self.getvalueof(self.TOPO_DICT['cpu'],q,'bigendian','null')
-            data['lpm']             =self.getvalueof(self.TOPO_DICT['lpm'],q,'bigendian','null')
-            data['transmit']        =self.getvalueof(self.TOPO_DICT['transmit'],q,'bigendian','null')
-            data['listen']          =self.getvalueof(self.TOPO_DICT['listen'],q,'bigendian','null')
-
+            data['cpu']             =float(self.getvalueof(self.TOPO_DICT['cpu'],q,'bigendian','null'))
+            data['lpm']             =float(self.getvalueof(self.TOPO_DICT['lpm'],q,'bigendian','null'))
+            data['transmit']        =float(self.getvalueof(self.TOPO_DICT['transmit'],q,'bigendian','null'))
+            data['listen']          =float(self.getvalueof(self.TOPO_DICT['listen'],q,'bigendian','null'))
 
             # data['cpu']             =str(float(self.getvalueof(self.TOPO_DICT['cpu'],q,'bigendian','null'))/32768)+'s'
             # data['lpm']             =str(float(self.getvalueof(self.TOPO_DICT['lpm'],q,'bigendian','null'))/32768)+'s'
             # data['transmit']        =str(float(self.getvalueof(self.TOPO_DICT['transmit'],q,'bigendian','null'))/32768)+'s'
             # data['listen']          =str(float(self.getvalueof(self.TOPO_DICT['listen'],q,'bigendian','null'))/32768)+'s'
 
-            data['voltage']         =self.getvalueof(self.TOPO_DICT['voltage'],q,'bigendian','null')
-            data['BeaconInterval']  =self.getvalueof(self.TOPO_DICT['BeaconInterval'],q,'bigendian','null')
-            data['num_of_neighbour']=self.getvalueof(self.TOPO_DICT['num_of_neighbour'],q,'bigendian','null')
-            data['rtx']             =self.getvalueof(self.TOPO_DICT['rtx'],q,'bigendian','null')
-            data['restarttimes']    =self.getvalueof(self.TOPO_DICT['restarttimes'],q,'bigendian','null')
-            data['synparentID']     =hex(int(self.getvalueof(self.TOPO_DICT['synparentID'],q,'littleendian','null')))[2:]
-            data['synsqnum']        =self.getvalueof(self.TOPO_DICT['synsqnum'],q,'bigendian','null')
-            data['synlevel']        =self.getvalueof(self.TOPO_DICT['synlevel'],q,'bigendian','null')
+            data['voltage']         =float(self.getvalueof(self.TOPO_DICT['voltage'],q,'bigendian','null'))
+            data['BeaconInterval']  =int(self.getvalueof(self.TOPO_DICT['BeaconInterval'],q,'bigendian','null'))
+            data['num_of_neighbour']=int(self.getvalueof(self.TOPO_DICT['num_of_neighbour'],q,'bigendian','null'))
+            data['rtx']             =int(self.getvalueof(self.TOPO_DICT['rtx'],q,'bigendian','null'))
+            data['restarttimes']    =int(self.getvalueof(self.TOPO_DICT['restarttimes'],q,'bigendian','null'))
+            data['synparentID']     =str(hex(int(self.getvalueof(self.TOPO_DICT['synparentID'],q,'littleendian','null')))[2:])
+            data['synsqnum']        =int(self.getvalueof(self.TOPO_DICT['synsqnum'],q,'bigendian','null'))
+            data['synlevel']        =int(self.getvalueof(self.TOPO_DICT['synlevel'],q,'bigendian','null'))
+            global numberoftopo#change it to read id
+            numberoftopo += 1
+            c.execute("INSERT INTO topo VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", \
+                (numberoftopo, data['synlevel'], data['synsqnum'], data['syntimestamp'], data['restarttimes'], data['rtx'],\
+                    data['cpu'], data['num_of_neighbour'], data['BeaconInterval'], data['lpm'], data['syntimediff'],\
+                    data['voltage'], data['ParentID'], data['transmit'], data['realtimestamp'], data['nodetimestamp'],\
+                    data['ID'], data['synparentID'], data['listen']))
+            conn.commit()
+            conn.close()
 
             return data
         else :

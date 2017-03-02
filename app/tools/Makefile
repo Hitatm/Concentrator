@@ -1,6 +1,7 @@
 all: tunslip
 
-tunslip6: tools-utils.c tunslip6.c
+tunslip: tools-utils.c tunslip6.c
+		gcc -o tunslip tools-utils.c tunslip6.c tools-utils.h
 
 gitclean:
 	@git clean -d -x -n ..

@@ -64,31 +64,3 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 14:'synsqnum'
 15:'synlevel'
 
-#数据库格式
-0. topoid integer primary key autoincrement, 
-1. synlevel int, 
-2. synsqnum int, 
-3. syntimestamp time, 
-4. restarttimes int,
-5. rtx int,
-6. cpu bigint,
-7. num_of_neighbour int,
-8. BeaconInterval int,
-9. lpm bigint,
-10. syntimediff int,
-11. voltage float,
-12. ParentID varchar,
-13. transmit bigint,
-14. realtimestamp varchar,
-15. nodetimestamp time,
-16. ID varchar,
-17. synparentID varchar,
-18. listen bigint
-* 数据库中第1项在脚本中由简单定义的一个变量自动增加获得，到实际应用中写法需要更改
-* 运行createdb.py可初始化数据库
-
-##数据传输
-> 数据传输使用的是socket文件夹中的client和server，直接运行server.py将打开一个daemon，在系统后台运行，在网页端点击更新数据，会重新传输文件。
-
-
-> 学长，我在views.py和gxn_topo_decode.py中使用了一些绝对路径，出错的时候可能是路径没改

@@ -88,22 +88,32 @@ def most_proto_statistic(PCAPS, PD):
 #http/https协议统计
 def topo_statistic(TOPODATA):
     nodes_dict = dict()
-    for count, item in TOPODATA.items():
-        ID= item['ID']
+    for item in TOPODATA:
+        ID= item[16] #ID
         if ID in nodes_dict:
             nodes_dict[ID]+=1
         else:
             nodes_dict[ID]=1
     return nodes_dict
 
+# def ID_statistic(TOPODATA):
+#     nodes_dict = dict()
+#     for item in TOPODATA:
+#         ID= item[0] #ID
+#         if ID in nodes_dict:
+#             nodes_dict[ID]+=1
+#         else:
+#             nodes_dict[ID]=1
+#     return nodes_dict
+
 def topo_traffic_analyzer(TOPODICT):
     sysCongfig = Congfig()
     traffic_dict = collections.OrderedDict()
     # date_set=set()
     # print sysCongfig.ACTIVE_TIME
-    for count ,items in TOPODICT.items():
-        traffic_item=items['realtimestamp'].split('_')
-        date=traffic_item[0].replace('-','/')
+    for items in TOPODICT:
+        traffic_item=items[14].split('_') #realtimestamp
+        date=traffic_item[0].replace('-','/').encode('UTF-8')
         ymd=traffic_item[1][:5]
         # print ymd, 
         traffic = date+' '+ymd
@@ -229,8 +239,8 @@ def get_traffic_list(traffic_dict):
 def topo_traffic_statistic(TOPODICT):
     traffic_dict = collections.OrderedDict()
     count=0
-    for count ,items in TOPODICT.items():
-        traffic_item=items['realtimestamp'].split('_')
+    for items in TOPODICT:
+        traffic_item=items[14].split('_') #'realtimestamp'
         traffic = traffic_item[0].replace('-','/')+' '+traffic_item[1]
         # print traffic
         if traffic  in traffic_dict:
