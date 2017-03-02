@@ -4,6 +4,7 @@ __author__ = 'dj'
 import time
 import os
 import sqlite3
+from app import app
 
 numberoftopo = 0
 
@@ -23,7 +24,8 @@ class TopoDecode:
     def topo_decode(self, p):
         data = dict()
         try:
-            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            conn = sqlite3.connect(databasepath)
         except Exception, e:
             print("no such database")
 

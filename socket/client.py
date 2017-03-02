@@ -1,12 +1,12 @@
 #coding=utf-8
-#from app import app
+import config
 import socket,os,struct
 
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.connect(('127.0.0.1',12310))
 
 #    filePath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
-filepath = os.path.abspath('/home/winzzhhzzhh/lab/Concentrator/datalog/topo.txt')
+filepath = os.path.join(config.TOPO_FOLDER,"topo.txt")
   
 fileinfo_size=struct.calcsize('128sl') #定义打包规则
 #定义文件头信息，包含文件名和文件大小

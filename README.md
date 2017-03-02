@@ -88,7 +88,6 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 * 运行createdb.py可初始化数据库
 
 ##数据传输
-> 数据传输使用的是socket文件夹中的client和server，直接运行server.py将打开一个daemon，在系统后台运行，在网页端点击更新数据，会重新传输文件。
+> 数据传输使用的是socket文件夹中的client和server，直接运行server.py将打开一个daemon，但在运行之前需要给所在文件夹写权限，在系统后台运行，在网页端点击更新数据，会重新传输文件。
 
 
-> 学长，我在views.py和gxn_topo_decode.py中使用了一些绝对路径，出错的时候可能是路径没改

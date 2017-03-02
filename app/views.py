@@ -84,17 +84,13 @@ def upload():
             flash(u'请选择检索时间!')
         else :
             flash(u'检索时间:'+str(selectime))
-        try:
-            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
-        except Exception, e:
-            print("no such database")
-        try:
-            c = conn.cursor()
-            c.execute("delete from topo;")
-            conn.commit()
-            conn.close()
-        except:
-            print("errors occur when deleting old database")
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute("delete from topo;")
+        conn.commit()
+        conn.close()
+
         try:
             global TOPODATA,TOPODATA_DICT
             TopoPath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
@@ -128,7 +124,8 @@ def client():
         redirect(url_for('login'))
     if request.method == 'POST':
         try:
-            os.system("python /home/winzzhhzzhh/lab/Concentrator/socket/client.py")
+            clientpath = os.path.join(app.config['CLIENT_FOLDER'],"client.py")
+            os.system("python " + clientpath)
         except Exception, e:
             flash(u'发送文件,错误信息:' + unicode(e.message))
             return render_template('./client/client.html')
@@ -183,9 +180,10 @@ def basedata():
 
         #----modified by zzh@2017.1.11
         try:
-            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            conn = sqlite3.connect(databasepath)
         except Exception, e:
-            print("no such database")
+            print("no such database in "+ databasepath)
         c = conn.cursor()
         c.execute('select * from topo;')
         pcaps = c.fetchall()
@@ -227,9 +225,10 @@ def protoanalyzer():
     else:
         #----modified by zzh@2017.1.12
         try:
-            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            conn = sqlite3.connect(databasepath)
         except Exception, e:
-            print("no such database")
+            print("no such database in "+databasepath)
         c = conn.cursor()
         c.execute('select * from topo;')
         topodata_list = c.fetchall()
@@ -266,9 +265,10 @@ def flowanalyzer():
     else:
         #----modified by zzh@2017.1.12
         try:
-            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            conn = sqlite3.connect(databasepath)
         except Exception, e:
-            print("no such database")
+            print("no such database in "+ databasepath)
         c = conn.cursor()
         c.execute('select * from topo;')
         topodata_list = c.fetchall()
@@ -363,9 +363,10 @@ def topodisplay():
         return redirect(url_for('login'))
     else:
         try:
-            conn = sqlite3.connect("/home/winzzhhzzhh/lab/Concentrator/test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            conn = sqlite3.connect(databasepath)
         except Exception, e:
-            print("no such database")
+            print("no such database in "+ databasepath)
         c = conn.cursor()
         c.execute('select ID, ParentID from topo;')
         ID_list = c.fetchall()
