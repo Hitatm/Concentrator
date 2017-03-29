@@ -43,6 +43,7 @@ TOPODATA   = None #login
 REALDATA   = None #login
 TPDECODE   =TopoDecode()
 TOPODATA_DICT =collections.OrderedDict()
+
 # SYS_CONFIG = Congfig()
 
 
@@ -148,15 +149,19 @@ def client():
         return render_template('./client/client.html', async_mode=socketio.async_mode)
         
 
-@socketio.on('my_event', namespace='/client')
+@socketio.on('my_event')
 def test_message(message):
     print(message['data'])
 
-@socketio.on('connect', namespace='/client')
-def test_connect():
+@socketio.on('connectd')
+def test_connect1():
+    print('Client connecteddddddd')
+
+@socketio.on('connect')
+def test_connect2():
     print('Client connected')
 
-@socketio.on('disconnect', namespace='/client')
+@socketio.on('disconnect')
 def test_disconnect():
     print('Client disconnected')
 
