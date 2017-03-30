@@ -35,7 +35,7 @@
 <body>
 <!-- <div class="container"> -->
     <br>
-<!--     <div class="jumbotron">
+    <div class="jumbotron">
         <div class="container">
             <div style="width: 50%;float:left;">
             <h1>欢迎使用本系统</h1>
@@ -44,25 +44,30 @@
             </div>
             <div id="main" style="height:250px;width:50%;float:left;"></div>
         </div>
-    </div> -->
-    <br>
+    </div>
 
-	
-    <body>
-    <h1>Send:</h1>
-    <table>
+<div class="container"><p id='echo' class="alert alert-success">信息发送成功</p></div>
+    <h1>&nbsp;&nbsp;Send:</h1>
+    <table class = "container">
         <tr>
             <td>
-                <form id="emit" method="POST" action='{{url_for('testconnect')}}'>
-                    <input type="text" name="emit_data" id="emit_data" placeholder="Message">
+                <form name="emit" method="POST" action='{{url_for('testconnect')}}'>
+                    <input type="text" name="emit_data" placeholder="Message">
                     <input type="submit" value="发送">
                 </form>
             </td>
         </tr>
     </table>
     <br>
-    <h2>Receive:</h2>
-    <div id="log"></div>
+
+<script>
+        $(document).ready(function(){
+            if ($("#echo").text() == "") {
+                $("#echo").hide()
+            }
+        })
+</script>
+
 </body>
 
 </html>

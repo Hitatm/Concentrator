@@ -33,7 +33,8 @@ TOPODATA   = None #login
 REALDATA   = None #login
 TPDECODE   =TopoDecode()
 TOPODATA_DICT =collections.OrderedDict()
-
+serverip = 127.0.1.1
+serverport = 12310
 # SYS_CONFIG = Congfig()
 
 
@@ -114,17 +115,20 @@ def client():
 @app.route('/testconnect/', methods=['POST', 'GET'])
 @app.route('/testconnect', methods=['POST', 'GET'])
 def testconnect():
-    cli = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    ip = socket.gethostbyname(socket.gethostname())
-    port = 1111
+    global serverip, serverport
+    # cli = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
-    cli.connect((ip,port))
-    server_reply=cli.recv(65535)
+    # cli.connect((serverip,serverport))
+    if request.method == 'POST':
+        data = request.form['emit_data']
+        if data:
+            print data
+    # server_reply=cli.recv(65535)
 
-    print server_reply
+    # print server_reply
 
-    cli.close()
-    return "aaaaaaaaaa"
+    # cli.close()
+    return render_template('./client/client.html')
 
 
 

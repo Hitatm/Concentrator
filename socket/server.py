@@ -2,25 +2,23 @@
 
 import sys, os
 import socket,time,SocketServer,struct,os,thread
-host='127.0.0.1'
+host='127.0.1.1'
 port=12310
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM) #定义socket类型
 s.bind((host,port)) #绑定需要监听的Ip和端口号，tuple格式
 s.listen(1)
+
+
 def conn_thread(connection,address):  
-    for ct in range (10):
-        buf0 = connection.recv(1024) # 去掉http请求头
+    # for ct in range (10):
+    #     buf0 = connection.recv(1024) # 去掉http请求头
     while True:
         try:
             connection.settimeout(600)
-            fileinfo_size=struct.calcsize('128sl')
-            buf = connection.recv(fileinfo_size)
+            connection.send('connection success')
+            buf = connection.recv(65535)
             if buf:
-                print 'start receiving'
-                print '-------------------------'
                 print buf
-                print '-------------------------'
-                print 'receive done'
                 #connection.close()
         except socket.timeout:
             connection.close()
