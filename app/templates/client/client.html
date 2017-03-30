@@ -16,7 +16,6 @@
     <link href="../../static/daterangepicker/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
 <script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
-<script src="../../static/bootstrap-3.3.5/js/socket.io.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/fileinput.min.js" type="text/javascript"></script>
 <script src="../../static/upload/fileinput_locale_zh.js" type="text/javascript"></script>
@@ -32,24 +31,7 @@
     </style>
 
 </head>
-<script type="text/javascript" charset="utf-8">
-        $(document).ready(function(){
-            var socket = io.connect('127.0.0.1'+ ':' + '8000');
-            socket.on('connect', function() {
-                //window.alert("connected!");
-                socket.emit('connectd');
-                
-            });
-          socket.on('my_response', function(msg) {
-                $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-            });
-          $('form#emit').submit(function(event) {
-                socket.emit('my_event', {data: $('#emit_data').val()});
-                return false;
-            });
-        });
 
-</script>
 <body>
 <!-- <div class="container"> -->
     <br>
@@ -65,18 +47,14 @@
     </div> -->
     <br>
 
-
-<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <!-- ECharts单文件引入 -->
-  
 	
     <body>
     <h1>Send:</h1>
     <table>
         <tr>
             <td>
-                <form id="emit" method="POST" action='#'>
-                    <input type="text" name="emit_data" id="emit_data">
+                <form id="emit" method="POST" action='{{url_for('testconnect')}}'>
+                    <input type="text" name="emit_data" id="emit_data" placeholder="Message">
                     <input type="submit" value="发送">
                 </form>
             </td>

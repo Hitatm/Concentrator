@@ -19,38 +19,12 @@
 <body>
 <div class="container">
     <br>
-<!--     <div class="jumbotron">
-        <div class="container">
-            <div style="width: 50%;float:left;">
-            <h1>欢迎使用本系统</h1>
-            <br>
-            <p>哈工大无线网络控制系统</p>
-            </div>
-            <div id="main" style="height:250px;width: 50%;float:left;"></div>
-        </div>
-    </div> -->
+
     <br>
-
-
-<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <!-- ECharts单文件引入 -->
 
 <div id="term" align="center"> </div>
 
 
-
-
-
- 
-        <!-- <div class="container "> -->
-            <!-- <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}"> -->
-                <!-- <input id="file"   class="file" type="file" data-min-file-count="1"> -->
-              
-                <!-- <button type="submit" class="button button-royal button-pill button-giant">上传</button> -->
-                <!-- <textarea>asdfasfd</textarea> -->
-         
-            <!-- </form> -->
-        <!-- </div> -->
      
     <br>
     <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div>
