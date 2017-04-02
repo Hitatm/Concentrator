@@ -31,24 +31,31 @@
     </style>
 
 </head>
+<script type="text/javascript">
+function CheckNumber(){
+    var num = document.getElementById("box").getElementsByTagName("input");
+    if(isNaN(num)){
+        alert("请输入整数!")
+    else{
+        if(Number(num) > 255){
+            alert("请输入0-255之间的整数!");
+        }
+        else if (Number(num) < 0){
+            alert("请输入0-255之间的整数!");
+        }
+        else 
+            return true
+    }
+    }
+}
+</script>
 
 <body>
-<!-- <div class="container"> -->
-    <br>
-    <div class="jumbotron">
-        <div class="container">
-            <div style="width: 50%;float:left;">
-            <h1>欢迎使用本系统</h1>
-            <br>
-            <p>哈工大无线网络控制系统</p>
-            </div>
-            <div id="main" style="height:250px;width:50%;float:left;"></div>
-        </div>
-    </div>
+
 
 <div class="container"><p id='echo' class="alert alert-success">信息发送成功</p></div>
     <h1>&nbsp;&nbsp;Send:</h1>
-    <table class = "container">
+    <table>
         <tr>
             <td>
                 <form name="emit" method="POST" action='{{url_for('testconnect')}}'>
@@ -56,6 +63,78 @@
                     <input type="submit" value="发送">
                 </form>
             </td>
+        </tr>
+        <tr>
+            <td>
+                    <br />
+                <form name="instruction1" method="POST" action='{{url_for('instruction1')}}'>
+                <legend>读表与重启指令下发:</legend>
+                <select id="mySelect" name="mySelect">
+                <option value="readregularly">周期性读表指令下发</option>
+                <option value="read" >读表指令下发</option>
+                <option value="restart">重启指令下发</option>
+                </select>
+                <br />
+                <input type="submit" value="提交" />
+                </form><br /><br />
+            </td>
+        </tr>
+        <tr>
+
+            <td>
+                <form name="instruction2" method="POST" action='{{url_for('instruction2')}}'>
+                <legend>获取网络监测数据:</legend>
+                PANID
+                <input type="checkbox" name="monitordata" value="PANID" checked="checked" />
+                <br />
+                channel 
+                <input type="checkbox" name="monitordata" value="channel" />
+                <br />
+                CCA 
+                <input type="checkbox" name="monitordata" value="CCA" />
+                <br />
+                发射功率
+                <input type="checkbox" name="monitordata" value="emitpower" />
+                <br />
+                CCA检查周期
+                <input type="checkbox" name="monitordata" value="CCAcheckingperiod" />
+                <br />
+                <input type="submit" value="提交" />
+                </form> 
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <br /><br />
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <form class="form-inline" name="instruction3" method="POST" action='{{url_for('instruction3')}}'>
+                    <fieldset id="box">
+                        <legend>网络参数配置指令下发:(请输入0-255之间的整数)</legend>
+                        PANID:
+                        <input type="text" name="PANID"/><br />
+                        CCA:
+                        <input type="text" name="CCA"/><br />
+                        发射功率:
+                        <input type="text" name="emitpower"/><br />
+                        CCA检查周期:
+                        <input type="text" name="CCAcheckingperiod"/><br />
+                        inactive:
+                        <input type="text" name="inactive"/><br />
+                        channel:
+                        <input type="text" name="channel"/><br />
+                        DIO_minlen:
+                        <input type="text" name="DIO_minlen"/><br />
+                        DIO_max:
+                        <input type="text" name="DIO_max"/><br />
+                    </fieldset> 
+                <input type="submit" onclick="CheckNumber()" value="提交" />
+                </form>
+            </div>
+        </div>
+    </div>
+</td>
         </tr>
     </table>
     <br>

@@ -87,7 +87,31 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 * 数据库中第1项在脚本中由简单定义的一个变量自动增加获得，到实际应用中写法需要更改
 * 运行createdb.py可初始化数据库
 
-##数据传输
-> 数据传输使用的是socket文件夹中的client和server，直接运行server.py将打开一个daemon，但在运行之前需要给所在文件夹写权限，在系统后台运行，在网页端点击更新数据，会重新传输文件。
+##前台与后台通信
+instruction1 - 读表与重启指令下发 
+具体包括：
+1. 周期性读表指令下发
+2. 读表指令下发
+3. 重启指令下发
+
+instruction2 - 获取网络监测数据
+具体包括：
+1. PANID
+2. channel
+3. CCA
+4. 发射功率
+5. CCA检查周期
+
+instruction3 - 网络参数配置指令下发(0-255之间整数)
+具体包括：
+data1. PANID
+data2. channel
+data3. CCA
+data4. emitpower - 发射功率
+data5. CCAcheckingperiod - CCA检查周期
+data6. inactive
+data7. DIO_minlen
+data8. DIO_max
+
 
 

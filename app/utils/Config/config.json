@@ -1,0 +1,27 @@
+{
+	"localhost":"127.0.0.1",
+	"id":"00000001",
+	"HeartIntSec":40,
+	"AckHeartInt":3,
+	"MaxAckFail":30,
+	"tcpAddr":"0.0.0.0",
+	"tcpPort":12300,
+	"tcpRemoteConfigPort":12306,
+	"udpAddr":"0.0.0.0",
+	"udpPort":8765,
+	"rootAddr":"aaaa:0:0:0:12:7400:1:23",
+	"rootPort":5678,
+	"rootRoomId":"512",
+	"rootX":12,
+	"rootY":20,
+	"dbIpAddr":"127.0.0.1",
+	"dbUser":"root",
+	"dbPassword":"123456",
+	"dbSchema":"sensor_db",
+	"tcpWebServerAddr":"192.168.1.140",
+	"tcpWebServerPort":12303,
+	"remoteAddr":"127.0.0.1",
+	"remotePort":"12304",
+	"netPort":12307
+	
+}

@@ -3,25 +3,32 @@ __author__ = 'dj'
 
 from app import app
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
+from flask_socketio import SocketIO,emit
 from forms import Upload, ProtoFilter,User_and_pwd
 from utils.upload_tools import allowed_file, get_filetype, random_name
+ 
 from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,topo_filter
 from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_topo_analyzer import topo_statistic,topo_traffic_statistic,topo_traffic_analyzer
 from utils.gxn_get_sys_config import Congfig
 from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,startAllProcesses,stopAllProcesses
-import socket
+from utils.jsonconfig import json_config
+
 import os
 import collections
 import time
 import sqlite3
+import socket
+import json
+
+
 #导入函数到模板中
 app.jinja_env.globals['enumerate'] = enumerate
 
 #全局变量
 PCAP_NAME = ''     #上传文件名
 # PD = PcapDecode() #解析器
-
+PDF_NAME = ''
 
 # ---------------------------------------------------------------------------
 PCAPS = 'yeslogin' #login
@@ -33,10 +40,11 @@ TOPODATA   = None #login
 REALDATA   = None #login
 TPDECODE   =TopoDecode()
 TOPODATA_DICT =collections.OrderedDict()
-serverip = 127.0.1.1
+
+serverip = "127.0.1.1"
 serverport = 12310
 # SYS_CONFIG = Congfig()
-
+jsconfig = json_config()
 
 #--------------------------------------------------------首页，上传---------------------------------------------
 #首页
@@ -47,6 +55,7 @@ def index():
         return redirect(url_for('login'))
     else:
         return render_template('./home/index.html')
+        # return render_template('./login/login.html')
 
 
 #历史数据时间选择
@@ -56,11 +65,17 @@ def upload():
     if PCAPS==None:
         redirect(url_for('login'))
     if request.method == 'GET':
+        # selectime =request.args.get('time')
         return render_template('./upload/upload.html')
+        # return render_template('./upload/timestamp.html',time=selectime)
     elif request.method == 'POST':
         selectime =request.form.get('time', '')
         flash(u'检索时间:')
         flash(selectime)
+        # return selectime
+        # return render_template('./upload/timestamp.html',time=selectime)
+        # return render_template('./upload/upload.html')
+        # return redirect(url_for('login'))
 
         # request.args.get
         selectime  =  request.form['field_name']
@@ -82,6 +97,8 @@ def upload():
         try:
             global TOPODATA,TOPODATA_DICT
             TopoPath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
+            #DataPath=os.path.join(app.config['DATA_FOLDER'],"data.txt")
+            #while True:
             try:   
                 TOPODATA=getfile_content(str(TopoPath))
             except Exception, e:
@@ -90,6 +107,7 @@ def upload():
                 TOPODATA_DICT=getall_topo(TOPODATA,TPDECODE)
             except Exception, e:
                 flash(u'error2:' + unicode(e.message))
+            # REALDATA=getfile_content(str(DataPath))
             flash(u',数据读取成功')
             flash('\n'+str(len(TOPODATA)))
                 # flash('\n'+str(len(REALDATA)))
@@ -101,7 +119,7 @@ def upload():
     else:
         return render_template('./upload/upload.html')
 
-#--------------------------------------------传文件----------------------------------------------------
+#--------------------------------------------与后台通信----------------------------------------------------
 @app.route('/client/', methods=['POST', 'GET'])
 @app.route('/client', methods=['POST', 'GET'])
 def client():
@@ -110,27 +128,194 @@ def client():
         return redirect(url_for('login'))
     else:
         return render_template('./client/client.html')
-        
 
 @app.route('/testconnect/', methods=['POST', 'GET'])
 @app.route('/testconnect', methods=['POST', 'GET'])
 def testconnect():
-    global serverip, serverport
-    # cli = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-
+    # global serverip, serverport
+    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # cli.connect((serverip,serverport))
     if request.method == 'POST':
+        flash(u',信息发送成功')
         data = request.form['emit_data']
         if data:
             print data
     # server_reply=cli.recv(65535)
-
     # print server_reply
-
     # cli.close()
     return render_template('./client/client.html')
 
+@app.route('/instruction1/', methods=['POST', 'GET'])
+@app.route('/instruction1', methods=['POST', 'GET'])
+#读表与重启指令下发
+def instruction1():
+    # insip = jsconfig.get("localhost")
+    # insport = jsconfig.get("tcpPort")
+    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # cli.connect((insip,insport))
 
+    if request.method == 'POST':
+        ins = request.form['mySelect'] # ins = instruction
+        if ins:
+            # cli.send(ins+" on all meters")
+            
+            print ins+" on all meters"
+    # server_reply=cli.recv(65535)
+    # print server_reply
+    # cli.close()
+    return render_template('./client/client.html')
+
+@app.route('/instruction2/', methods=['POST', 'GET'])
+@app.route('/instruction2', methods=['POST', 'GET'])
+#获取网络监测数据
+def instruction2():
+    # # insip = jsconfig.get("localhost")
+    # insip = "192.168.0.121"
+    # insport = jsconfig.loadjson["tcpPort"]
+    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # cli.connect((insip,insport))
+    
+    # dicts= {}
+    # dicts["pama_data"] = "8205105BF15916"
+    # dicts["type"] = "mcast"
+    if request.method == 'POST':
+        inslist = request.form.getlist('monitordata')
+        if inslist:
+            print inslist
+
+    # cli.send(json.dumps(dicts).encode('utf-8'))
+    # cli.close()
+    return render_template('./client/client.html')
+
+@app.route('/instruction3/', methods=['POST', 'GET'])
+@app.route('/instruction3', methods=['POST', 'GET'])
+#网络参数配置指令下发
+def instruction3():
+    # # insip = jsconfig.get("localhost")
+    # insip = "192.168.0.121"
+    # insport = jsconfig.loadjson["tcpPort"]
+    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # cli.connect((insip,insport))
+    
+    # dicts= {}
+    # dicts["pama_data"] = "8205105BF15916"
+    # dicts["type"] = "mcast"
+    noerror = 1
+    data0 = 64*(256**8)
+    if request.method == 'POST':
+        data1 = request.form['PANID']
+        if data1:
+            try:
+                data1 = int(data1)
+            except:
+                print ("please input a interger in PANID!")    
+            if (data1>=0 and data1<=255):
+                data1 = data1*(256**7)
+            else:
+                noerror = 0
+                print "error in data1"
+        else:
+            data1 = 255*(256**7)
+        data2 = request.form['channel']
+        if data2:
+            try:
+                data2 = int(data2)
+            except:
+                print ("please input a interger in channel!")  
+            if (data2>=0 and data2<=255):
+                data2 = data2*(256**6)
+            else:
+                noerror = 0
+                print "error in data2"
+        else:
+            data2 = 255*(256**6)
+        data3 = request.form['CCA']
+        if data3:
+            try:
+                data3 = int(data3)
+            except:
+                print ("please input a interger in CCA!")  
+            if (data3>=0 and data3<=255):
+                data3 = data3*(256**5)
+            else:
+                noerror = 0
+                print "error in data3"
+        else:
+            data3 = 255*(256**5)
+
+        data4 = request.form['emitpower']
+        if data4:
+            try:
+                data4 = int(data4)
+            except:
+                print ("please input a interger in emitpower!")  
+            if (data4>=0 and data4<=255):
+                data4 = data4*(256**4)
+            else:
+                noerror = 0
+                print "error in data4"
+        else:
+            data4 = 255*(256**4)
+        data5 = request.form['CCAcheckingperiod']
+        if data5:
+            try:
+                data5 = int(data5)
+            except:
+                print ("please input a interger in CCAcheckingperiod!")  
+            if (data5>=0 and data5<=255):
+                data5 = data5*(256**3)
+            else:
+                noerror = 0
+                print "error in data5"
+        else:
+            data5 = 255*(256**3)
+        data6 = request.form['inactive']
+        if data6:
+            try:
+                data6 = int(data6)
+            except:
+                print ("please input a interger in inactive!")  
+            if (data6>=0 and data6<=255):
+                data6 = data6*(256**2)
+            else: 
+                noerror = 0
+                print "error in data6"
+        else:
+            data6 = 255*(256**2)
+        data7 = request.form['DIO_minlen']
+        if data7:
+            try:
+                data7 = int(data7)
+            except:
+                print ("please input a interger in DIO_minlen!")  
+            if (data7>=0 and data7<=255):
+                data7 = data7*(256**1)
+            else:
+                noerror = 0
+                print "error in data7"
+        else:
+            data7 = 255*(256**1)    
+        data8 = request.form['DIO_max']
+        if data8:
+            try:
+                data8 = int(data8)
+            except:
+                print ("please input a interger in DIO_max!")  
+            if (data8>=0 and data8<=255):
+                data8 = data8*(256**0)
+            else:
+                noerror = 0
+                print "error in data8"
+        else:
+            data8 = 255*(256**0)
+    if (noerror == 0):
+        pass
+    else:
+        data = hex(data0+data1+data2+data3+data4+data5+data6+data7+data8)
+        # cli.send(json.dumps(dicts).encode('utf-8'))
+        print data
+    # cli.close()
+    return render_template('./client/client.html')
 
 #--------------------------------------------认证登陆---------------------------------------------------
 @app.route('/login/',methods=['POST', 'GET'])
@@ -182,10 +367,24 @@ def datashow():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
+        global PDF_NAME
         dataid = request.args.get('id')
+        # return dataid
         dataid = int(dataid)
         data = showdata_from_id(TOPODATA_DICT, dataid)
+        PDF_NAME = random_name() + '.pdf'
+        # TOPODATA[dataid].pdfdump(app.config['PDF_FOLDER'] + PDF_NAME)
         return data
+
+#将数据包保存为pdf
+@app.route('/savepdf/', methods=['POST', 'GET'])
+def savepdf():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        return send_from_directory(app.config['PDF_FOLDER'], PDF_NAME, as_attachment=True)
+
 
 #协议分析
 @app.route('/protoanalyzer/', methods=['POST', 'GET'])
@@ -194,6 +393,7 @@ def protoanalyzer():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
+        #----modified by zzh@2017.1.12
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
             conn = sqlite3.connect(databasepath)
@@ -225,6 +425,7 @@ def flowanalyzer():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
+        #----modified by zzh@2017.1.12
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
             conn = sqlite3.connect(databasepath)
@@ -240,8 +441,11 @@ def flowanalyzer():
         for key ,value in topo_traff_dict.items():
             traffic_key_list.append(key.encode('UTF-8'))
             traffic_value_list.append(value)
+ 
         lists=topo_traffic_analyzer(topodata_list)
         templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
+        # templist.append(tempstr)
+        # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
 
 
@@ -260,7 +464,7 @@ def otheranalyzer():
             traffic_value_list.append(value)
         lists=topo_traffic_analyzer(TOPODATA_DICT)
         templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
-        # templist.append(tempstr)
+        templist.append(tempstr)
         return str(templist)
 
 
@@ -282,7 +486,9 @@ def topodisplay():
         c.execute('select ID, ParentID from topo;')
         ID_list = c.fetchall()
         conn.close()
+        # print ID_list
         Parentnode = dict()
+        # Childnode = dict()
         for node in ID_list:
             ID = node[0].encode('UTF-8') # ID
             ParentID = node[1].encode('UTF-8') # parentID
@@ -290,13 +496,16 @@ def topodisplay():
                 continue
             else:
                 Parentnode[ID] = ParentID
+        # 遍历Parentnode的key，绘制散点图；遍历Parentnode的key和value，画箭头
         nodes = list()
         links = list()
         n = dict()
         m = dict()
         for key ,value in Parentnode.items():
             n = {'category':2, 'name':key}
+            # nodes.append("{category:2, name:"+"'"+key+"'}")
             nodes.append(n)
+            # links.append("{source : '"+value+"', target : '"+key+"', weight : 1}")
             m = {'source':value, 'target':key, 'weight':1}
             links.append(m)
 
@@ -312,6 +521,7 @@ def sysconfig():
         return redirect(url_for('login'))
     else:
         return redirect('http://192.168.1.152:6175/')
+        # return render_template('./systemctrl/index.html')
 
 
 # ----------------------------------------------系统配置工具---------------------------------------------
@@ -325,6 +535,78 @@ def terminaltool():
     else:
         return redirect('http://192.168.1.152:6175/')
         # return render_template('./systemctrl/index.html')
+# ----------------------------------------------数据提取页面---------------------------------------------
+
+#Web数据
+@app.route('/webdata/', methods=['POST', 'GET'])
+def webdata():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        return redirect('https://192.168.1.152:6175/')
+
+
+#Mail数据
+@app.route('/maildata/', methods=['POST', 'GET'])
+def maildata():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        dataid = request.args.get('id')
+        host_ip = get_host_ip(PCAPS)
+        mailata_list = mail_data(PCAPS, host_ip)
+        if dataid:
+            return mailata_list[int(dataid)-1]['data'].replace('\r\n', '<br>')
+        else:
+            return render_template('./dataextract/maildata.html', maildata=mailata_list)
+
+#FTP数据
+@app.route('/ftpdata/', methods=['POST', 'GET'])
+def ftpdata():
+    if PCAPS == None:
+        flash(u"请先上传要分析得数据包!")
+        return redirect(url_for('login'))
+    else:
+        dataid = request.args.get('id')
+        host_ip = get_host_ip(PCAPS)
+        ftpdata_list = telnet_ftp_data(PCAPS, host_ip, 21)
+        if dataid:
+            return ftpdata_list[int(dataid)-1]['data'].replace('\r\n', '<br>')
+        else:
+            return render_template('./dataextract/ftpdata.html', ftpdata=ftpdata_list)
+
+#Telnet数据
+@app.route('/telnetdata/', methods=['POST', 'GET'])
+def telnetdata():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        dataid = request.args.get('id')
+        host_ip = get_host_ip(PCAPS)
+        telnetdata_list = telnet_ftp_data(PCAPS, host_ip, 23)
+        if dataid:
+            return telnetdata_list[int(dataid)-1]['data'].replace('\r\n', '<br>')
+        else:
+            return render_template('./dataextract/telnetdata.html', telnetdata=telnetdata_list)
+
+#敏感数据
+@app.route('/sendata/', methods=['POST', 'GET'])
+def sendata():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        dataid = request.args.get('id')
+        host_ip = get_host_ip(PCAPS)
+        sendata_list = sen_data(PCAPS, host_ip)
+        if dataid:
+            return sendata_list[int(dataid)-1]['data'].replace('\r\n', '<br>')
+        else:
+            return render_template('./dataextract/sendata.html', sendata=sendata_list)
+
 # ----------------------------------------------一异常信息页面---------------------------------------------
 
 #异常数据
@@ -345,6 +627,11 @@ def exceptinfo():
                 return u'<center><h3>无相关数据包详情</h3></center>'
         else:
             return render_template('./exceptions/exception.html', warning=warning_list)
+
+ 
+
+
+
 
 
 # ----------------------------------------------进程监管---------------------------------------------
@@ -439,3 +726,9 @@ def about():
     else:
         return render_template('./home/about.html')
 
+
+
+
+
+
+ 

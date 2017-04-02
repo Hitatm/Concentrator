@@ -29,23 +29,7 @@ class Congfig:
                 if (val<<y) & 0x80==0x80:
                     activetime_dict[(index<<3)+y]=self.TIME_DICT[(index<<3)+y]
         return activetime_dict
-    # def get_
 
-# ============================================================================
-# print datetime.datetime.fromtimestamp("2016-09-00 0:0:0.00")
-# d=  datetime.datetime.strptime("2016-9-10 0:00:0", "%Y-%m-%d %H:%M:%S")
-# t = d.timetuple()
-# timeStamp= int(time.mktime(t))
-# # print timeStamp
-# # print datetime.datetime.fromtimestamp(timeStamp)
-# lists={}
-# for x in xrange(0,144):
-#     lists[x] = datetime.datetime.fromtimestamp(1473436800+x*600).strftime("%Y-%m-%d %H:%M:%S")[11:]
-# print lists
 
-# BASE_DIR = os.path.dirname(__file__)        #获取当前文件夹的绝对路径
-# PROTOCOL_FILE=BASE_DIR+'/protocol/TOPOGXN'  #协议配置文件
-# print PROTOCOL_FILE
-# =============================================================================
-# p=Congfig()
-# p.get_active_time()
+
+
