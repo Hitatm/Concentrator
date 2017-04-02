@@ -35,7 +35,7 @@
 function CheckNumber(){
     var num = document.getElementById("box").getElementsByTagName("input");
     if(isNaN(num)){
-        alert("请输入整数!")
+        alert("请输入整数!");
     else{
         if(Number(num) > 255){
             alert("请输入0-255之间的整数!");
@@ -44,26 +44,35 @@ function CheckNumber(){
             alert("请输入0-255之间的整数!");
         }
         else 
-            return true
+            return true;
     }
     }
 }
 </script>
+<!-- <script type="text/javascript">
+    function validateForm(){
+    var x=document.forms["instruction3"]["PANID"].value;
+    if (x<0 || x>255)
+    {
+        alert("the interger you input must in (0,255)");
+        return false;
+    }
+    else if (isNaN(x))
+    {
+        alert("please input a interger!")
+        return false;
+    }
+    else
+        return true;
+    
+  }
+}
+</script> -->
+
 
 <body>
 
-
-<div class="container"><p id='echo' class="alert alert-success">信息发送成功</p></div>
-    <h1>&nbsp;&nbsp;Send:</h1>
     <table>
-        <tr>
-            <td>
-                <form name="emit" method="POST" action='{{url_for('testconnect')}}'>
-                    <input type="text" name="emit_data" placeholder="Message">
-                    <input type="submit" value="发送">
-                </form>
-            </td>
-        </tr>
         <tr>
             <td>
                     <br />
@@ -84,7 +93,7 @@ function CheckNumber(){
             <td>
                 <form name="instruction2" method="POST" action='{{url_for('instruction2')}}'>
                 <legend>获取网络监测数据:</legend>
-                PANID
+<!--                 PANID
                 <input type="checkbox" name="monitordata" value="PANID" checked="checked" />
                 <br />
                 channel 
@@ -98,7 +107,7 @@ function CheckNumber(){
                 <br />
                 CCA检查周期
                 <input type="checkbox" name="monitordata" value="CCAcheckingperiod" />
-                <br />
+                <br /> -->
                 <input type="submit" value="提交" />
                 </form> 
             </td>
@@ -139,13 +148,6 @@ function CheckNumber(){
     </table>
     <br>
 
-<script>
-        $(document).ready(function(){
-            if ($("#echo").text() == "") {
-                $("#echo").hide()
-            }
-        })
-</script>
 
 </body>
 

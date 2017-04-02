@@ -178,12 +178,16 @@ def instruction2():
     # dicts= {}
     # dicts["pama_data"] = "8205105BF15916"
     # dicts["type"] = "mcast"
+    # dic = {}
+    # dic["type"] = "mcast"
+    # dic["pama_data"] = dicts
+
     if request.method == 'POST':
         inslist = request.form.getlist('monitordata')
         if inslist:
             print inslist
 
-    # cli.send(json.dumps(dicts).encode('utf-8'))
+    # cli.send(json.dumps(dic).encode('utf-8'))
     # cli.close()
     return render_template('./client/client.html')
 
