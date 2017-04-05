@@ -249,119 +249,60 @@ def instruction3():
     # dicts= {}
     # dicts["pama_data"] = "8205105BF15916"
     # dicts["type"] = "mcast"
-    noerror = 1
-    data0 = 64*(256**8)
+    data0 = "40"
+    datalist = []
+    datalist.append(data0)
     if request.method == 'POST':
         data1 = request.form['PANID']
         if data1:
-            try:
-                data1 = int(data1)
-            except:
-                print ("please input a interger in PANID!")    
-            if (data1>=0 and data1<=255):
-                data1 = data1*(256**7)
-            else:
-                noerror = 0
-                print "error in data1"
+            data1 = hex(int(data1))[2:]
         else:
-            data1 = 255*(256**7)
+            data1 = "ff"
+        datalist.append(data1)
         data2 = request.form['channel']
         if data2:
-            try:
-                data2 = int(data2)
-            except:
-                print ("please input a interger in channel!")  
-            if (data2>=0 and data2<=255):
-                data2 = data2*(256**6)
-            else:
-                noerror = 0
-                print "error in data2"
+            data2 = hex(int(data2))[2:]
         else:
-            data2 = 255*(256**6)
+            data2 = "ff"
+        datalist.append(data2)
         data3 = request.form['CCA']
         if data3:
-            try:
-                data3 = int(data3)
-            except:
-                print ("please input a interger in CCA!")  
-            if (data3>=0 and data3<=255):
-                data3 = data3*(256**5)
-            else:
-                noerror = 0
-                print "error in data3"
+            data3 = hex(int(data3))[2:]
         else:
-            data3 = 255*(256**5)
-
+            data3 = "ff"
+        datalist.append(data3)
         data4 = request.form['emitpower']
         if data4:
-            try:
-                data4 = int(data4)
-            except:
-                print ("please input a interger in emitpower!")  
-            if (data4>=0 and data4<=255):
-                data4 = data4*(256**4)
-            else:
-                noerror = 0
-                print "error in data4"
+            data4 = hex(int(data4))[2:]
         else:
-            data4 = 255*(256**4)
+            data4 = "ff"
+        datalist.append(data4)
         data5 = request.form['CCAcheckingperiod']
         if data5:
-            try:
-                data5 = int(data5)
-            except:
-                print ("please input a interger in CCAcheckingperiod!")  
-            if (data5>=0 and data5<=255):
-                data5 = data5*(256**3)
-            else:
-                noerror = 0
-                print "error in data5"
+            data5 = hex(int(data5))[2:]
         else:
-            data5 = 255*(256**3)
+            data5 = "ff"
+        datalist.append(data5)
         data6 = request.form['inactive']
         if data6:
-            try:
-                data6 = int(data6)
-            except:
-                print ("please input a interger in inactive!")  
-            if (data6>=0 and data6<=255):
-                data6 = data6*(256**2)
-            else: 
-                noerror = 0
-                print "error in data6"
+            data6 = hex(int(data6))[2:]
         else:
-            data6 = 255*(256**2)
+            data6 = "ff"
+        datalist.append(data6)
         data7 = request.form['DIO_minlen']
         if data7:
-            try:
-                data7 = int(data7)
-            except:
-                print ("please input a interger in DIO_minlen!")  
-            if (data7>=0 and data7<=255):
-                data7 = data7*(256**1)
-            else:
-                noerror = 0
-                print "error in data7"
+            data7 = hex(int(data7))[2:]
         else:
-            data7 = 255*(256**1)    
+            data7 = "ff"
+        datalist.append(data7)
         data8 = request.form['DIO_max']
         if data8:
-            try:
-                data8 = int(data8)
-            except:
-                print ("please input a interger in DIO_max!")  
-            if (data8>=0 and data8<=255):
-                data8 = data8*(256**0)
-            else:
-                noerror = 0
-                print "error in data8"
+            data8 = hex(int(data8))[2:]
         else:
-            data8 = 255*(256**0)
-    if (noerror == 0):
-        pass
-    else:
-        data = hex(data0+data1+data2+data3+data4+data5+data6+data7+data8)
-        # cli.send(json.dumps(dicts).encode('utf-8')) hex(180)[2:]
+            data8 = "ff"
+        datalist.append(data8)
+        # cli.send(json.dumps(dicts).encode('utf-8'))
+        data = ''.join(datalist)
         print data
     # cli.close()
     return render_template('./client/monitor.html')
