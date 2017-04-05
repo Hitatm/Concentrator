@@ -240,7 +240,7 @@
     var uc_example = $('#uc_example').ui_choose();
     var array = new Array();  //定义数组
     array=$("#uc_example").val();
-    var jsons=JSON.stringify(array);
+    // var jsons=JSON.stringify(array);
     // alert(jsons);
 
     $.ajax({
@@ -249,7 +249,7 @@
     cache:false,
     contentType: "application/json;charset=UTF-8",
     dataType:"json",
-    data: JSON.stringify({x: [1.0,2.0,3.0], y: [2.0, 3.0, 1.0]}),
+    data: JSON.stringify({x: array}),
     success: function(dat) { console.log(dat)}
   });
     }

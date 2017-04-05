@@ -369,7 +369,6 @@ def instruction3():
 @app.route('/scheduling/',methods=['POST', 'GET'])
 def scheduling():
     l = [2,4,6,8,10]
-    # s = ','.join(str(i) for i in l)
     dicts={'lists':l}
     lists= json.dumps(dicts)
     return render_template('./client/scheduling.html',scheduleNow=lists)
@@ -377,11 +376,14 @@ def scheduling():
 
 @app.route('/update_schedule/',methods=['POST', 'GET'])
 def update_schedule():
+    l = [2,4,6,8,10]
+    dicts={'lists':l}
+    lists= json.dumps(dicts)
     if request.method == 'POST':
         data = request.get_json()
         x = data['x']
     print x
-    return render_template('./client/scheduling.html')
+    return render_template('./client/scheduling.html',scheduleNow=lists)
 
 #--------------------------------------------认证登陆---------------------------------------------------
 @app.route('/login/',methods=['POST', 'GET'])
