@@ -84,8 +84,44 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 16. ID varchar,
 17. synparentID varchar,
 18. listen bigint
-* 数据库中第1项在脚本中由简单定义的一个变量自动增加获得，到实际应用中写法需要更改
-* 运行createdb.py可初始化数据库
+
+ID INTEGER PRIMARY KEY AUTOINCREMENT,
+NodeID varchar,
+ParentID varchar,
+CPU bigint,
+LPM bigint,
+TX bigint,
+RX bigint,
+volage float,
+syntime int,
+beacon int,
+numneighbors int,
+rtimetric int,
+reboot int,
+cycletime int,
+cycletimeDirection varchar,
+Nodecurrenttime time,
+currenttime time,
+electric float
+
+topo1
+NodeID varchar,
+ParentID varchar,
+CPU bigint,
+LPM bigint,
+TX bigint,
+RX bigint,
+volage float,
+syntime int,
+beacon varchar,
+numneighbors int,
+rtimetric int,
+reboot int,
+cycletime int,
+cycletimeDirection varchar,
+Nodecurrenttime time,
+currenttime time);
+
 
 ##前台与后台通信
 instruction1 - 读表与重启指令下发 

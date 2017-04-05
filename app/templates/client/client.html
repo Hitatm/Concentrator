@@ -10,6 +10,8 @@
     <link href="../../static/upload/buttons.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/upload/default.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/upload/fileinput.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/progress-bar/ui.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/progress-bar/ui.progress-bar.css" rel="stylesheet" type="text/css"/>
     
     <link rel="stylesheet" type="text/css" media="all" href="../../static/daterangepicker/daterangepicker-bs3.css" />
     <link rel="stylesheet" type="text/css" media="all" href="../../static/daterangepicker/daterangepicker-1.3.7.css" />
@@ -17,57 +19,8 @@
 
 <script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="../../static/bootstrap-3.3.5/js/fileinput.min.js" type="text/javascript"></script>
-<script src="../../static/upload/fileinput_locale_zh.js" type="text/javascript"></script>
-
-    <script type="text/javascript" src="../../static/daterangepicker/moment.js"></script>
-    <script type="text/javascript" src="../../static/daterangepicker/daterangepicker-1.3.7.js"></script>
-    
-    <style type="text/css">
-      .demo { position: relative; }
-      .demo i {
-        position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;
-      }
-    </style>
 
 </head>
-<script type="text/javascript">
-function CheckNumber(){
-    var num = document.getElementById("box").getElementsByTagName("input");
-    if(isNaN(num)){
-        alert("请输入整数!");
-    else{
-        if(Number(num) > 255){
-            alert("请输入0-255之间的整数!");
-        }
-        else if (Number(num) < 0){
-            alert("请输入0-255之间的整数!");
-        }
-        else 
-            return true;
-    }
-    }
-}
-</script>
-<!-- <script type="text/javascript">
-    function validateForm(){
-    var x=document.forms["instruction3"]["PANID"].value;
-    if (x<0 || x>255)
-    {
-        alert("the interger you input must in (0,255)");
-        return false;
-    }
-    else if (isNaN(x))
-    {
-        alert("please input a interger!")
-        return false;
-    }
-    else
-        return true;
-    
-  }
-}
-</script> -->
 
 
 <body>
@@ -91,25 +44,18 @@ function CheckNumber(){
         <tr>
 
             <td>
-                <form name="instruction2" method="POST" action='{{url_for('instruction2')}}'>
+                <form name="instruction2" method="GET" action='{{url_for('instruction2')}}'>
                 <legend>获取网络监测数据:</legend>
-<!--                 PANID
-                <input type="checkbox" name="monitordata" value="PANID" checked="checked" />
-                <br />
-                channel 
-                <input type="checkbox" name="monitordata" value="channel" />
-                <br />
-                CCA 
-                <input type="checkbox" name="monitordata" value="CCA" />
-                <br />
-                发射功率
-                <input type="checkbox" name="monitordata" value="emitpower" />
-                <br />
-                CCA检查周期
-                <input type="checkbox" name="monitordata" value="CCAcheckingperiod" />
-                <br /> -->
+                    <!-- Progress bar -->
+                    <div id="progress_bar" class="ui-progress-bar ui-container">
+                    <div class="ui-progress" id="bar" style="width: 0.00%;">
+                    <span class="ui-label" > <b class="value">0%</b> </span>
+                    </div>
+                    <!-- /Progress bar -->
+                </div>
                 <input type="submit" value="提交" />
                 </form> 
+            
             </td>
         </tr>
         <tr>
@@ -122,23 +68,39 @@ function CheckNumber(){
                     <fieldset id="box">
                         <legend>网络参数配置指令下发:(请输入0-255之间的整数)</legend>
                         PANID:
-                        <input type="text" name="PANID"/><br />
+                        <input type="text" name="PANID" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         CCA:
-                        <input type="text" name="CCA"/><br />
+                         <input type="text" name="CCA" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         发射功率:
-                        <input type="text" name="emitpower"/><br />
+                        <input type="text" name="emitpower" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         CCA检查周期:
-                        <input type="text" name="CCAcheckingperiod"/><br />
+                        <input type="text" name="CCAcheckingperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         inactive:
-                        <input type="text" name="inactive"/><br />
+                        <input type="text" name="inactive" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         channel:
-                        <input type="text" name="channel"/><br />
+                        <input type="text" name="channel" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         DIO_minlen:
-                        <input type="text" name="DIO_minlen"/><br />
+                        <input type="text" name="DIO_minlen" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                         DIO_max:
-                        <input type="text" name="DIO_max"/><br />
+                        <input type="text" name="DIO_max" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
+                        onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
+                        /><br />
                     </fieldset> 
-                <input type="submit" onclick="CheckNumber()" value="提交" />
+                <input type="submit" value="提交" />
                 </form>
             </div>
         </div>
@@ -147,6 +109,70 @@ function CheckNumber(){
         </tr>
     </table>
     <br>
+
+<script>
+    function toPercent(data){
+    // var strData = parseFloat(data)*100;
+    var strData = parseFloat(data.toFixed(2)*100);
+    var ret = strData.toString()+"%";
+    return ret;
+    }
+    var timeTicket;
+    clearInterval(timeTicket);
+    timeTicket = setInterval(function (){
+            $.ajax({
+            type:"get",
+            url:"{{url_for('update_net')}}",
+            cache:false,
+            contentType: "application/json;charset=UTF-8",
+            dataType:"json",
+            success:function(msg)
+            {
+                var rate = msg['now']/msg['total'];
+                rate = toPercent(rate);
+                var r = "width:" + rate + ";";
+                var div1 = document.getElementById('bar');  
+                div1.style=r;
+                // $('.ui-label').text(rate);
+                $('.value').text(rate);                              
+
+            }
+
+            })
+
+    }, 2000);
+    
+    
+
+
+        // var total = {{total}};
+        // var now = 0;
+        // window.onload = function(){
+
+        //     timer = setInterval(function(event){
+        //             progress();
+        //             //flag=false;
+                
+                
+        //     },1000);
+
+        // }
+        // function progress(){
+        //     if(flag=true){
+        //         flag=false;
+        //         now = {{now}}
+        //         var oDiv = document.getElementById("bar");
+        //         oDiv.style.width =parseInt(oDiv.style.width) + 1 + "%";//parseInt将百分比转为整数，每隔50毫秒加1%
+        //         oDiv.innerHTML = oDiv.style.width;
+        //         console.log(parseInt(oDiv.style.width))
+        //         if(oDiv.style.width == "100%"){
+        //             clearInterval(timer);
+        //         }
+        //     }
+            
+        // }
+
+    </script>
 
 
 </body>

@@ -43,6 +43,8 @@ TOPODATA_DICT =collections.OrderedDict()
 
 serverip = "127.0.1.1"
 serverport = 12310
+NODE_DICT_NET=dict()
+NODE_SET=set()
 # SYS_CONFIG = Congfig()
 jsconfig = json_config()
 
@@ -167,29 +169,95 @@ def instruction1():
 
 @app.route('/instruction2/', methods=['POST', 'GET'])
 @app.route('/instruction2', methods=['POST', 'GET'])
-#获取网络监测数据
 def instruction2():
-    # # insip = jsconfig.get("localhost")
-    # insip = "192.168.0.121"
-    # insport = jsconfig.loadjson["tcpPort"]
+    global NODE_DICT_NET
+    # global NUMBER_NET
+    global NODE_SET
+    NODE_SET = set()
+    # NUMBER_NET=0
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("select distinct nodeID from NetMonitor;") # not NetMonitor but another node.db
+    nodes = list(c.fetchall()) #tuple  -- list
+    total = len(nodes)
+    previous = 0 #total - len(nodes)
+    now = previous
+    if request.method == 'GET':   
+        for node in nodes:
+            NODE_SET.add(str(node[0]))
+            c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node))
+            temp = c.fetchall()
+            NODE_DICT_NET[temp[0][0]] = temp[0][1]
+    # print NODE_DICT_NET
+    return render_template('./client/client.html')
+
+    # insip = jsconfig.get("localhost")
+    # insport = jsconfig.get("tcpPort")
     # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # cli.connect((insip,insport))
-    
-    # dicts= {}
-    # dicts["pama_data"] = "8205105BF15916"
-    # dicts["type"] = "mcast"
-    # dic = {}
-    # dic["type"] = "mcast"
-    # dic["pama_data"] = dicts
-
-    if request.method == 'POST':
-        inslist = request.form.getlist('monitordata')
-        if inslist:
-            print inslist
-
-    # cli.send(json.dumps(dic).encode('utf-8'))
+    # cli.send(ins+" on all meters")
+    # server_reply=cli.recv(65535)
+    # print server_reply
     # cli.close()
-    return render_template('./client/client.html')
+
+
+
+@app.route('/update_net/', methods=['POST', 'GET'])
+@app.route('/update_net', methods=['POST', 'GET'])
+#获取网络监测数据
+def update_net():
+    global NODE_DICT_NET
+    # global NUMBER_NET
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    for node ,value in NODE_DICT_NET.items():
+        # print node,value
+        c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node,))
+        temp = c.fetchall()
+        # print temp
+        if int(temp[0][1])-value>0:
+            # NUMBER_NET+= 1
+            if(str(temp[0][0])  in NODE_SET):
+                NODE_SET.remove(str(temp[0][0]))
+
+    # # print nodedic
+    # for no in nodes:
+    #     c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (no))
+    #     temp1 = c.fetchall()
+    #     if (temp1[0][1] > nodedic[str(temp1[0][0]).encode('utf-8')]):
+    #         d = tuple(str(temp[0][0]).encode('utf-8'))
+    #         try:
+    #             nodes.remove(d)
+    #         except Exception,e:  
+    #             print Exception,":",e
+    #     else:
+    #         continue
+    # now = total - len(nodes)
+    # previous = now
+    dicts= {}
+    dicts["total"] = len(NODE_DICT_NET)
+    dicts["now"] = dicts["total"] - len(NODE_SET)
+    ins = json.dumps(dicts)
+    conn.close()
+    # print ins
+    return ins
+
+# @app.route('/ajaxtest/', methods=['POST', 'GET'])
+# @app.route('/ajaxtest', methods=['POST', 'GET'])
+# def ajaxtest():
+#     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+#     conn = sqlite3.connect(databasepath)
+#     c = conn.cursor()
+#     conn.commit()
+#     conn.close()
+#     dicts= {}
+#     dicts["now"] = 0
+#     dicts["total"] = totalnode
+#     ins = json.dumps(dicts)
+#     return ins
+
 
 @app.route('/instruction3/', methods=['POST', 'GET'])
 @app.route('/instruction3', methods=['POST', 'GET'])
@@ -354,12 +422,12 @@ def basedata():
         return redirect(url_for('login'))
     else:
         try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
         except Exception, e:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from topo;')
+        c.execute('select * from topo1;')
         pcaps = c.fetchall()
         conn.close()
         return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
