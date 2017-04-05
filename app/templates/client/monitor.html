@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head lang="en">
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <meta content="utf-8" http-equiv="encoding">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>transmission</title>
 
@@ -31,13 +32,20 @@
                     <br />
                 <form name="instruction1" method="POST" action='{{url_for('instruction1')}}'>
                 <legend>读表与重启指令下发:</legend>
-                <select id="mySelect" name="mySelect">
+                <input type="submit" name="readregularly" value="周期性读表指令下发"/>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="submit" name="read" value="读表指令下发" /> 
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="submit" name="restart" value="重启指令下发" /> 
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <!-- <select id="mySelect" name="mySelect">
                 <option value="readregularly">周期性读表指令下发</option>
                 <option value="read" >读表指令下发</option>
                 <option value="restart">重启指令下发</option>
                 </select>
                 <br />
-                <input type="submit" value="提交" />
+                <input type="submit" value="提交" /> -->
+
                 </form><br /><br />
             </td>
         </tr>
@@ -67,35 +75,35 @@
                 <form class="form-inline" name="instruction3" method="POST" action='{{url_for('instruction3')}}'>
                     <fieldset id="box">
                         <legend>网络参数配置指令下发:(请输入0-255之间的整数)</legend>
-                        PANID:
+                        PANID:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="text" name="PANID" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        CCA:
+                        CCA:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                          <input type="text" name="CCA" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        发射功率:
+                        发射功率:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="text" name="emitpower" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        CCA检查周期:
+                        CCA检查周期:&nbsp;
                         <input type="text" name="CCAcheckingperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        inactive:
+                        inactive:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="text" name="inactive" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        channel:
+                        channel:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="text" name="channel" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        DIO_minlen:
+                        DIO_minlen:&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="text" name="DIO_minlen" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
-                        DIO_max:
+                        DIO_max:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="text" name="DIO_max" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>225){alert('不能大于225！');this.focus();}"
                         /><br />
@@ -134,8 +142,7 @@
                 var div1 = document.getElementById('bar');  
                 div1.style=r;
                 // $('.ui-label').text(rate);
-                $('.value').text(rate);                              
-
+                $('.value').text(rate);
             }
 
             })

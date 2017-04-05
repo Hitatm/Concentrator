@@ -122,14 +122,14 @@ def upload():
         return render_template('./upload/upload.html')
 
 #--------------------------------------------与后台通信----------------------------------------------------
-@app.route('/client/', methods=['POST', 'GET'])
-@app.route('/client', methods=['POST', 'GET'])
-def client():
+@app.route('/monitor/', methods=['POST', 'GET'])
+@app.route('/monitor', methods=['POST', 'GET'])
+def monitor():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        return render_template('./client/client.html')
+        return render_template('./client/monitor.html')
 
 @app.route('/testconnect/', methods=['POST', 'GET'])
 @app.route('/testconnect', methods=['POST', 'GET'])
@@ -145,7 +145,7 @@ def testconnect():
     # server_reply=cli.recv(65535)
     # print server_reply
     # cli.close()
-    return render_template('./client/client.html')
+    return render_template('./client/monitor.html')
 
 @app.route('/instruction1/', methods=['POST', 'GET'])
 @app.route('/instruction1', methods=['POST', 'GET'])
@@ -157,15 +157,21 @@ def instruction1():
     # cli.connect((insip,insport))
 
     if request.method == 'POST':
-        ins = request.form['mySelect'] # ins = instruction
-        if ins:
+        ins1 = request.form['readregularly'] # ins = instruction
+        if ins1:
             # cli.send(ins+" on all meters")
-            
-            print ins+" on all meters"
+            print "readregularly on all meters"
+        ins2 = request.form["read"]
+        if ins2:
+            print "read on all meters"
+        ins3 = request.form["restart"]
+        if ins3:
+            print "restart on all meters"
+
     # server_reply=cli.recv(65535)
     # print server_reply
     # cli.close()
-    return render_template('./client/client.html')
+    return render_template('./client/monitor.html')
 
 @app.route('/instruction2/', methods=['POST', 'GET'])
 @app.route('/instruction2', methods=['POST', 'GET'])
@@ -190,7 +196,7 @@ def instruction2():
             temp = c.fetchall()
             NODE_DICT_NET[temp[0][0]] = temp[0][1]
     # print NODE_DICT_NET
-    return render_template('./client/client.html')
+    return render_template('./client/monitor.html')
 
     # insip = jsconfig.get("localhost")
     # insport = jsconfig.get("tcpPort")
@@ -221,21 +227,6 @@ def update_net():
             # NUMBER_NET+= 1
             if(str(temp[0][0])  in NODE_SET):
                 NODE_SET.remove(str(temp[0][0]))
-
-    # # print nodedic
-    # for no in nodes:
-    #     c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (no))
-    #     temp1 = c.fetchall()
-    #     if (temp1[0][1] > nodedic[str(temp1[0][0]).encode('utf-8')]):
-    #         d = tuple(str(temp[0][0]).encode('utf-8'))
-    #         try:
-    #             nodes.remove(d)
-    #         except Exception,e:  
-    #             print Exception,":",e
-    #     else:
-    #         continue
-    # now = total - len(nodes)
-    # previous = now
     dicts= {}
     dicts["total"] = len(NODE_DICT_NET)
     dicts["now"] = dicts["total"] - len(NODE_SET)
@@ -243,20 +234,6 @@ def update_net():
     conn.close()
     # print ins
     return ins
-
-# @app.route('/ajaxtest/', methods=['POST', 'GET'])
-# @app.route('/ajaxtest', methods=['POST', 'GET'])
-# def ajaxtest():
-#     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-#     conn = sqlite3.connect(databasepath)
-#     c = conn.cursor()
-#     conn.commit()
-#     conn.close()
-#     dicts= {}
-#     dicts["now"] = 0
-#     dicts["total"] = totalnode
-#     ins = json.dumps(dicts)
-#     return ins
 
 
 @app.route('/instruction3/', methods=['POST', 'GET'])
@@ -384,10 +361,27 @@ def instruction3():
         pass
     else:
         data = hex(data0+data1+data2+data3+data4+data5+data6+data7+data8)
-        # cli.send(json.dumps(dicts).encode('utf-8'))
+        # cli.send(json.dumps(dicts).encode('utf-8')) hex(180)[2:]
         print data
     # cli.close()
-    return render_template('./client/client.html')
+    return render_template('./client/monitor.html')
+
+@app.route('/scheduling/',methods=['POST', 'GET'])
+def scheduling():
+    l = [2,4,6,8,10]
+    # s = ','.join(str(i) for i in l)
+    dicts={'lists':l}
+    lists= json.dumps(dicts)
+    return render_template('./client/scheduling.html',scheduleNow=lists)
+
+
+@app.route('/update_schedule/',methods=['POST', 'GET'])
+def update_schedule():
+    if request.method == 'POST':
+        data = request.get_json()
+        x = data['x']
+    print x
+    return render_template('./client/scheduling.html')
 
 #--------------------------------------------认证登陆---------------------------------------------------
 @app.route('/login/',methods=['POST', 'GET'])
@@ -411,6 +405,7 @@ def logout():
     global PCAPS
     PCAPS = None
     return redirect(url_for('login'))
+
 
 #-------------------------------------------数据分析----------------------------------------------------
 #基本数据
