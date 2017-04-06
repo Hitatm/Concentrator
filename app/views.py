@@ -41,8 +41,8 @@ REALDATA   = None #login
 TPDECODE   =TopoDecode()
 TOPODATA_DICT =collections.OrderedDict()
 
-serverip = "127.0.1.1"
-serverport = 12310
+serverip = "192.168.0.121"
+serverport = 12300
 NODE_DICT_NET=dict()
 NODE_SET=set()
 # SYS_CONFIG = Congfig()
@@ -135,9 +135,9 @@ def monitor():
 @app.route('/instruction_send', methods=['POST', 'GET'])
 def instruction_send():
 #指令下发
-    # global serverip, serverport
-    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    # cli.connect((serverip,serverport))
+    global serverip, serverport
+    cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    cli.connect((serverip,serverport))
     datalist = []
     datalist.append("80")
     dicts = {}
@@ -165,20 +165,21 @@ def instruction_send():
         addrlist.append(nodeip)
         dicts["addrList"] = addrlist
         ins = json.dumps(dicts)
-    print ins
+    # print ins
+    cli.send(ins)
 
     # server_reply=cli.recv(65535)
     # print server_reply
-    # cli.close()
+    cli.close()
     return render_template('./client/monitor.html')
 
 @app.route('/instruction_write/', methods=['POST', 'GET'])
 @app.route('/instruction_write', methods=['POST', 'GET'])
 def instruction_write():
 #指令烧写
-    # global serverip, serverport
-    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    # cli.connect((serverip,serverport))
+    global serverip, serverport
+    cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    cli.connect((serverip,serverport))
     datalist = []
     datalist.append("82")
     dicts = {}
@@ -206,10 +207,11 @@ def instruction_write():
         addrlist.append(nodeip)
         dicts["addrList"] = addrlist
         ins = json.dumps(dicts)
-    print ins
+    # print ins
+    cli.send(ins)
     # server_reply=cli.recv(65535)
     # print server_reply
-    # cli.close()
+    cli.close()
     return render_template('./client/monitor.html')
 
 @app.route('/instruction_restart/', methods=['POST', 'GET'])
@@ -270,19 +272,22 @@ def instruction_reset():
 @app.route('/instruction_adjtime', methods=['POST', 'GET'])
 def instruction_adjtime():
 #指令下发
-    global serverip, serverport
+    # global serverip, serverport
+    HOST = "192.168.0.121"
+    PORT = 12300
     cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    cli.connect((serverip,serverport))
+    cli.connect((HOST,PORT))  
     dicts = {}
     if request.method == 'POST':
         recvdata = request.form['timeperiod']
         if recvdata:
-            dicts["pama_data"] = recvdata
-        
+            dicts["pama_data"] = recvdata   
     dicts["type"] = "pama_corr"
     ins = json.dumps(dicts)
     # print ins
+    # cli.send(ins)
     cli.send(ins)
+    print ins
 
     # server_reply=cli.recv(65535)
     # print server_reply

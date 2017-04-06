@@ -42,7 +42,7 @@ function check2(object)
 function check4(object)
 {
     var value = object.value;
-    if(value=="unicast")
+    if(value=="unicast_ack")
     {
         document.getElementById('ipselect4').style.display="block";
     }
@@ -67,7 +67,7 @@ function del()
 function check5(object)
 {
     var value = object.value;
-    if(value=="unicast")
+    if(value=="unicast_ack")
     {
         document.getElementById('ipselect5').style.display="block";
     }
@@ -107,9 +107,9 @@ function check5(object)
                         <div id="ipselect" style="display: none">    
                         节点选择:<select name="nodeIP" onchange="check(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
-                            <option value="aaaa:0:0:0:12:7400:1:14">aaaa:0:0:0:12:7400:1:14</option>
-                            <option value="aaaa:0:0:0:12:7400:1:15">aaaa:0:0:0:12:7400:1:15</option>
-                            <option value="aaaa:0:0:0:12:7400:1:16">aaaa:0:0:0:12:7400:1:16</option>
+                            <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
+                            <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
+                            <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
                         <br />
@@ -132,9 +132,9 @@ function check5(object)
                         <div id="ipselect2" style="display: none">    
                         节点选择:<select name="nodeIP2" onchange="check2(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
-                            <option value="aaaa:0:0:0:12:7400:1:14">aaaa:0:0:0:12:7400:1:14</option>
-                            <option value="aaaa:0:0:0:12:7400:1:15">aaaa:0:0:0:12:7400:1:15</option>
-                            <option value="aaaa:0:0:0:12:7400:1:16">aaaa:0:0:0:12:7400:1:16</option>
+                            <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
+                            <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
+                            <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
                         <br />
@@ -203,16 +203,16 @@ function check5(object)
                         <legend>节点重启:</legend>
 
                         <select id="mySelect4" name="mySelect4" onchange="check4(this)">
-                            <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
-                            <option value="unicast" >&nbsp;单&nbsp;播&nbsp;</option>
+                            <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
+                            <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
                         <br />
                         <div id="ipselect4" style="display: none">    
                         节点选择:<select name="nodeIP4" onchange="check4(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
-                            <option value="aaaa:0:0:0:12:7400:1:14">aaaa:0:0:0:12:7400:1:14</option>
-                            <option value="aaaa:0:0:0:12:7400:1:15">aaaa:0:0:0:12:7400:1:15</option>
-                            <option value="aaaa:0:0:0:12:7400:1:16">aaaa:0:0:0:12:7400:1:16</option>
+                            <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
+                            <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
+                            <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
                         <br />
@@ -228,16 +228,16 @@ function check5(object)
                         <legend>恢复出厂设置:</legend>
 
                         <select id="mySelect5" name="mySelect5" onchange="check5(this)">
-                            <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
-                            <option value="unicast" >&nbsp;单&nbsp;播&nbsp;</option>
+                            <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
+                            <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
                         <br />
                         <div id="ipselect5" style="display: none">    
                         节点选择:<select name="nodeIP5" onchange="check5(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
-                            <option value="aaaa:0:0:0:12:7400:1:14">aaaa:0:0:0:12:7400:1:14</option>
-                            <option value="aaaa:0:0:0:12:7400:1:15">aaaa:0:0:0:12:7400:1:15</option>
-                            <option value="aaaa:0:0:0:12:7400:1:16">aaaa:0:0:0:12:7400:1:16</option>
+                            <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
+                            <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
+                            <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
                         <br />
@@ -247,7 +247,7 @@ function check5(object)
                         </form>
                     </section>
                     <section id="section-underline-6">
-                    <form name="instruction_adjtime" method="GET" action='{{url_for('instruction_adjtime')}}'>
+                    <form name="instruction_adjtime" method="POST" action='{{url_for('instruction_adjtime')}}'>
                         <legend>设定根节点校时周期:</legend>
                         <input type="text" name="timeperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" onblur="if(this.value>9999){alert('校时周期过长！');this.focus();}"
                          placeholder="请输入新根节点校时周期"/>
