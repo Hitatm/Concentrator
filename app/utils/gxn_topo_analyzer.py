@@ -4,7 +4,7 @@ __author__ = 'dj'
 from scapy.all import *
 import collections
 #数据包大小统计
-from gxn_get_sys_config import Congfig
+from gxn_get_sys_config import Config
 
 def pcap_len_statistic(PCAPS):
     pcap_len_dict = {'0-300':0, '301-600':0, '601-900':0, '901-1200':0, '1201-1500':0}
@@ -107,7 +107,7 @@ def topo_statistic(TOPODATA):
 #     return nodes_dict
 
 def topo_traffic_analyzer(TOPODICT):
-    sysCongfig = Congfig()
+    sysCongfig = Config()
     traffic_dict = collections.OrderedDict()
     # date_set=set()
     # print sysCongfig.ACTIVE_TIME
@@ -119,9 +119,9 @@ def topo_traffic_analyzer(TOPODICT):
         traffic = date+' '+ymd
         numberof_10= int(ymd.split(':')[0])*6+(int(ymd.split(':')[1]) +2)/10 # +2 是因为允许有节点早到两分钟(的误差)
         real_minutes= int(ymd.split(':')[0])*60+int(ymd.split(':')[1]) #实际的分钟数
-        if numberof_10  in sysCongfig.ACTIVE_TIME:
+        if numberof_10  in sysCongfig.get_active_time():
             # print sysConfig.ACTIVE_TIME[numberof_10]
-            base_time=sysCongfig.ACTIVE_TIME[numberof_10]
+            base_time=sysCongfig.get_active_time()[numberof_10]
             tempkey= date+' '+base_time
             base_minutes=int(base_time.split(':')[0])*60+int(base_time.split(':')[1])#基准active的分钟
             real_base_diff= real_minutes-base_minutes

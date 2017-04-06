@@ -10,7 +10,7 @@ from utils.upload_tools import allowed_file, get_filetype, random_name
 from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,topo_filter
 from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_topo_analyzer import topo_statistic,topo_traffic_statistic,topo_traffic_analyzer
-from utils.gxn_get_sys_config import Congfig
+from utils.gxn_get_sys_config import Config
 from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,startAllProcesses,stopAllProcesses
 from utils.jsonconfig import json_config
 
@@ -131,110 +131,163 @@ def monitor():
     else:
         return render_template('./client/monitor.html')
 
-@app.route('/testconnect/', methods=['POST', 'GET'])
-@app.route('/testconnect', methods=['POST', 'GET'])
-def testconnect():
+@app.route('/instruction_send/', methods=['POST', 'GET'])
+@app.route('/instruction_send', methods=['POST', 'GET'])
+def instruction_send():
+#指令下发
     # global serverip, serverport
     # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # cli.connect((serverip,serverport))
+    datalist = []
+    datalist.append("80")
+    dicts = {}
     if request.method == 'POST':
-        flash(u',信息发送成功')
-        data = request.form['emit_data']
-        if data:
-            print data
+        recvdata = request.form['emit_data']
+        if recvdata:
+            if (len(recvdata)%2 != 0):
+                recvdata = "0"+recvdata
+            if (len(recvdata)<32):
+                datalength = "0"+hex(len(recvdata)/2)[2:]
+            else:
+                datalength = hex(len(recvdata))[2:]
+        transmit_type = request.form['mySelect']
+        nodeip = request.form['nodeIP']
+
+    datalist.append(datalength)
+    datalist.append(recvdata)
+    data = ''.join(datalist)
+    dicts["type"] = transmit_type
+    dicts["pama_data"] = data
+    if (transmit_type=="mcast"):
+        ins = json.dumps(dicts)
+    else:
+        addrlist = []
+        addrlist.append(nodeip)
+        dicts["addrList"] = addrlist
+        ins = json.dumps(dicts)
+    print ins
+
     # server_reply=cli.recv(65535)
     # print server_reply
     # cli.close()
     return render_template('./client/monitor.html')
 
-@app.route('/instruction1/', methods=['POST', 'GET'])
-@app.route('/instruction1', methods=['POST', 'GET'])
-#读表与重启指令下发
-def instruction1():
-    # insip = jsconfig.get("localhost")
-    # insport = jsconfig.get("tcpPort")
+@app.route('/instruction_write/', methods=['POST', 'GET'])
+@app.route('/instruction_write', methods=['POST', 'GET'])
+def instruction_write():
+#指令烧写
+    # global serverip, serverport
     # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    # cli.connect((insip,insport))
-
+    # cli.connect((serverip,serverport))
+    datalist = []
+    datalist.append("82")
+    dicts = {}
     if request.method == 'POST':
-        ins1 = request.form['readregularly'] # ins = instruction
-        if ins1:
-            # cli.send(ins+" on all meters")
-            print "readregularly on all meters"
-        ins2 = request.form["read"]
-        if ins2:
-            print "read on all meters"
-        ins3 = request.form["restart"]
-        if ins3:
-            print "restart on all meters"
+        recvdata = request.form['write_data']
+        if recvdata:
+            if (len(recvdata)%2 != 0):
+                recvdata = "0"+recvdata
+            if (len(recvdata)<32):
+                datalength = "0"+hex(len(recvdata)/2)[2:]
+            else:
+                datalength = hex(len(recvdata))[2:]
+        transmit_type = request.form['mySelect2']
+        nodeip = request.form['nodeIP2']
 
+    datalist.append(datalength)
+    datalist.append(recvdata)
+    data = ''.join(datalist)
+    dicts["type"] = transmit_type
+    dicts["pama_data"] = data
+    if (transmit_type=="mcast"):
+        ins = json.dumps(dicts)
+    else:
+        addrlist = []
+        addrlist.append(nodeip)
+        dicts["addrList"] = addrlist
+        ins = json.dumps(dicts)
+    print ins
     # server_reply=cli.recv(65535)
     # print server_reply
     # cli.close()
     return render_template('./client/monitor.html')
 
-@app.route('/instruction2/', methods=['POST', 'GET'])
-@app.route('/instruction2', methods=['POST', 'GET'])
-def instruction2():
-    global NODE_DICT_NET
-    # global NUMBER_NET
-    global NODE_SET
-    NODE_SET = set()
-    # NUMBER_NET=0
-    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    c.execute("select distinct nodeID from NetMonitor;") # not NetMonitor but another node.db
-    nodes = list(c.fetchall()) #tuple  -- list
-    total = len(nodes)
-    previous = 0 #total - len(nodes)
-    now = previous
-    if request.method == 'GET':   
-        for node in nodes:
-            NODE_SET.add(str(node[0]))
-            c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node))
-            temp = c.fetchall()
-            NODE_DICT_NET[temp[0][0]] = temp[0][1]
-    # print NODE_DICT_NET
-    return render_template('./client/monitor.html')
-
-    # insip = jsconfig.get("localhost")
-    # insport = jsconfig.get("tcpPort")
-    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    # cli.connect((insip,insport))
-    # cli.send(ins+" on all meters")
-    # server_reply=cli.recv(65535)
-    # print server_reply
-    # cli.close()
-
-
-
-@app.route('/update_net/', methods=['POST', 'GET'])
-@app.route('/update_net', methods=['POST', 'GET'])
-#获取网络监测数据
-def update_net():
-    global NODE_DICT_NET
-    # global NUMBER_NET
-    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    for node ,value in NODE_DICT_NET.items():
-        # print node,value
-        c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node,))
-        temp = c.fetchall()
-        # print temp
-        if int(temp[0][1])-value>0:
-            # NUMBER_NET+= 1
-            if(str(temp[0][0])  in NODE_SET):
-                NODE_SET.remove(str(temp[0][0]))
-    dicts= {}
-    dicts["total"] = len(NODE_DICT_NET)
-    dicts["now"] = dicts["total"] - len(NODE_SET)
-    ins = json.dumps(dicts)
-    conn.close()
+@app.route('/instruction_restart/', methods=['POST', 'GET'])
+@app.route('/instruction_restart', methods=['POST', 'GET'])
+#重启指令下发
+def instruction_restart():
+    global serverip, serverport
+    cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    cli.connect((serverip,serverport))
+    dicts = {}
+    dicts["pama_data"] = "C0"
+    if request.method == 'POST':
+        transmit_type = request.form['mySelect4']
+        nodeip = request.form['nodeIP4']
+    dicts["type"] = transmit_type
+    if (transmit_type=="mcast"):
+        ins = json.dumps(dicts)
+    else:
+        addrlist = []
+        addrlist.append(nodeip)
+        dicts["addrList"] = addrlist
+        ins = json.dumps(dicts)
     # print ins
-    return ins
+    # server_reply=cli.recv(65535)
+    # print server_reply
+    cli.send(ins)
+    cli.close()
+    return render_template('./client/monitor.html')
 
+@app.route('/instruction_reset/', methods=['POST', 'GET'])
+@app.route('/instruction_reset', methods=['POST', 'GET'])
+#恢复出厂设置
+def instruction_reset():
+    global serverip, serverport
+    cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    cli.connect((serverip,serverport))
+    dicts = {}
+    dicts["pama_data"] = "C1"
+    if request.method == 'POST':
+        transmit_type = request.form['mySelect5']
+        nodeip = request.form['nodeIP5']
+    dicts["type"] = transmit_type
+    if (transmit_type=="mcast"):
+        ins = json.dumps(dicts)
+    else:
+        addrlist = []
+        addrlist.append(nodeip)
+        dicts["addrList"] = addrlist
+        ins = json.dumps(dicts)
+    # print ins
+    # server_reply=cli.recv(65535)
+    # print server_reply
+    cli.send(ins)
+    cli.close()
+    return render_template('./client/monitor.html')
+
+@app.route('/instruction_adjtime/', methods=['POST', 'GET'])
+@app.route('/instruction_adjtime', methods=['POST', 'GET'])
+def instruction_adjtime():
+#指令下发
+    global serverip, serverport
+    cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    cli.connect((serverip,serverport))
+    dicts = {}
+    if request.method == 'POST':
+        recvdata = request.form['timeperiod']
+        if recvdata:
+            dicts["pama_data"] = recvdata
+        
+    dicts["type"] = "pama_corr"
+    ins = json.dumps(dicts)
+    # print ins
+    cli.send(ins)
+
+    # server_reply=cli.recv(65535)
+    # print server_reply
+    cli.close()
+    return render_template('./client/monitor.html')
 
 @app.route('/instruction3/', methods=['POST', 'GET'])
 @app.route('/instruction3', methods=['POST', 'GET'])
@@ -245,10 +298,12 @@ def instruction3():
     # insport = jsconfig.loadjson["tcpPort"]
     # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     # cli.connect((insip,insport))
+    global serverip, serverport
+    cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    cli.connect((serverip,serverport))
     
-    # dicts= {}
-    # dicts["pama_data"] = "8205105BF15916"
-    # dicts["type"] = "mcast"
+    dicts= {}
+    dicts["type"] = "mcast_ack"
     data0 = "40"
     datalist = []
     datalist.append(data0)
@@ -303,13 +358,88 @@ def instruction3():
         datalist.append(data8)
         # cli.send(json.dumps(dicts).encode('utf-8'))
         data = ''.join(datalist)
-        print data
-    # cli.close()
+        dicts["pama_data"] = data
+        ins = json.dumps(dicts)
+        print ins
+    cli.send(ins)    
+    cli.close()
     return render_template('./client/monitor.html')
+
+@app.route('/getdata/', methods=['POST', 'GET'])
+@app.route('/getdata', methods=['POST', 'GET'])
+def getdata():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        return render_template('./client/getdata.html')
+
+@app.route('/instruction2/', methods=['POST', 'GET'])
+@app.route('/instruction2', methods=['POST', 'GET'])
+def instruction2():
+    global NODE_DICT_NET
+    # global NUMBER_NET
+    global NODE_SET
+    NODE_SET = set()
+    # NUMBER_NET=0
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("select distinct nodeID from NetMonitor;") # not NetMonitor but another node.db
+    nodes = list(c.fetchall()) #tuple  -- list
+    total = len(nodes)
+    previous = 0 #total - len(nodes)
+    now = previous
+    if request.method == 'GET':   
+        for node in nodes:
+            NODE_SET.add(str(node[0]))
+            c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node))
+            temp = c.fetchall()
+            NODE_DICT_NET[temp[0][0]] = temp[0][1]
+    # print NODE_DICT_NET
+    return render_template('./client/getdata.html')
+
+    # insip = jsconfig.get("localhost")
+    # insport = jsconfig.get("tcpPort")
+    # cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # cli.connect((insip,insport))
+    # cli.send(ins+" on all meters")
+    # server_reply=cli.recv(65535)
+    # print server_reply
+    # cli.close()
+
+
+
+@app.route('/update_net/', methods=['POST', 'GET'])
+@app.route('/update_net', methods=['POST', 'GET'])
+#获取网络监测数据
+def update_net():
+    global NODE_DICT_NET
+    # global NUMBER_NET
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    for node ,value in NODE_DICT_NET.items():
+        # print node,value
+        c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node,))
+        temp = c.fetchall()
+        # print temp
+        if int(temp[0][1])-value>0:
+            # NUMBER_NET+= 1
+            if(str(temp[0][0])  in NODE_SET):
+                NODE_SET.remove(str(temp[0][0]))
+    dicts= {}
+    dicts["total"] = len(NODE_DICT_NET)
+    dicts["now"] = dicts["total"] - len(NODE_SET)
+    ins = json.dumps(dicts)
+    conn.close()
+    # print ins
+    return ins
 
 @app.route('/scheduling/',methods=['POST', 'GET'])
 def scheduling():
-    l = [2,4,6,8,10]
+    syn_config = Config()
+    l=syn_config.get_active_list()
     dicts={'lists':l}
     lists= json.dumps(dicts)
     return render_template('./client/scheduling.html',scheduleNow=lists)
@@ -317,13 +447,17 @@ def scheduling():
 
 @app.route('/update_schedule/',methods=['POST', 'GET'])
 def update_schedule():
-    l = [2,4,6,8,10]
-    dicts={'lists':l}
-    lists= json.dumps(dicts)
+    syn_config = Config()
     if request.method == 'POST':
         data = request.get_json()
         x = data['x']
-    print x
+        syn_config.set_SynBitMap(x)
+        # print syn_config.get_active_time()
+    l=syn_config.get_active_list()
+    # print l
+    dicts={'lists':l}
+    lists= json.dumps(dicts)
+
     return render_template('./client/scheduling.html',scheduleNow=lists)
 
 #--------------------------------------------认证登陆---------------------------------------------------
@@ -365,7 +499,7 @@ def basedata():
         except Exception, e:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from topo1;')
+        c.execute('select * from NetMonitor;')
         pcaps = c.fetchall()
         conn.close()
         return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)

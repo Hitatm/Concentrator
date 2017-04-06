@@ -9,7 +9,7 @@ import os
 import linecache
 import collections
 from gxn_topo_decode import TopoDecode
-from gxn_get_sys_config import Congfig
+from gxn_get_sys_config import Config
 import sqlite3
 
 def getfile_content(path):

@@ -1,1 +1,1 @@
-schedule:0 0 4 0 0 0 0 64 0 0 0 4 0 0 0 0 64 0
+{"hour": 17, "level": 0, "seqNum": 17, "second": 33, "bitmap": [127, 128, 0, 1, 64, 0, 1, 64, 0, 0, 0, 37, 64, 1, 0, 16, 2, 1], "state": true, "period": 1, "minute": 37}
