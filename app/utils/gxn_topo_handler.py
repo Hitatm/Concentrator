@@ -2,14 +2,15 @@
 # @Author: Guoxuenan
 # @Date:   2016-11-10 17:16:50
 # @Last Modified by:   Guoxuenan
-# @Last Modified time: 2016-12-22 15:22:40
+# @Last Modified time: 2016-11-18 14:06:04
 __author__ ='gxn'
 
 import os 
 import linecache
 import collections
 from gxn_topo_decode import TopoDecode
-from gxn_get_sys_config import Congfig
+from gxn_get_sys_config import Config
+import sqlite3
 
 def getfile_content(path):
 	result=None
@@ -24,6 +25,8 @@ def getfile_content(path):
 	filetemp.close()
 	return result
 
+
+
 def findline():
 	file1=open('/home/wangyu/相关实验/时间同步实验45个节点/data.log','r')
 	# linecache.clearcache()
@@ -34,14 +37,14 @@ def findline():
 	# linecache.clearcache()
 
 def getall_topo(TOPODATA,TPDECODE):
-    items = collections.OrderedDict()
-    count = 0
-    for p in TOPODATA:
-        count += 1
-        item = TPDECODE.topo_decode(p)
+	items = collections.OrderedDict()
+	count = 0
+	for p in TOPODATA:
+	    count += 1
+	    item = TPDECODE.topo_decode(p)
+	    items[count] = item
         # print item
-        items[count] = item
-    return items
+	return items
 
 def get_filter_item(TOPODATA, TPDECODE, key, value):
     items = collections.OrderedDict()
@@ -105,11 +108,11 @@ def showdata_from_id(DATA_DICT, dataid):
         html_values = value
         all_html += html.format(proto=html_proto, values=html_values, id=str(id))
     return all_html
-
-def topo_statistic(TOPODICT):
+#--------modified by zzh@1.22
+def topo_statistic(TOPOLIST):
     nodes_dict = dict()
-    for count, item in TOPODICT.items():
-    	ID= item['ID']
+    for item in TOPOLIST:
+    	ID = item[16] #ID
     	if ID in nodes_dict:
     		nodes_dict[ID]+=1
     	else:
@@ -124,9 +127,9 @@ def topo_traffic_statistic(TOPODICT):
     for count ,items in TOPODICT.items():
         traffic_item=items['realtimestamp'].split('_')
         traffic = traffic_item[0].replace('-','/')+' '+traffic_item[1]
-        # print traffic
-        # print count
-        # print TOPODICT[count]
+        print traffic
+        print count
+        print TOPODICT[count]
         if traffic  in traffic_dict:
             traffic_dict[traffic]+=1
         else:
@@ -134,12 +137,12 @@ def topo_traffic_statistic(TOPODICT):
     # print traffic_dict
     return traffic_dict
 
-# if __name__ == '__main__':
-# 	TPDECODE =TopoDecode()
-# # 	sysConfig=Congfig()
-# # 	# print sysConfig.
-# 	data__=getfile_content('/home/wangyu/myspace/Concentrator/datalog/topo.txt')
-# 	print getall_topo(data__,TPDECODE)
+if __name__ == '__main__':
+	TPDECODE =TopoDecode()
+# 	sysConfig=Congfig()
+# 	# print sysConfig.
+	# data__=getfile_content('/home/winzzhhzzhh/lab/Concentrator/datalog/topo.txt')
+	# print getall_topo(data__,TPDECODE)
 # 	# data= topo_filter('ID','',data__ ,TPDECODE)
 # 	data= getall_topo(data__,TPDECODE)
 # 	# print data

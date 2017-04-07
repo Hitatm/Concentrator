@@ -4,7 +4,7 @@ __author__ = 'dj'
 from scapy.all import *
 import collections
 #数据包大小统计
-from gxn_get_sys_config import Congfig
+from gxn_get_sys_config import Config
 
 def pcap_len_statistic(PCAPS):
     pcap_len_dict = {'0-300':0, '301-600':0, '601-900':0, '901-1200':0, '1201-1500':0}
@@ -88,30 +88,40 @@ def most_proto_statistic(PCAPS, PD):
 #http/https协议统计
 def topo_statistic(TOPODATA):
     nodes_dict = dict()
-    for count, item in TOPODATA.items():
-        ID= item['ID']
+    for item in TOPODATA:
+        ID= item[16] #ID
         if ID in nodes_dict:
             nodes_dict[ID]+=1
         else:
             nodes_dict[ID]=1
     return nodes_dict
 
+# def ID_statistic(TOPODATA):
+#     nodes_dict = dict()
+#     for item in TOPODATA:
+#         ID= item[0] #ID
+#         if ID in nodes_dict:
+#             nodes_dict[ID]+=1
+#         else:
+#             nodes_dict[ID]=1
+#     return nodes_dict
+
 def topo_traffic_analyzer(TOPODICT):
-    sysCongfig = Congfig()
+    sysCongfig = Config()
     traffic_dict = collections.OrderedDict()
     # date_set=set()
     # print sysCongfig.ACTIVE_TIME
-    for count ,items in TOPODICT.items():
-        traffic_item=items['realtimestamp'].split('_')
-        date=traffic_item[0].replace('-','/')
+    for items in TOPODICT:
+        traffic_item=items[14].split('_') #realtimestamp
+        date=traffic_item[0].replace('-','/').encode('UTF-8')
         ymd=traffic_item[1][:5]
         # print ymd, 
         traffic = date+' '+ymd
         numberof_10= int(ymd.split(':')[0])*6+(int(ymd.split(':')[1]) +2)/10 # +2 是因为允许有节点早到两分钟(的误差)
         real_minutes= int(ymd.split(':')[0])*60+int(ymd.split(':')[1]) #实际的分钟数
-        if numberof_10  in sysCongfig.ACTIVE_TIME:
+        if numberof_10  in sysCongfig.get_active_time():
             # print sysConfig.ACTIVE_TIME[numberof_10]
-            base_time=sysCongfig.ACTIVE_TIME[numberof_10]
+            base_time=sysCongfig.get_active_time()[numberof_10]
             tempkey= date+' '+base_time
             base_minutes=int(base_time.split(':')[0])*60+int(base_time.split(':')[1])#基准active的分钟
             real_base_diff= real_minutes-base_minutes
@@ -229,8 +239,8 @@ def get_traffic_list(traffic_dict):
 def topo_traffic_statistic(TOPODICT):
     traffic_dict = collections.OrderedDict()
     count=0
-    for count ,items in TOPODICT.items():
-        traffic_item=items['realtimestamp'].split('_')
+    for items in TOPODICT:
+        traffic_item=items[14].split('_') #'realtimestamp'
         traffic = traffic_item[0].replace('-','/')+' '+traffic_item[1]
         # print traffic
         if traffic  in traffic_dict:

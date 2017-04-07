@@ -8,8 +8,8 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |:--|:--|:--|    
 |start|2016-11-01|begin|    
 |１|2016-11-10|finished login and time select module|    
-| 2|2016-11-23|finished topo analyse module and the adjust the web page to adapt to mobile phone display|
-|3 |2016-11-24|add web terminal tool for user accessing the Concentrator system|
+| 2|2016-11-23|finished topo analyse module and the adjust the web page to adapt to mobile phone display"|
+|3 |2016-11-24|add web terminal tool for user accessing the Concentrator system"|
 
 
 # 参数
@@ -47,37 +47,107 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |17|  34 					|  46|1   |接收序列号  |
 |18| 1 					|  47|1   |时间同步level  |
 
-#备忘：
+0
+1:'realtimestamp'
+2:'nodetimestamp'
+3:'syntimediff'
+4:'syntimestamp'
+5:'ID'
+6:'ParentID'
+7:'energy'
+8:'voltage'
+9:'BeaconInterval'
+10:'num_of_neighbour'
+11:'rtx'
+12:'restarttimes'
+13:'synparentID'
+14:'synsqnum'
+15:'synlevel'
 
-## 1. 安装shellinbox 支持命令行工具
-	sudo apt-get install openssl shellinabox
+#数据库格式
+0. topoid integer primary key autoincrement, 
+1. synlevel int, 
+2. synsqnum int, 
+3. syntimestamp time, 
+4. restarttimes int,
+5. rtx int,
+6. cpu bigint,
+7. num_of_neighbour int,
+8. BeaconInterval int,
+9. lpm bigint,
+10. syntimediff int,
+11. voltage float,
+12. ParentID varchar,
+13. transmit bigint,
+14. realtimestamp varchar,
+15. nodetimestamp time,
+16. ID varchar,
+17. synparentID varchar,
+18. listen bigint
 
-## 2.　配置shellinabox
-```shell
-	sudo vim /etc/default/shellinabox 
-	配置如下:
-	  1 # Should shellinaboxd start automatically              
-	  2 SHELLINABOX_DAEMON_START=1              
-	  3               
-	  4 # TCP port that shellinboxd's webserver listens on              
-	  5 SHELLINABOX_PORT=6175              
-	  6               
-	  7 # Parameters that are managed by the system and usually should not need              
-	  8 # changing:              
-	  9 #SHELLINABOX_DATADIR=/var/lib/shellinabox              
-	 10 #SHELLINABOX_USER=shellinabox              
-	 11 #SHELLINABOX_GROUP=shellinabox              
-	 12               
-	 13 # Any optional arguments (e.g. extra service definitions).  Make sure              
-	 14 # that that argument is quoted.              
-	 15 #              
-	 16 #   Beeps are disabled because of reports of the VLC plugin crashing              
-	 17 #   Firefox on Linux/x86_64.              
-	 18 #SHELLINABOX_ARGS="--no-beep -t -s /:SSH:192.168.1.152"              
-	 19 SHELLINABOX_ARGS="--no-beep -t -s /:AUTH:HOME:/bin/bash"              
-```
-## 3.　重启shellinabox服务    
-	sudo service shellinabox restart   
+ID INTEGER PRIMARY KEY AUTOINCREMENT,
+NodeID varchar,
+ParentID varchar,
+CPU bigint,
+LPM bigint,
+TX bigint,
+RX bigint,
+volage float,
+syntime int,
+beacon int,
+numneighbors int,
+rtimetric int,
+reboot int,
+cycletime int,
+cycletimeDirection varchar,
+Nodecurrenttime time,
+currenttime time,
+electric float
 
-## ４.别忘了配置服务开机自启动
+topo1
+NodeID varchar,
+ParentID varchar,
+CPU bigint,
+LPM bigint,
+TX bigint,
+RX bigint,
+volage float,
+syntime int,
+beacon varchar,
+numneighbors int,
+rtimetric int,
+reboot int,
+cycletime int,
+cycletimeDirection varchar,
+Nodecurrenttime time,
+currenttime time);
+
+
+##前台与后台通信
+instruction1 - 读表与重启指令下发 
+具体包括：
+1. 周期性读表指令下发
+2. 读表指令下发
+3. 重启指令下发
+
+instruction2 - 获取网络监测数据
+具体包括：
+1. PANID
+2. channel
+3. CCA
+4. 发射功率
+5. CCA检查周期
+
+instruction3 - 网络参数配置指令下发(0-255之间整数)
+具体包括：
+data1. PANID
+data2. channel
+data3. CCA
+data4. emitpower - 发射功率
+data5. CCAcheckingperiod - CCA检查周期
+data6. inactive
+data7. DIO_minlen
+data8. DIO_max
+
+
 

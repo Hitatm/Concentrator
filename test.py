@@ -1,52 +1,34 @@
-# -*- coding: utf-8 -*-
-# @Author: Guoxuenan
-# @Date:   2016-12-22 16:58:50
-# @Last Modified by:   Guoxuenan
-# @Last Modified time: 2017-01-02 19:01:38
-# import xmlrpclib
-# import time
-# server=xmlrpclib.Server('http://localhost:9001/RPC2')
-# # for x in server.system.listMethods():
-#     # print "## "+x+"\n\t"+server.system.methodHelp(x)
-# # for x in server.supervisor.getAllConfigInfo():
-#     # print x 
-# for x in server.supervisor.getAllProcessInfo():
-#     x['start'] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(0))
-#     print x 
-# '''{'now': 1482462161, 
-# 'group': 'aout', 
-# 'description': 'Dec 22 10:31 PM',
-# 'pid': 0, 
-# 'stderr_logfile': '/home/wangyu/myspace/Concentrator/datalog/testsupervisor/aout.stderr.log',
-# 'stop': 1482417079, 
-# 'statename': 'STOPPED', 
-# 'start': 1482417068, 
-# 'state': 0,
-# 'stdout_logfile': '/home/wangyu/myspace/Concentrator/datalog/testsupervisor/aout.stdout.log', 
-# 'logfile':        '/home/wangyu/myspace/Concentrator/datalog/testsupervisor/aout.stdout.log', 
-# 'exitstatus': -1, 
-# 'spawnerr': '', 
-# 'name': 'aout'
-# }'''
-# print server.supervisor.getAllProcessInfo()
-# print "+++++++++++++++++++++++++"
-# print server.supervisor.getIdentification()
-# print server.supervisor.getPID()
-# print server.supervisor.getProcessInfo('mytest')
-# print server.supervisor.getState()
-# print server.supervisor.readMainLog(0,0)
-# print "==========================1"
-# print server.supervisor.readProcessLog('mytest',0,0)
-# print "==========================2"
-# print server.supervisor.readProcessStderrLog('mytest',0,0)
-# print "==========================3"
-# print server.supervisor.readProcessStdoutLog('mytest',0,0)
-# files=open("/home/wangyu/tempFile",'rb')
-# # while files.read(1)!= EOF :
-# content=files.read(200)
-# # print len(content)
-# for x in xrange(len(content)):
-# 	print hex(ord(content[x]))
+Dict= {"a" : "apple", "b" : "banana", "g" : "grape", "o" : "orange"}
 
-# files.close()
+def showdata_from_id(Dict):
+    html = '''
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <b><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse{id}">
+                        {proto}
+                    </a></b><br>
+                    </div>
+                    <div id="collapse{id}" class="accordion-body collapse" style="height: 0px; ">
+                    <div class="accordion-inner">
+                        {values}
+                    </div>
+                </div>
+            </div>
+'''
+    all_html = ''
+    id = 0
+    for proto, value in Dict.items() :
+        id += 1
+        html_proto =  proto
+        html_values = value
 
+        all_html += html.format(proto=html_proto, values=html_values, id=str(id))
+    return all_html
+
+
+d = {'a':[1,2,2,2], 'e':[123], 'c':[1], 'd':[0]}
+for x,y in d.items():
+	print x,y
+c=[[0,0,0,1,2] ,d]
+
+print c[1]
