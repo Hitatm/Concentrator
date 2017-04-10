@@ -112,7 +112,7 @@ def showdata_from_id(DATA_DICT, dataid):
 def topo_statistic(TOPOLIST):
     nodes_dict = dict()
     for item in TOPOLIST:
-    	ID = item[16] #ID
+    	ID = item[1] #ID
     	if ID in nodes_dict:
     		nodes_dict[ID]+=1
     	else:

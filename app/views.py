@@ -368,7 +368,7 @@ def instruction2():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
-    c.execute("select distinct nodeID from NetMonitor;") # not NetMonitor but another node.db
+    c.execute("select distinct NodeID from NetMonitor;") # not NetMonitor but another node.db
     nodes = list(c.fetchall()) #tuple  -- list
     total = len(nodes)
     previous = 0 #total - len(nodes)
@@ -562,30 +562,30 @@ def basedata():
         conn.close()
         return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
 
-#详细数据
-@app.route('/datashow/', methods=['POST', 'GET'])
-def datashow():
-    if PCAPS == None:
-        flash(u"请完成认证登陆!")
-        return redirect(url_for('login'))
-    else:
-        global PDF_NAME
-        dataid = request.args.get('id')
-        # return dataid
-        dataid = int(dataid)
-        data = showdata_from_id(TOPODATA_DICT, dataid)
-        PDF_NAME = random_name() + '.pdf'
-        # TOPODATA[dataid].pdfdump(app.config['PDF_FOLDER'] + PDF_NAME)
-        return data
+# #详细数据
+# @app.route('/datashow/', methods=['POST', 'GET'])
+# def datashow():
+#     if PCAPS == None:
+#         flash(u"请完成认证登陆!")
+#         return redirect(url_for('login'))
+#     else:
+#         global PDF_NAME
+#         dataid = request.args.get('id')
+#         # return dataid
+#         dataid = int(dataid)
+#         data = showdata_from_id(TOPODATA_DICT, dataid)
+#         PDF_NAME = random_name() + '.pdf'
+#         # TOPODATA[dataid].pdfdump(app.config['PDF_FOLDER'] + PDF_NAME)
+#         return data
 
-#将数据包保存为pdf
-@app.route('/savepdf/', methods=['POST', 'GET'])
-def savepdf():
-    if PCAPS == None:
-        flash(u"请完成认证登陆!")
-        return redirect(url_for('login'))
-    else:
-        return send_from_directory(app.config['PDF_FOLDER'], PDF_NAME, as_attachment=True)
+# #将数据包保存为pdf
+# @app.route('/savepdf/', methods=['POST', 'GET'])
+# def savepdf():
+#     if PCAPS == None:
+#         flash(u"请完成认证登陆!")
+#         return redirect(url_for('login'))
+#     else:
+#         return send_from_directory(app.config['PDF_FOLDER'], PDF_NAME, as_attachment=True)
 
 
 #协议分析
@@ -597,12 +597,12 @@ def protoanalyzer():
     else:
         #----modified by zzh@2017.1.12
         try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
         except Exception, e:
             print("no such database in "+databasepath)
         c = conn.cursor()
-        c.execute('select * from topo;')
+        c.execute('select * from NetMonitor;')
         topodata_list = c.fetchall()
         conn.close()
         http_dict = topo_statistic(topodata_list)
@@ -629,12 +629,12 @@ def flowanalyzer():
     else:
         #----modified by zzh@2017.1.12
         try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
         except Exception, e:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from topo;')
+        c.execute('select * from NetMonitor;')
         topodata_list = c.fetchall()
         conn.close()
         topo_traff_dict=topo_traffic_statistic(topodata_list)
@@ -680,12 +680,12 @@ def topodisplay():
         return redirect(url_for('login'))
     else:
         try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
         except Exception, e:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select ID, ParentID from topo;')
+        c.execute('select NodeID, ParentID from NetMonitor;')
         ID_list = c.fetchall()
         conn.close()
         # print ID_list

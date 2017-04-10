@@ -65,62 +65,44 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 15:'synlevel'
 
 #数据库格式
-0. topoid integer primary key autoincrement, 
+  0. topoid integer primary key autoincrement, 
 1. synlevel int, 
 2. synsqnum int, 
-3. syntimestamp time, 
-4. restarttimes int,
-5. rtx int,
-6. cpu bigint,
-7. num_of_neighbour int,
-8. BeaconInterval int,
-9. lpm bigint,
-10. syntimediff int,
-11. voltage float,
-12. ParentID varchar,
-13. transmit bigint,
-14. realtimestamp varchar,
-15. nodetimestamp time,
-16. ID varchar,
-17. synparentID varchar,
-18. listen bigint
+  3. syntimestamp time, 
+  4. restarttimes int,
+  5. rtx int,
+  6. cpu bigint,
+  7. num_of_neighbour int,
+  8. BeaconInterval int,
+  9. lpm bigint,
+10. syntimediff int, ??
+  11. voltage float,
+  12. ParentID varchar,
+  13. transmit bigint,
+  14. realtimestamp varchar,
+  15. nodetimestamp time,
+  16. ID varchar,
+17. synparentID varchar,  ??
+  18. listen bigint
 
-ID INTEGER PRIMARY KEY AUTOINCREMENT,
-NodeID varchar,
-ParentID varchar,
-CPU bigint,
-LPM bigint,
-TX bigint,
-RX bigint,
-volage float,
-syntime int,
-beacon int,
-numneighbors int,
-rtimetric int,
-reboot int,
-cycletime int,
-cycletimeDirection varchar,
-Nodecurrenttime time,
-currenttime time,
-electric float
-
-topo1
-NodeID varchar,
-ParentID varchar,
-CPU bigint,
-LPM bigint,
-TX bigint,
-RX bigint,
-volage float,
-syntime int,
-beacon varchar,
-numneighbors int,
-rtimetric int,
-reboot int,
-cycletime int,
-cycletimeDirection varchar,
-Nodecurrenttime time,
-currenttime time);
+0. ID INTEGER PRIMARY KEY AUTOINCREMENT, 0
+1. NodeID varchar, 16
+2. ParentID varchar, 12
+3. CPU bigint, 6
+4. LPM bigint, 9
+5. TX bigint, 13
+6. RX bigint, 18
+7. volage float, 11
+8. syntime int, 3 (time?)
+9. beacon int, 8
+10. numneighbors int, 7
+11. rtimetric int, 5
+12. reboot int, 4
+  13. cycletime int, 
+  14. cycletimeDirection varchar,
+15. Nodecurrenttime time, 15
+16. currenttime time, 14
+  17. electric float ?
 
 
 ##前台与后台通信

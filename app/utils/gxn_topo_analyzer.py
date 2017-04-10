@@ -89,22 +89,13 @@ def most_proto_statistic(PCAPS, PD):
 def topo_statistic(TOPODATA):
     nodes_dict = dict()
     for item in TOPODATA:
-        ID= item[16] #ID
+        ID= item[1] #ID
         if ID in nodes_dict:
             nodes_dict[ID]+=1
         else:
             nodes_dict[ID]=1
     return nodes_dict
 
-# def ID_statistic(TOPODATA):
-#     nodes_dict = dict()
-#     for item in TOPODATA:
-#         ID= item[0] #ID
-#         if ID in nodes_dict:
-#             nodes_dict[ID]+=1
-#         else:
-#             nodes_dict[ID]=1
-#     return nodes_dict
 
 def topo_traffic_analyzer(TOPODICT):
     sysCongfig = Config()
@@ -112,7 +103,7 @@ def topo_traffic_analyzer(TOPODICT):
     # date_set=set()
     # print sysCongfig.ACTIVE_TIME
     for items in TOPODICT:
-        traffic_item=items[14].split('_') #realtimestamp
+        traffic_item=items[16].split('_') #realtimestamp
         date=traffic_item[0].replace('-','/').encode('UTF-8')
         ymd=traffic_item[1][:5]
         # print ymd, 
@@ -190,57 +181,16 @@ def get_traffic_list(traffic_dict):
         'data':templist[x]
         }
         resultdict.append(tempdict2)
-    # lastdict ='''
-    # {
-    # name:'4 minute',
-    # type:'bar',
-    # stack: 'total',
-    # itemStyle : { normal:label :{ 
-    #         show: true, 
-    #         position:top,
-    #         formatter: function (params) 
-    #         {
-    #             for (var i = 0, l = option.xAxis[0].data.length; i < l; i++) 
-    #             {
-    #                 if (option.xAxis[0].data[i] == params.name) 
-    #                 {
-    #                     {
-    #                     var total=0;
-    #                     for(var j=0,h=option.series.length;j<h;j++)
-    #                       total += option.series[j].data[i] ; 
-    #                       return total 
-    #                     }    
-    #                 }
-    #             }
-    #         },
-    #         textStyle: {color: 'tomato'}}
-    #         data:templist[7]
-    #     }
-    # }'''
-    
-    # resultdict.append(templist[7])
+
     return resultdict
 
-
-# def topo_traffic_statistic(TOPODICT):
-#     traffic_dict = collections.OrderedDict()
-#     for count ,items in TOPODICT.items():
-#         traffic_item=items['realtimestamp'].split('_')
-#         traffic = traffic_item[0].replace('-','/')+' '+traffic_item[1][:5]
-#         # print traffic
-#         if traffic  in traffic_dict:
-#             traffic_dict[traffic]+=1
-#         else:
-#             traffic_dict[traffic]=1
-#     # print traffic_dict
-#     return traffic_dict
 
 
 def topo_traffic_statistic(TOPODICT):
     traffic_dict = collections.OrderedDict()
     count=0
     for items in TOPODICT:
-        traffic_item=items[14].split('_') #'realtimestamp'
+        traffic_item=items[16].split('_') #'realtimestamp'
         traffic = traffic_item[0].replace('-','/')+' '+traffic_item[1]
         # print traffic
         if traffic  in traffic_dict:
@@ -250,13 +200,3 @@ def topo_traffic_statistic(TOPODICT):
     # print traffic_dict
     return traffic_dict
 
-# def dns_statistic(PCAPS):
-#     dns_dict = dict()
-#     for pcap in PCAPS:
-#         if pcap.haslayer(DNSQR):
-#             qname = pcap.getlayer(DNSQR).qname
-#             if qname in dns_dict:
-#                 dns_dict[qname] += 1
-#             else:
-#                 dns_dict[qname] = 1
-#     return dns_dict
