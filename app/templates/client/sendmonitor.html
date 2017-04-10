@@ -38,7 +38,7 @@
                         <form name="monitor_update_period" method="POST" action='{{url_for('monitor_update_period')}}'>
                         <legend>修改网络监测数据上报周期:(0-255)</legend>
                         <input type="text" name="update_period" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" onblur="if(this.value>255){alert('上报周期过长！');this.focus();}"
-                         placeholder="请输入新网络监测数据上报周期"/>轮
+                         placeholder={{display_data}}>轮
 
                         <button type="submit" class="btn btn-success" style="width:160px;height:48px;">修改上报周期</button>
     

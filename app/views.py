@@ -12,6 +12,7 @@ from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_topo_analyzer import topo_statistic,topo_traffic_statistic,topo_traffic_analyzer
 from utils.gxn_get_sys_config import Config
 from utils.connect import Connect
+from utils.old_data_display import Display, Modify
 from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,startAllProcesses,stopAllProcesses
 
 import os
@@ -41,8 +42,6 @@ REALDATA   = None #login
 TPDECODE   =TopoDecode()
 TOPODATA_DICT =collections.OrderedDict()
 
-serverip = "192.168.0.121"
-serverport = 12300
 NODE_DICT_NET=dict()
 NODE_SET=set()
 # SYS_CONFIG = Congfig()
@@ -128,12 +127,19 @@ def monitor():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        return render_template('./client/monitor.html')
+        display = Display()
+        send_data = display.send_display() #旧数据展示
+        write_data = display.write_display()
+        adjtime_data = display.adjtime_display()
+        display_datadict = display.parameters_display()
+
+    return render_template('./client/monitor.html',send_data = send_data, write_data = write_data, adjtime_data = adjtime_data, display_datadict = display_datadict)
 
 @app.route('/instruction_send/', methods=['POST', 'GET'])
 @app.route('/instruction_send', methods=['POST', 'GET'])
 def instruction_send():
 #指令下发
+    modify = Modify() #将新配置数据写入配置文件
     sendins = Connect()
     datalist = []
     datalist.append("80")
@@ -141,6 +147,7 @@ def instruction_send():
     if request.method == 'POST':
         recvdata = request.form['emit_data']
         if recvdata:
+            modify.send_modify(recvdata)
             if (len(recvdata)%2 != 0):
                 recvdata = "0"+recvdata
             if (len(recvdata)<32):
@@ -170,6 +177,7 @@ def instruction_send():
 @app.route('/instruction_write', methods=['POST', 'GET'])
 def instruction_write():
 #指令烧写
+    modify = Modify() #将新配置数据写入配置文件
     sendins = Connect()
     datalist = []
     datalist.append("82")
@@ -177,6 +185,7 @@ def instruction_write():
     if request.method == 'POST':
         recvdata = request.form['write_data']
         if recvdata:
+            modify.write_modify(recvdata)
             if (len(recvdata)%2 != 0):
                 recvdata = "0"+recvdata
             if (len(recvdata)<32):
@@ -248,12 +257,14 @@ def instruction_reset():
 @app.route('/instruction_adjtime/', methods=['POST', 'GET'])
 @app.route('/instruction_adjtime', methods=['POST', 'GET'])
 def instruction_adjtime():
-#指令下发
+#设定根节点校时周期
+    modify = Modify() #将新配置数据写入配置文件
     sendins = Connect()
     dicts = {}
     if request.method == 'POST':
         recvdata = request.form['timeperiod']
         if recvdata:
+            modify.adjtime_modify(recvdata)
             dicts["pama_data"] = recvdata   
     dicts["type"] = "pama_corr"
     ins = json.dumps(dicts)
@@ -265,6 +276,7 @@ def instruction_adjtime():
 @app.route('/instruction3', methods=['POST', 'GET'])
 #网络参数配置指令下发
 def instruction3():
+    modify = Modify() #将新配置数据写入配置文件
     sendins = Connect()
     dicts= {}
     dicts["type"] = "mcast_ack"
@@ -274,48 +286,56 @@ def instruction3():
     if request.method == 'POST':
         data1 = request.form['PANID']
         if data1:
+            modify.PANID_modify(data1)
             data1 = hex(int(data1))[2:]
         else:
             data1 = "ff"
         datalist.append(data1)
         data2 = request.form['channel']
         if data2:
+            modify.channel_modify(data2)
             data2 = hex(int(data2))[2:]
         else:
             data2 = "ff"
         datalist.append(data2)
         data3 = request.form['CCA']
         if data3:
+            modify.CCA_modify(data3)
             data3 = hex(int(data3))[2:]
         else:
             data3 = "ff"
         datalist.append(data3)
         data4 = request.form['emitpower']
         if data4:
+            modify.emitpower_modify(data4)
             data4 = hex(int(data4))[2:]
         else:
             data4 = "ff"
         datalist.append(data4)
         data5 = request.form['CCAcheckingperiod']
         if data5:
+            modify.CCAcheckingperiod_modify(data5)
             data5 = hex(int(data5))[2:]
         else:
             data5 = "ff"
         datalist.append(data5)
         data6 = request.form['inactive']
         if data6:
+            modify.inactive_modify(data6)
             data6 = hex(int(data6))[2:]
         else:
             data6 = "ff"
         datalist.append(data6)
         data7 = request.form['DIO_minlen']
         if data7:
+            modify.DIO_minlen_modify(data7)
             data7 = hex(int(data7))[2:]
         else:
             data7 = "ff"
         datalist.append(data7)
         data8 = request.form['DIO_max']
         if data8:
+            modify.DIO_max_modify(data8)
             data8 = hex(int(data8))[2:]
         else:
             data8 = "ff"
@@ -447,17 +467,21 @@ def sendmonitor():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        return render_template('./client/sendmonitor.html')
+        display = Display()
+        display_data = display.monitor_update_period_display() #旧数据展示
+        return render_template('./client/sendmonitor.html', display_data = display_data)
 
 @app.route('/monitor_update_period/', methods=['POST', 'GET'])
 @app.route('/monitor_update_period', methods=['POST', 'GET'])
 # 修改网络监测数据上报周期
 def monitor_update_period():
+    modify = Modify() #将新配置数据写入配置文件
     sendins = Connect()
     dicts = {}
     if request.method == 'POST':
         recvdata = request.form['update_period']
         if recvdata:
+            modify.monitor_update_period_modify(recvdata)
             if (int(recvdata)<16):
                 dicts["pama_data"] = "410" + hex(int(recvdata))[2:]
             else:

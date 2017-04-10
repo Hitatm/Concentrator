@@ -1,0 +1,1 @@
+{"DIO_minlen": "16", "CCAcheckingperiod": "60", "DIO_max": "128", "instruction_write": "105BFE5916", "instruction_send": "105BFE5916", "inactive": "40", "channel": "6", "PANID": "3", "CCA": "30", "emitpower": "100", "instruction_adjtime": "60", "monitor_update_period": "4"}

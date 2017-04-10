@@ -26,6 +26,10 @@ function check(object)
     {
         document.getElementById('ipselect').style.display="block";
     }
+    else
+    {
+        document.getElementById('ipselect').style.display="none";
+    }
 }
 </script>
 <script type="text/javascript">
@@ -36,6 +40,11 @@ function check2(object)
     {
         document.getElementById('ipselect2').style.display="block";
     }
+    else
+    {
+        document.getElementById('ipselect').style.display="none";
+    }
+}
 }
 </script>
 <script type="text/javascript">
@@ -46,6 +55,11 @@ function check4(object)
     {
         document.getElementById('ipselect4').style.display="block";
     }
+    else
+    {
+        document.getElementById('ipselect').style.display="none";
+    }
+}
 }
 </script>
 <script type="text/javascript">
@@ -71,6 +85,11 @@ function check5(object)
     {
         document.getElementById('ipselect5').style.display="block";
     }
+    else
+    {
+        document.getElementById('ipselect').style.display="none";
+    }
+}
 }
 </script>
 
@@ -97,7 +116,7 @@ function check5(object)
                         <form name="instruction_send" method="POST" action='{{url_for('instruction_send')}}'>
                         <legend>指令下发:</legend>
                         <input type="text" name="emit_data" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
-                         placeholder="请输入指令内容"/>
+                         placeholder={{send_data}}>
 
                         <select id="mySelect" name="mySelect" onchange="check(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
@@ -122,7 +141,7 @@ function check5(object)
                     <form name="instruction_write" method="POST" action='{{url_for('instruction_write')}}'>
                         <legend>指令烧写:</legend>
                         <input type="text" name="write_data" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
-                         placeholder="请输入指令内容"/>
+                         placeholder="{{write_data}}"/>
 
                         <select id="mySelect2" name="mySelect2" onchange="check2(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
@@ -159,35 +178,35 @@ function check5(object)
                         PANID:
                         <input type="text" name="PANID" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:56px;"/><br />
+                        style = "position:relative; left:56px;" placeholder={{display_datadict["PANID"]}}><br />
                         CCA:
                          <input type="text" name="CCA" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:68px;"/><br />
+                        style = "position:relative; left:68px;" placeholder={{display_datadict["CCA"]}}><br />
                         发射功率:
                         <input type="text" name="emitpower" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:44px;"/><br />
+                        style = "position:relative; left:44px;" placeholder={{display_datadict["emitpower"]}}><br />
                         CCA检查周期:
                         <input type="text" name="CCAcheckingperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:18px;"/><br />
+                        style = "position:relative; left:18px;" placeholder={{display_datadict["CCAcheckingperiod"]}}><br />
                         inactive:
                         <input type="text" name="inactive" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:50px;"/><br />
+                        style = "position:relative; left:50px;" placeholder={{display_datadict["inactive"]}}><br />
                         channel:
                         <input type="text" name="channel" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:48px;"/><br />
+                        style = "position:relative; left:48px;" placeholder={{display_datadict["channel"]}}><br />
                         DIO_minlen:
                         <input type="text" name="DIO_minlen" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:27px;"/><br />
+                        style = "position:relative; left:27px;" placeholder={{display_datadict["DIO_minlen"]}}><br />
                         DIO_max:
                         <input type="text" name="DIO_max" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
-                        style = "position:relative; left:43px;"/><br />
+                        style = "position:relative; left:43px;" placeholder={{display_datadict["DIO_max"]}}><br />
                     </fieldset> 
                 <input type="submit" value="提交" />
                 </form>
@@ -250,7 +269,7 @@ function check5(object)
                     <form name="instruction_adjtime" method="POST" action='{{url_for('instruction_adjtime')}}'>
                         <legend>设定根节点校时周期:</legend>
                         <input type="text" name="timeperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" onblur="if(this.value>9999){alert('校时周期过长！');this.focus();}"
-                         placeholder="请输入新根节点校时周期"/>
+                         placeholder={{adjtime_data}}>
 
                         <button type="submit" class="btn btn-success" style="width:160px;height:48px;">设定根节点校时周期</button>
                         
@@ -285,8 +304,8 @@ function check5(object)
 </body>
 
 </html>
-	
+    
 
 
 
-	
+    
