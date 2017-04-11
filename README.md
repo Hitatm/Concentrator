@@ -68,14 +68,14 @@ bulid a web server runing on embedded Linux system, then we can access the contr
   0. topoid integer primary key autoincrement, 
 1. synlevel int, 
 2. synsqnum int, 
-  3. syntimestamp time, 
+  3. syntimestamp time,  x
   4. restarttimes int,
   5. rtx int,
   6. cpu bigint,
   7. num_of_neighbour int,
   8. BeaconInterval int,
   9. lpm bigint,
-10. syntimediff int, ??
+  10. syntimediff int, ??
   11. voltage float,
   12. ParentID varchar,
   13. transmit bigint,
@@ -93,7 +93,7 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 5. TX bigint, 13
 6. RX bigint, 18
 7. volage float, 11
-8. syntime int, 3 (time?)
+8. syntime int, 10 
 9. beacon int, 8
 10. numneighbors int, 7
 11. rtimetric int, 5

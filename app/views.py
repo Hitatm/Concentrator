@@ -78,7 +78,8 @@ def upload():
         # return redirect(url_for('login'))
 
         # request.args.get
-        selectime  =  request.form['field_name']
+        selectime  =  request.form['time_schedule']
+        print selectime
         global TIME_START,TIME_END
         TIME_START = selectime[0:20]
         TIME_END   = selectime[22:42]
@@ -87,12 +88,12 @@ def upload():
             flash(u'请选择检索时间!')
         else :
             flash(u'检索时间:'+str(selectime))
-        databasepath = os.path.join(app.config['TOPO_FOLDER'],"test.db")
-        conn = sqlite3.connect(databasepath)
-        c = conn.cursor()
-        c.execute("delete from topo;")
-        conn.commit()
-        conn.close()
+        # databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        # conn = sqlite3.connect(databasepath)
+        # c = conn.cursor()
+        # c.execute("delete from topo3;")
+        # conn.commit()
+        # conn.close()
 
         # try:
         #     global TOPODATA,TOPODATA_DICT
