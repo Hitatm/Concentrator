@@ -103,7 +103,7 @@ def topo_traffic_analyzer(TOPODICT):
     # date_set=set()
     # print sysCongfig.ACTIVE_TIME
     for items in TOPODICT:
-        traffic_item=items[16].split('_') #realtimestamp
+        traffic_item=items[16].split(' ') #realtimestamp
         date=traffic_item[0].replace('-','/').encode('UTF-8')
         ymd=traffic_item[1][:5]
         # print ymd, 
@@ -190,7 +190,7 @@ def topo_traffic_statistic(TOPODICT):
     traffic_dict = collections.OrderedDict()
     count=0
     for items in TOPODICT:
-        traffic_item=items[16].split('_') #'realtimestamp'
+        traffic_item=items[16].split(' ') #'realtimestamp'
         traffic = traffic_item[0].replace('-','/')+' '+traffic_item[1]
         # print traffic
         if traffic  in traffic_dict:

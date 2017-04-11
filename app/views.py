@@ -18,6 +18,7 @@ from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,star
 import os
 import collections
 import time
+from time import strftime,gmtime
 import sqlite3
 import socket
 import json
@@ -35,8 +36,6 @@ PDF_NAME = ''
 PCAPS = 'yeslogin' #login
 HIT_USER ='root'#用户名
 HIT_PWD  ='xiaoming'  #默认密码
-TIME_START = ''
-TIME_END   = ''
 TOPODATA   = None #login
 REALDATA   = None #login
 TPDECODE   =TopoDecode()
@@ -65,58 +64,14 @@ def upload():
     if PCAPS==None:
         redirect(url_for('login'))
     if request.method == 'GET':
-        # selectime =request.args.get('time')
         return render_template('./upload/upload.html')
-        # return render_template('./upload/timestamp.html',time=selectime)
     elif request.method == 'POST':
-        selectime =request.form.get('time', '')
-        flash(u'检索时间:')
-        flash(selectime)
-        # return selectime
-        # return render_template('./upload/timestamp.html',time=selectime)
-        # return render_template('./upload/upload.html')
-        # return redirect(url_for('login'))
-
-        # request.args.get
-        selectime  =  request.form['time_schedule']
-        print selectime
-        global TIME_START,TIME_END
-        TIME_START = selectime[0:20]
-        TIME_END   = selectime[22:42]
-        # comment_message="DateRange: from " + TIME_START+" to "+TIME_END
+        selectime  =  request.form['field_name']
         if len(selectime)<40:
             flash(u'请选择检索时间!')
         else :
             flash(u'检索时间:'+str(selectime))
-        # databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-        # conn = sqlite3.connect(databasepath)
-        # c = conn.cursor()
-        # c.execute("delete from topo3;")
-        # conn.commit()
-        # conn.close()
-
-        # try:
-        #     global TOPODATA,TOPODATA_DICT
-        #     TopoPath=os.path.join(app.config['TOPO_FOLDER'],"topo.txt")
-        #     #DataPath=os.path.join(app.config['DATA_FOLDER'],"data.txt")
-        #     #while True:
-        #     try:   
-        #         TOPODATA=getfile_content(str(TopoPath))
-        #     except Exception, e:
-        #         flash(u'error1:' + unicode(e.message))
-        #     try:
-        #         TOPODATA_DICT=getall_topo(TOPODATA,TPDECODE)
-        #     except Exception, e:
-        #         flash(u'error2:' + unicode(e.message))
-        #     # REALDATA=getfile_content(str(DataPath))
-        #     flash(u',数据读取成功')
-        #     flash('\n'+str(len(TOPODATA)))
-        #         # flash('\n'+str(len(REALDATA)))
-                
-        #     return render_template('./upload/upload.html',selectedtime=selectime)
-        # except Exception, e:
-        #     flash(u'文件提取,错误信息:' + unicode(e.message))
-        #     return render_template('./upload/upload.html')
+        return render_template('./upload/upload.html')
     else:
         return render_template('./upload/upload.html')
 
@@ -547,21 +502,38 @@ def logout():
 #基本数据
 @app.route('/basedata/', methods=['POST', 'GET'])
 def basedata():
-    # global TPDECODE,TOPODATA_DICT
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
-    else:
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
-        except Exception, e:
+        except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from NetMonitor;')
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
         pcaps = c.fetchall()
         conn.close()
         return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        pcaps = c.fetchall()
+        conn.close()
+        return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
+        
 
 # #详细数据
 # @app.route('/datashow/', methods=['POST', 'GET'])
@@ -595,15 +567,43 @@ def protoanalyzer():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
-    else:
-        #----modified by zzh@2017.1.12
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
-        except Exception, e:
-            print("no such database in "+databasepath)
+        except:
+            print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from NetMonitor;')
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
+        topodata_list = c.fetchall()
+        conn.close()
+        http_dict = topo_statistic(topodata_list)
+        http_dict = sorted(http_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        http_key_list = list()
+        http_value_list = list()
+        count=0
+        for key, value in http_dict:
+            count+=1
+            if count%2==0:
+                http_key_list.append(key.encode('UTF-8'))
+            else:
+                http_key_list.append(key.encode('UTF-8')+'     ')
+            http_value_list.append(value)
+        return render_template('./dataanalyzer/protoanalyzer.html',http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
         topodata_list = c.fetchall()
         conn.close()
         http_dict = topo_statistic(topodata_list)
@@ -620,22 +620,23 @@ def protoanalyzer():
             http_value_list.append(value)
         return render_template('./dataanalyzer/protoanalyzer.html',http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
 
-
 #流量分析
 @app.route('/flowanalyzer/', methods=['POST', 'GET'])
 def flowanalyzer():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
-    else:
-        #----modified by zzh@2017.1.12
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
-        except Exception, e:
+        except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from NetMonitor;')
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
         topodata_list = c.fetchall()
         conn.close()
         topo_traff_dict=topo_traffic_statistic(topodata_list)
@@ -650,7 +651,31 @@ def flowanalyzer():
         # templist.append(tempstr)
         # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
-
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        topodata_list = c.fetchall()
+        conn.close()
+        topo_traff_dict=topo_traffic_statistic(topodata_list)
+        traffic_key_list = list()
+        traffic_value_list = list()
+        for key ,value in topo_traff_dict.items():
+            traffic_key_list.append(key.encode('UTF-8'))
+            traffic_value_list.append(value)
+ 
+        lists=topo_traffic_analyzer(topodata_list)
+        templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
+        # templist.append(tempstr)
+        # return str(templist)
+        return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
 
 # 其他分析
 @app.route('/otheranalyzer/', methods=['POST', 'GET'])
@@ -679,14 +704,17 @@ def topodisplay():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
-    else:
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
-        except Exception, e:
+        except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select NodeID, ParentID from NetMonitor;')
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
         ID_list = c.fetchall()
         conn.close()
         # print ID_list
@@ -713,7 +741,43 @@ def topodisplay():
             links.append(m)
 
         return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        ID_list = c.fetchall()
+        conn.close()
+        # print ID_list
+        Parentnode = dict()
+        # Childnode = dict()
+        for node in ID_list:
+            ID = node[0].encode('UTF-8') # ID
+            ParentID = node[1].encode('UTF-8') # parentID
+            if ID in Parentnode:
+                continue
+            else:
+                Parentnode[ID] = ParentID
+        # 遍历Parentnode的key，绘制散点图；遍历Parentnode的key和value，画箭头
+        nodes = list()
+        links = list()
+        n = dict()
+        m = dict()
+        for key ,value in Parentnode.items():
+            n = {'category':2, 'name':key}
+            # nodes.append("{category:2, name:"+"'"+key+"'}")
+            nodes.append(n)
+            # links.append("{source : '"+value+"', target : '"+key+"', weight : 1}")
+            m = {'source':value, 'target':key, 'weight':1}
+            links.append(m)
 
+        return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)
 
 
 #访问地图

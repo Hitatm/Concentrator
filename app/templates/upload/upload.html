@@ -76,6 +76,7 @@
                                 }
                             }, function(start, end, label) {//格式化日期显示框                                
                                 $('#reportrange span').html(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
+                                console.log(start.format('YYYY-MM-DD HH:mm:ss'))
                                 $('#timesrange').val(($('#reportrange span').html()));
                            });
          
@@ -106,22 +107,8 @@
       // 设置日期菜单被选项  --结束--
 
         });
-
-
     </script>
-    <script type="text/javascript">
-    //     $.ajax({
-    //         type : 'POST',
-    //         contentType:'application/json',
-    //         data:JSON.stringify($('#reportrange span').html()),
-    //         dataType:'json',
-    //         url:'',
-    //         success:function(){   
-    //          alert("$('#reportrange span').html()");
-    //         }
-    //       });
-    // 
-    </script>
+
 </head>
 
 <body>
@@ -303,14 +290,13 @@
                             <div id="reportrange" class="pull-left dateRange" >
                            
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                            <span id="searchDateRange" name="searchDateRange"> {{selectedtime}} </span>          
+                            <span id="searchDateRange" name="searchDateRange"></span>          
                                      <b class="caret"></b>
-                                     <input type="hidden" id="timesrange" name="field_name" value="value" />
-                                     <button type="submit" name="time_schedule" value="gettime"></button>
+                                     <input type="hidden" id="timesrange" name="field_name"  />
+                                     
                             </div>
+                            <button type="submit" >提交</button>
                         </div>
-                                 <br>
-                                 <br>
             　</form> 
              </div>  
     </div>

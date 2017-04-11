@@ -65,27 +65,7 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 15:'synlevel'
 
 #数据库格式
-  0. topoid integer primary key autoincrement, 
-1. synlevel int, 
-2. synsqnum int, 
-  3. syntimestamp time,  x
-  4. restarttimes int,
-  5. rtx int,
-  6. cpu bigint,
-  7. num_of_neighbour int,
-  8. BeaconInterval int,
-  9. lpm bigint,
-  10. syntimediff int, ??
-  11. voltage float,
-  12. ParentID varchar,
-  13. transmit bigint,
-  14. realtimestamp varchar,
-  15. nodetimestamp time,
-  16. ID varchar,
-17. synparentID varchar,  ??
-  18. listen bigint
-
-0. ID INTEGER PRIMARY KEY AUTOINCREMENT, 0
+0. ID INTEGER PRIMARY KEY AUTOINCREMENT,
 1. NodeID varchar, 16
 2. ParentID varchar, 12
 3. CPU bigint, 6
@@ -98,11 +78,11 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 10. numneighbors int, 7
 11. rtimetric int, 5
 12. reboot int, 4
-  13. cycletime int, 
-  14. cycletimeDirection varchar,
+13. cycletime int, 
+14. cycletimeDirection varchar,
 15. Nodecurrenttime time, 15
 16. currenttime time, 14
-  17. electric float ?
+17. electric float 
 
 
 ##前台与后台通信
