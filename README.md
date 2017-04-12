@@ -111,5 +111,3 @@ data6. inactive
 data7. DIO_minlen
 data8. DIO_max
 
-
-

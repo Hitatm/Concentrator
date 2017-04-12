@@ -677,26 +677,52 @@ def flowanalyzer():
         # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
 
-# 其他分析
-@app.route('/otheranalyzer/', methods=['POST', 'GET'])
-def otheranalyzer():
+# 应用数据分析
+@app.route('/appdataanalyzer/', methods=['POST', 'GET'])
+def appdataanalyzer():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
+    elif request.method == 'POST':
+        try: #取出所有节点ID
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select distinct NodeID from NodePlace;')
+        nodelist = c.fetchall()
+        conn.close()
+
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        selectedID = request.form['nodeID']
+        if selectedID:
+            try:
+                databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+                conn = sqlite3.connect(databasepath)
+            except:
+                print("no such database in "+ databasepath)
+            c = conn.cursor()
+            c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
+            appdata = c.fetchall()
+            conn.close()
+
+        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodelist)
     else:
-        topo_traff_dict=topo_traffic_statistic(TOPODATA_DICT)
-        traffic_key_list = list()
-        traffic_value_list = list()
-        for key ,value in topo_traff_dict.items():
-            traffic_key_list.append(key)
-            traffic_value_list.append(value)
-        lists=topo_traffic_analyzer(TOPODATA_DICT)
-        templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
-        templist.append(tempstr)
-        return str(templist)
-
-
-        return render_template('./dataanalyzer/otheranalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
+        try: #取出所有节点ID
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            print databasepath
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select distinct NodeID from NodePlace;')
+        nodelist = c.fetchall()
+        conn.close()
+        # for i in range(type(nodelist[i][1])) nodeid: xun huan
+        return render_template('./dataanalyzer/appdataanalyzer.html', nodelist = nodelist)
 
 # 拓扑展示
 @app.route('/topodisplay/', methods=['POST', 'GET'])
