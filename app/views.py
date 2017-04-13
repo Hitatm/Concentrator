@@ -22,6 +22,7 @@ from time import strftime,gmtime
 import sqlite3
 import socket
 import json
+import math
 
 
 #导入函数到模板中
@@ -680,48 +681,41 @@ def flowanalyzer():
 # 应用数据分析
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
 def appdataanalyzer():
+    try: #取出所有节点ID
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+    except:
+        print("no such database in "+ databasepath)
+    c = conn.cursor()
+    c.execute('select distinct NodeID from NodePlace;')
+    nodelistwithtuple = c.fetchall()
+    conn.close()
+    nodelist = list()
+    nodelist.append('')
+    nodelist.append('') #两个空字符，对应echarts两个换行，控制图例格式
+    for i in range(len(nodelistwithtuple)):
+        nodelist.append(nodelistwithtuple[i][0].encode('ascii'))
+
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     elif request.method == 'POST':
-        try: #取出所有节点ID
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            conn = sqlite3.connect(databasepath)
-        except:
-            print("no such database in "+ databasepath)
-        c = conn.cursor()
-        c.execute('select distinct NodeID from NodePlace;')
-        nodelist = c.fetchall()
-        conn.close()
-
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        selectedID = request.form['nodeID']
-        if selectedID:
-            try:
-                databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-                conn = sqlite3.connect(databasepath)
-            except:
-                print("no such database in "+ databasepath)
-            c = conn.cursor()
-            c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
-            appdata = c.fetchall()
-            conn.close()
-
-        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodelist)
-    else:
-        try: #取出所有节点ID
+        try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            print databasepath
             conn = sqlite3.connect(databasepath)
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select distinct NodeID from NodePlace;')
-        nodelist = c.fetchall()
+        c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
+        appdata = c.fetchall()
         conn.close()
-        # for i in range(type(nodelist[i][1])) nodeid: xun huan
+        appdata
+        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodelist)
+    else:
+        print nodelist
         return render_template('./dataanalyzer/appdataanalyzer.html', nodelist = nodelist)
 
 # 拓扑展示
