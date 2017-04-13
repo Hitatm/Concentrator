@@ -530,7 +530,8 @@ def basedata():
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        # c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        c.execute('select * from NetMonitor;')
         pcaps = c.fetchall()
         conn.close()
         return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)

@@ -106,8 +106,23 @@
         });
 
     </script>
+<script type="text/javascript">
+function changeColor(){
+    x=document.getElementById("current");
+    if (parseFloat(x.innerHTML)> 10)
+    {
+      x.style.color="Red";
+    }
+    y=document.getElementById("voltage");
+    if (parseFloat(y.innerHTML)> 4)
+    {
+      y.style.color="Red";
+    }
+    
+  }
+</script>
 </head>
-<body>
+<body onload="changeColor()">
 <br>
 <div class="container">
     <h2 class="text-center">数据包基本信息</h2>
@@ -190,12 +205,12 @@
           <td class="text-center">{{ pcap[8] }}</td>
           <td class="text-center">{{ pcap[13] }}</td>
           <td class="text-center">{{ pcap[14] }}</td>
-          <td class="text-center">{{ pcap[17] }}</td>
+          <td class="text-center" id="current">{{ pcap[17] }}</td>
           <td class="text-center">{{ pcap[3] }}</td>
           <td class="text-center">{{ pcap[4] }}</td>
           <td class="text-center">{{ pcap[6] }}</td>
           <td class="text-center">{{ pcap[5] }}</td>
-          <td class="text-center text-nowrap">{{ pcap[7] }}</td>
+          <td class="text-center text-nowrap" id="voltage">{{ pcap[7] }}</td>
           <td class="text-left text-nowrap">{{ pcap[10] }}</td>
           <td class="text-left text-nowrap">{{ pcap[12] }}</td>
           <td class="text-left text-nowrap">{{ pcap[9] }}</td>
