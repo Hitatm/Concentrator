@@ -681,25 +681,15 @@ def flowanalyzer():
 # 应用数据分析
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
 def appdataanalyzer():
-    try: #取出所有节点ID
-        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-        conn = sqlite3.connect(databasepath)
-    except:
-        print("no such database in "+ databasepath)
-    c = conn.cursor()
-    c.execute('select distinct NodeID from NodePlace;')
-    nodelistwithtuple = c.fetchall()
-    conn.close()
-    nodelist = list()
-    nodelist.append('')
-    nodelist.append('') #两个空字符，对应echarts两个换行，控制图例格式
-    for i in range(len(nodelistwithtuple)):
-        nodelist.append(nodelistwithtuple[i][0].encode('ascii'))
-
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
-    elif request.method == 'POST':
+    else:
+        return render_template('./dataanalyzer/appdataanalyzer.html')
+
+@app.route('/echarts_data/', methods=['POST'])
+def echarts_data():
+    if request.method == 'POST':
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
@@ -709,14 +699,84 @@ def appdataanalyzer():
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
+        c.execute('select NodeID, currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
         appdata = c.fetchall()
         conn.close()
-        appdata
-        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodelist)
+        # print appdata
+        dicts= {}
+        nodeid_list = list()
+        time_list = list()
+        data_list = list()
+        for i in range(len(appdata)):
+            nodeid_list.append(appdata[i][0].encode('ascii'))
+            time_list.append(appdata[i][1].encode('ascii'))
+            data_list.append(appdata[i][2].encode('ascii'))
+        # seriesdict = dict()
+        # markPoint = dict()
+        # markLine = dict()
+        # markPointlist = list()
+        # markLinelist = list()
+        # markPointdatadict = dict()
+        # markLinedatadict = dict()
+        # markPointdatadict["type"]
+        # seriesdict["name"] = ''
+        # seriesdict["type"] = 'line'
+        # seriesdict["data"] = data_list
+        # seriesdict["markPoint"] = 
+        # --------------------xing ru 
+        # dicts["Data"]= # {
+        #     name:'data',
+        #     type:'line',
+        #     data: data_list,
+        #     markPoint : {
+        #         data : [
+        #             {type : 'max', name: '最大值'},
+        #             {type : 'min', name: '最小值'}
+        #         ]
+        #     },
+        #     markLine : {
+        #         data : [
+        #             {type : 'average', name: '平均值'}
+        #         ]
+        #     }
+        # }
+        # print nodeid_list
+        # print time_list
+        # print data_list
+
+        dicts["NodeID"] = nodeid_list
+        dicts["currenttime"] = time_list
+        # dicts["Data"] = data_list
+        ins = json.dumps(dicts)
+        # print ins
+        return ins
     else:
-        print nodelist
-        return render_template('./dataanalyzer/appdataanalyzer.html', nodelist = nodelist)
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select NodeID, currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
+        appdata = c.fetchall()
+        conn.close()
+        # print appdata
+        dicts= {}
+        nodeid_list = list()
+        time_list = list()
+        data_list = list()
+        for i in range(len(appdata)):
+            nodeid_list.append(appdata[i][0].encode('ascii'))
+            time_list.append(appdata[i][1].encode('ascii'))
+            data_list.append(appdata[i][2].encode('ascii'))
+        dicts["NodeID"] = nodeid_list
+        dicts["currenttime"] = time_list
+        dicts["Data"] = data_list
+        ins = json.dumps(dicts)
+        return ins
 
 # 拓扑展示
 @app.route('/topodisplay/', methods=['POST', 'GET'])
@@ -902,18 +962,81 @@ def exceptinfo():
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
+    elif request.method == 'POST':
+        warning_dict = dict()
+        warning_list = list() #取交集和并集要多查询两次数据库
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        # 电流过大
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>10;',(start_time, end_time))
+        # c.execute('select ID, electric, NodeID, currenttime from NetMonitor where electric>10;')
+        data = c.fetchall()
+        conn.close()
+        for i in range (len(data)):
+            warning_dict["seqnum"] = data[i][0]
+            warning_dict["warn"] = "current = " + str(data[i][1])
+            warning_dict["ip_port"] = data[i][2] #NodeID
+            warning_dict["time"] = data[i][3] #currenttime
+            warning_list.append(warning_dict)
+        # 电压过高
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage>4;',(start_time, end_time))
+        error_data = c.fetchall()
+        conn.close()
+        for i in range (len(data)):
+            warning_dict["seqnum"] = data[i][0]
+            warning_dict["warn"] = "voltage = " + str(data[i][1])
+            warning_dict["ip_port"] = data[i][2] #NodeID
+            warning_dict["time"] = data[i][3] #currenttime
+            warning_list.append(warning_dict)
+
+        return render_template('./exceptions/exception.html', warning=warning_list)
     else:
-        return render_template('./exceptions/exception.html')#备注
-        dataid = request.args.get('id')
-        host_ip = get_host_ip(PCAPS)
-        warning_list = exception_warning(PCAPS, host_ip)
-        if dataid:
-            if warning_list[int(dataid)-1]['data']:
-                return warning_list[int(dataid)-1]['data'].replace('\r\n', '<br>')
-            else:
-                return u'<center><h3>无相关数据包详情</h3></center>'
-        else:
-            return render_template('./exceptions/exception.html', warning=warning_list)
+        warning_dict = dict()
+        warning_list = list()
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        # 电流过大
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>10;',(previous_time, current_time))
+        data = c.fetchall()
+        conn.close()
+        for i in range (len(data)):
+            warning_dict["seqnum"] = data[i][0]
+            warning_dict["warn"] = "current = " + data[i][1]
+            warning_dict["ip_port"] = data[i][2] #NodeID
+            warning_dict["time"] = data[i][3] #currenttime
+            warning_list.append(warning_dict)
+        # 电压过高
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage>2000;',(previous_time, current_time))
+        error_data = c.fetchall()
+        conn.close()
+        for i in range (len(data)):
+            warning_dict["seqnum"] = data[i][0]
+            warning_dict["warn"] = "current = " + data[i][1]
+            warning_dict["ip_port"] = data[i][2] #NodeID
+            warning_dict["time"] = data[i][3] #currenttime
+            warning_list.append(warning_dict)
+
+        return render_template('./exceptions/exception.html', warning=warning_list)
 
  
 
