@@ -5,109 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>数据上传</title>
 
-    <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
-    <link href="../../static/upload/buttons.css" rel="stylesheet" type="text/css"/>
-    <link href="../../static/upload/default.css" rel="stylesheet" type="text/css"/>
-    <link href="../../static/upload/fileinput.min.css" rel="stylesheet" type="text/css"/>
-    
-    <link rel="stylesheet" type="text/css" media="all" href="../../static/daterangepicker/daterangepicker-bs3.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="../../static/daterangepicker/daterangepicker-1.3.7.css" />
-    <link href="../../static/daterangepicker/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet">
-
+<link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../static/table/handsontable.full.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../static/table/main.css" rel="stylesheet" type="text/css"/>
+<script src="../../static/table/handsontable.full.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="../../static/bootstrap-3.3.5/js/fileinput.min.js" type="text/javascript"></script>
-<script src="../../static/upload/fileinput_locale_zh.js" type="text/javascript"></script>
 
-    <script type="text/javascript" src="../../static/daterangepicker/moment.js"></script>
-    <script type="text/javascript" src="../../static/daterangepicker/daterangepicker-1.3.7.js"></script>
-    
-    <style type="text/css">
-      .demo { position: relative; }
-      .demo i {
-        position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;
-      }
-    </style>
-
-
-
-    <script type="text/javascript">
-        $(document).ready(function (){
-                    // 时间插件
-                    $('#reportrange span').html(moment().subtract('hours', 6).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
-                    $('#timesrange').val(($('#reportrange span').html()));
-                    
-                    $('#reportrange').daterangepicker(
-                            {
-                                maxDate : moment(),
-                                dateLimit : {
-                                    days : 60
-                                },  
-                                showDropdowns : true,
-                                showWeekNumbers : false,  
-                                timePicker : true,  
-                                timePickerIncrement : 5,  
-                                timePicker12Hour : false,
-                                timePickerSeconds :true,  
-                                  ranges : {
-                  //'最近1小时': [moment().subtract('hours',1), moment()],
-                  '今日': [moment().startOf('day'), moment()],
-                  '昨日': [moment().subtract('days', 1).startOf('day'), moment().subtract('days', 1).endOf('day')],
-                  '最近7日': [moment().subtract('days', 6), moment()],
-                  '最近30日': [moment().subtract('days', 29), moment()]
-                },
-                                opens : 'right', // //日期选择框的弹出位置
-                                buttonClasses : [ 'btn btn-default' ],
-                                applyClass : 'btn-small btn-primary blue',
-                                cancelClass : 'btn-small',
-                                format : 'YYYY-MM-DD HH:mm:ss', // 控件中from和to 显示的日期格式
-                                separator : ' to ',
-                                locale : {
-                                          applyLabel : '确定',
-                                          cancelLabel : '取消',
-                                          fromLabel : '起始时间',
-                                          toLabel : '结束时间',
-                                          customRangeLabel : '自定义',
-                                          daysOfWeek : [ '日', '一', '二', '三', '四', '五', '六' ],
-                                          monthNames : [ '一月', '二月', '三月', '四月', '五月', '六月',
-                                            '七月', '八月', '九月', '十月', '十一月', '十二月' ],
-                                          firstDay : 1
-                                }
-                            }, function(start, end, label) {//格式化日期显示框                                
-                                $('#reportrange span').html(start.format('YYYY-MM-DD HH:mm:ss') + ' - ' + end.format('YYYY-MM-DD HH:mm:ss'));
-                                console.log(start.format('YYYY-MM-DD HH:mm:ss'))
-                                $('#timesrange').val(($('#reportrange span').html()));
-                           });
-         
-      // 设置日期菜单被选项  --开始--
-        var dateOption ;  
-        if("${riqi}"=='day') {  
-        dateOption = "今日";  
-        }else if("${riqi}"=='yday') {  
-        dateOption = "昨日";  
-        }else if("${riqi}"=='week'){  
-        dateOption ="最近7日";  
-        }else if("${riqi}"=='month'){  
-        dateOption ="最近30日";  
-        }else if("${riqi}"=='year'){  
-        dateOption ="最近一年";  
-        }else{  
-        dateOption = "自定义";  
-        }  
-        $(".daterangepicker").find("li").each(function (){  
-        if($(this).hasClass("active")){  
-        $(this).removeClass("active");  
-        }  
-        if(dateOption==$(this).html()){  
-        $(this).addClass("active");  
-
-        }  
-        }); 
-      // 设置日期菜单被选项  --结束--
-
-        });
-    </script>
 
 </head>
 
@@ -278,52 +183,202 @@
             }
         );
     </script>
-
-
-    <div>
-        <div class="container ">
-           
-            <form enctype="multipart/form-data" method="POST" action="{{url_for('upload')}}">
-
-                               <h4>请选择时间段:</h4>
-                        <div class="controls">
-                            <div id="reportrange" class="pull-left dateRange" >
-                           
-                            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                            <span id="searchDateRange" name="searchDateRange"></span>          
-                                     <b class="caret"></b>
-                                     <input type="hidden" id="timesrange" name="field_name"  />
-                                     
-                            </div>
-                            <button type="submit" >提交</button>
-                        </div>
-            　</form> 
-             </div>  
-    </div>
- 
-                                 <br>
-
- <div class="container"><p id='uploadinfo' class="alert alert-success">{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}{{ message }}{% endfor %}{% endif %}{% endwith %}</p></div> 
-
-
-
-
+        <!-- <div class="container">
+        <h2>系统信息:</h2>
+            <table id="editable" class="stats" align="center">
+                <tbody> 
+                    <tr>       
+                    <label> HeartIntSec
+                        <td width="35%">{{json_dict['HeartIntSec']}}</td>
+                        </label>
+                    </tr>
+                    <tr>         
+                        <td width="25%">AckHeartInt</td>
+                        <td width="35%">{{json_dict['AckHeartInt']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">MaxAckFail</td>
+                        <td width="35%">{{json_dict['MaxAckFail']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">tcpAddr</td>
+                        <td width="35%">{{json_dict['tcpAddr']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">tcpPort</td>
+                        <td width="35%">{{json_dict['tcpPort']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">tcpRemoteConfigPort</td>
+                        <td width="35%">{{json_dict['tcpRemoteConfigPort']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">udpAddr</td>
+                        <td width="35%">{{json_dict['udpAddr']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">udpPort</td>
+                        <td width="35%">{{json_dict['udpPort']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">rootRoomId</td>
+                        <td width="35%">{{json_dict['rootRoomId']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">rootX</td>
+                        <td width="35%">{{json_dict['rootX']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">rootY</td>
+                        <td width="35%">{{json_dict['rootY']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">dbIpAddr</td>
+                        <td width="35%">{{json_dict['dbIpAddr']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">dbUser</td>
+                        <td width="35%">{{json_dict['dbUser']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">dbPassword</td>
+                        <td width="35%">{{json_dict['dbPassword']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">dbSchema</td>
+                        <td width="35%">{{json_dict['dbSchema']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">tcpWebServerAddr</td>
+                        <td width="35%">{{json_dict['tcpWebServerAddr']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">tcpWebServerPort</td>
+                        <td width="35%">{{json_dict['tcpWebServerPort']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">remoteAddr</td>
+                        <td width="35%">{{json_dict['remoteAddr']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">remotePort</td>
+                        <td width="35%">{{json_dict['remotePort']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">netPort</td>
+                        <td width="35%">{{json_dict['netPort']}}</td>
+                    </tr>
+                    <tr>         
+                        <td width="25%">serverIp</td>
+                        <td width="35%">{{json_dict['serverIp']}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>   -->
+<div id="hot"></div>
 <script>
-        $(document).ready(function(){
-            if ($("#uploadinfo").text() == "") {
-                $("#uploadinfo").hide()
-            }
-        })
+  var dataObject = [
+    {id: 1, flag: 'EUR', currencyCode: 'EUR', currency: 'Euro', level: 0.9033, units: 'EUR / USD', asOf: '08/19/2015', onedChng: 0.0026},
+    {id: 2, flag: 'JPY', currencyCode: 'JPY', currency: 'Japanese Yen', level: 124.3870, units: 'JPY / USD', asOf: '08/19/2015', onedChng: 0.0001},
+    {id: 3, flag: 'GBP', currencyCode: 'GBP', currency: 'Pound Sterling', level: 0.6396, units: 'GBP / USD', asOf: '08/19/2015', onedChng: 0.00},
+    {id: 4, flag: 'CHF', currencyCode: 'CHF', currency: 'Swiss Franc',  level: 0.9775, units: 'CHF / USD', asOf: '08/19/2015', onedChng: 0.0008},
+    {id: 5, flag: 'CAD', currencyCode: 'CAD', currency: 'Canadian Dollar',  level: 1.3097, units: 'CAD / USD', asOf: '08/19/2015', onedChng: -0.0005},
+    {id: 6, flag: 'AUD', currencyCode: 'AUD', currency: 'Australian Dollar',    level: 1.3589, units: 'AUD / USD', asOf: '08/19/2015', onedChng: 0.0020},
+    {id: 7, flag: 'NZD', currencyCode: 'NZD', currency: 'New Zealand Dollar',   level: 1.5218, units: 'NZD / USD', asOf: '08/19/2015', onedChng: -0.0036},
+    {id: 8, flag: 'SEK', currencyCode: 'SEK', currency: 'Swedish Krona',    level: 8.5280, units: 'SEK / USD', asOf: '08/19/2015', onedChng: 0.0016},
+    {id: 9, flag: 'NOK', currencyCode: 'NOK', currency: 'Norwegian Krone',  level: 8.2433, units: 'NOK / USD', asOf: '08/19/2015', onedChng: 0.0008},
+    {id: 10, flag: 'BRL', currencyCode: 'BRL', currency: 'Brazilian Real',  level: 3.4806, units: 'BRL / USD', asOf: '08/19/2015', onedChng: -0.0009},
+    {id: 11, flag: 'CNY', currencyCode: 'CNY', currency: 'Chinese Yuan',    level: 6.3961, units: 'CNY / USD', asOf: '08/19/2015', onedChng: 0.0004},
+    {id: 12, flag: 'RUB', currencyCode: 'RUB', currency: 'Russian Rouble',  level: 65.5980, units: 'RUB / USD', asOf: '08/19/2015', onedChng: 0.0059},
+    {id: 13, flag: 'INR', currencyCode: 'INR', currency: 'Indian Rupee',    level: 65.3724, units: 'INR / USD', asOf: '08/19/2015', onedChng: 0.0026},
+    {id: 14, flag: 'TRY', currencyCode: 'TRY', currency: 'New Turkish Lira',    level: 2.8689, units: 'TRY / USD', asOf: '08/19/2015', onedChng: 0.0092},
+    {id: 15, flag: 'THB', currencyCode: 'THB', currency: 'Thai Baht',   level: 35.5029, units: 'THB / USD', asOf: '08/19/2015', onedChng: 0.0044},
+    {id: 16, flag: 'IDR', currencyCode: 'IDR', currency: 'Indonesian Rupiah',   level: 13.83, units: 'IDR / USD', asOf: '08/19/2015', onedChng: -0.0009},
+    {id: 17, flag: 'MYR', currencyCode: 'MYR', currency: 'Malaysian Ringgit',   level: 4.0949, units: 'MYR / USD', asOf: '08/19/2015', onedChng: 0.0010},
+    {id: 18, flag: 'MXN', currencyCode: 'MXN', currency: 'Mexican New Peso',    level: 16.4309, units: 'MXN / USD', asOf: '08/19/2015', onedChng: 0.0017},
+    {id: 19, flag: 'ARS', currencyCode: 'ARS', currency: 'Argentinian Peso',    level: 9.2534, units: 'ARS / USD', asOf: '08/19/2015', onedChng: 0.0011},
+    {id: 20, flag: 'DKK', currencyCode: 'DKK', currency: 'Danish Krone',    level: 6.7417, units: 'DKK / USD', asOf: '08/19/2015', onedChng: 0.0025},
+    {id: 21, flag: 'ILS', currencyCode: 'ILS', currency: 'Israeli New Sheqel',  level: 3.8262, units: 'ILS / USD', asOf: '08/19/2015', onedChng: 0.0084},
+    {id: 22, flag: 'PHP', currencyCode: 'PHP', currency: 'Philippine Peso', level: 46.3108, units: 'PHP / USD', asOf: '08/19/2015', onedChng: 0.0012}
+  ];
+  var currencyCodes = ['EUR', 'JPY', 'GBP', 'CHF', 'CAD', 'AUD', 'NZD', 'SEK', 'NOK', 'BRL', 'CNY', 'RUB', 'INR', 'TRY', 'THB', 'IDR', 'MYR', 'MXN', 'ARS', 'DKK', 'ILS', 'PHP'];
+  var flagRenderer = function(instance, td, row, col, prop, value, cellProperties) {
+    var currencyCode = value;
+    while (td.firstChild) {
+      td.removeChild(td.firstChild);
+    }
+    if (currencyCodes.indexOf(currencyCode) > -1) {
+      var flagElement = document.createElement('DIV');
+      flagElement.className = 'flag ' + currencyCode.toLowerCase();
+      td.appendChild(flagElement);
+    } else {
+      var textNode = document.createTextNode(value === null ? '' : value);
+      td.appendChild(textNode);
+    }
+  };
+  var hotElement = document.querySelector('#hot');
+  var hotElementContainer = hotElement.parentNode;
+  var hotSettings = {
+    data: dataObject,
+    columns: [
+        {
+            data: 'id',
+            type: 'numeric',
+            width: 40
+        },
+        {
+            data: 'flag',
+            renderer: flagRenderer
+        },
+        {
+            data: 'currencyCode',
+            type: 'text'
+        },
+        {
+            data: 'currency',
+            type: 'text'
+        },
+        {
+            data: 'level',
+            type: 'numeric',
+            format: '0.0000'
+        },
+        {
+            data: 'units',
+            type: 'text'
+        },
+        {
+            data: 'asOf',
+            type: 'date',
+            dateFormat: 'MM/DD/YYYY'
+        },
+        {
+            data: 'onedChng',
+            type: 'numeric',
+            format: '0.00%'
+        }
+    ],
+    stretchH: 'all',
+    width: 806,
+    autoWrapRow: true,
+    height: 441,
+    maxRows: 22,
+    rowHeaders: true,
+    colHeaders: [
+        'ID',
+        'Country',
+        'Code',
+        'Currency',
+        'Level',
+        'Units',
+        'Date',
+        'Change'
+    ]
+};
+  var hot = new Handsontable(hotElement, hotSettings);
 </script>
 
-
-
-
-  
-
-
-
-
+            <br>
 
 
 

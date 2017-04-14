@@ -28,5 +28,7 @@ class Connect:
 		cli.send(ins)
 		cli.close()
 
+	def all_config_json(self):
+		return self.CONFIG_DICT
 
 
