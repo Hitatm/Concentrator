@@ -686,7 +686,19 @@ def appdataanalyzer():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        return render_template('./dataanalyzer/appdataanalyzer.html')
+        nodeid_list = list()
+        try:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+        except:
+            print("no such database in "+ databasepath)
+        c = conn.cursor()
+        c.execute('select distinct NodeID from NodePlace;')
+        appdata = c.fetchall()
+        for i in range(len(appdata)):
+            nodeid_list.append(appdata[i][0].encode('ascii'))
+        conn.close()
+        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodeid_list)
 
 @app.route('/echarts_data/', methods=['POST'])
 def echarts_data():
@@ -694,90 +706,56 @@ def echarts_data():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            conn = sqlite3.connect(databasepath)
-        except:
-            print("no such database in "+ databasepath)
-        c = conn.cursor()
-        c.execute('select NodeID, currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
-        appdata = c.fetchall()
-        conn.close()
-        # print appdata
+        nodepick  =  request.form['nodeselect']
+        if nodepick:
+            try:
+                databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+                conn = sqlite3.connect(databasepath)
+            except:
+                print("no such database in "+ databasepath)
+            c = conn.cursor()
+            c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+            appdata = c.fetchall()
+            conn.close()
         dicts= {}
-        nodeid_list = list()
         time_list = list()
         data_list = list()
         for i in range(len(appdata)):
-            nodeid_list.append(appdata[i][0].encode('ascii'))
             time_list.append(appdata[i][1].encode('ascii'))
             data_list.append(appdata[i][2].encode('ascii'))
-        # seriesdict = dict()
-        # markPoint = dict()
-        # markLine = dict()
-        # markPointlist = list()
-        # markLinelist = list()
-        # markPointdatadict = dict()
-        # markLinedatadict = dict()
-        # markPointdatadict["type"]
-        # seriesdict["name"] = ''
-        # seriesdict["type"] = 'line'
-        # seriesdict["data"] = data_list
-        # seriesdict["markPoint"] = 
-        # --------------------xing ru 
-        # dicts["Data"]= # {
-        #     name:'data',
-        #     type:'line',
-        #     data: data_list,
-        #     markPoint : {
-        #         data : [
-        #             {type : 'max', name: '最大值'},
-        #             {type : 'min', name: '最小值'}
-        #         ]
-        #     },
-        #     markLine : {
-        #         data : [
-        #             {type : 'average', name: '平均值'}
-        #         ]
-        #     }
-        # }
-        # print nodeid_list
-        # print time_list
-        # print data_list
-
-        dicts["NodeID"] = nodeid_list
-        dicts["currenttime"] = time_list
-        # dicts["Data"] = data_list
-        ins = json.dumps(dicts)
-        # print ins
-        return ins
-    else:
-        t = time.time()
-        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
-        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-        try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            conn = sqlite3.connect(databasepath)
-        except:
-            print("no such database in "+ databasepath)
-        c = conn.cursor()
-        c.execute('select NodeID, currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
-        appdata = c.fetchall()
-        conn.close()
-        # print appdata
-        dicts= {}
-        nodeid_list = list()
-        time_list = list()
-        data_list = list()
-        for i in range(len(appdata)):
-            nodeid_list.append(appdata[i][0].encode('ascii'))
-            time_list.append(appdata[i][1].encode('ascii'))
-            data_list.append(appdata[i][2].encode('ascii'))
-        dicts["NodeID"] = nodeid_list
         dicts["currenttime"] = time_list
         dicts["Data"] = data_list
+        dicts["NodeID"] = nodepick
         ins = json.dumps(dicts)
+        print ins
         return ins
+    # else:
+    #     t = time.time()
+    #     current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+    #     previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+    #     try:
+    #         databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    #         conn = sqlite3.connect(databasepath)
+    #     except:
+    #         print("no such database in "+ databasepath)
+    #     c = conn.cursor()
+    #     c.execute('select NodeID, currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? ;',(start_time, end_time))
+    #     appdata = c.fetchall()
+    #     conn.close()
+    #     # print appdata
+    #     dicts= {}
+    #     nodeid_list = list()
+    #     time_list = list()
+    #     data_list = list()
+    #     for i in range(len(appdata)):
+    #         nodeid_list.append(appdata[i][0].encode('ascii'))
+    #         time_list.append(appdata[i][1].encode('ascii'))
+    #         data_list.append(appdata[i][2].encode('ascii'))
+    #     dicts["NodeID"] = nodeid_list
+    #     dicts["currenttime"] = time_list
+    #     dicts["Data"] = data_list
+    #     ins = json.dumps(dicts)
+    #     return ins
 
 # 拓扑展示
 @app.route('/topodisplay/', methods=['POST', 'GET'])
