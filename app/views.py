@@ -70,6 +70,13 @@ def upload():
         json_dict = configfile.all_config_json()
         return render_template('./upload/upload.html',json_dict = json_dict)
 
+# @app.route('/upload_modify/', methods=['POST', 'GET'])
+# @app.route('/upload_modify', methods=['POST', 'GET'])
+# def upload_modify():
+#     if request.methods = "POST":
+        
+
+
 #--------------------------------------------与后台通信----------------------------------------------------
 @app.route('/monitor/', methods=['POST', 'GET'])
 @app.route('/monitor', methods=['POST', 'GET'])
