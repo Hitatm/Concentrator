@@ -682,53 +682,76 @@ def flowanalyzer():
 # 应用数据分析
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
 def appdataanalyzer():
+    nodeid_list = list()
+    try:
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+    except:
+        print("no such database in "+ databasepath)
+    c = conn.cursor()
+    c.execute('select distinct NodeID from NodePlace;')
+    appdata = c.fetchall()
+    for i in range(len(appdata)):
+        nodeid_list.append(appdata[i][0].encode('ascii'))
+    conn.close()
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
-    else:
-        nodeid_list = list()
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        nodepick  =  request.form['nodeselect']
         try:
             databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
             conn = sqlite3.connect(databasepath)
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select distinct NodeID from NodePlace;')
+        c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        # c.execute('select currenttime, Data from ApplicationData where NodeID == ?;',(nodepick))
         appdata = c.fetchall()
-        for i in range(len(appdata)):
-            nodeid_list.append(appdata[i][0].encode('ascii'))
         conn.close()
-        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodeid_list)
-
-@app.route('/echarts_data/', methods=['POST'])
-def echarts_data():
-    if request.method == 'POST':
-        selectime  =  request.form['field_name']
-        start_time = selectime.encode("utf-8")[0:19]
-        end_time = selectime.encode("utf-8")[22:41]
-        nodepick  =  request.form['nodeselect']
-        if nodepick:
-            try:
-                databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-                conn = sqlite3.connect(databasepath)
-            except:
-                print("no such database in "+ databasepath)
-            c = conn.cursor()
-            c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-            appdata = c.fetchall()
-            conn.close()
         dicts= {}
         time_list = list()
         data_list = list()
         for i in range(len(appdata)):
-            time_list.append(appdata[i][1].encode('ascii'))
-            data_list.append(appdata[i][2].encode('ascii'))
-        dicts["currenttime"] = time_list
-        dicts["Data"] = data_list
-        dicts["NodeID"] = nodepick
-        ins = json.dumps(dicts)
-        print ins
-        return ins
+            time_list.append(appdata[i][0].encode('ascii'))
+            data_list.append(appdata[i][1].encode('ascii'))
+        return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=time_list,Datalist=data_list,NodeID=nodepick, nodelist = nodeid_list)
+    else:
+        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodeid_list, currenttime=[],Datalist=[],NodeID="1")
+    
+
+# @app.route('/echarts_data/', methods=['POST'])
+# def echarts_data():
+#     if request.method == 'POST':
+#         selectime  =  request.form['field_name']
+#         start_time = selectime.encode("utf-8")[0:19]
+#         end_time = selectime.encode("utf-8")[22:41]
+#         nodepick  =  request.form['nodeselect']
+#         if nodepick:
+#             try:
+#                 databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+#                 conn = sqlite3.connect(databasepath)
+#             except:
+#                 print("no such database in "+ databasepath)
+#             c = conn.cursor()
+#             c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+#             appdata = c.fetchall()
+#             conn.close()
+#         dicts= {}
+#         time_list = list()
+#         data_list = list()
+#         for i in range(len(appdata)):
+#             time_list.append(appdata[i][1].encode('ascii'))
+#             data_list.append(appdata[i][2].encode('ascii'))
+#         dicts["currenttime"] = time_list
+#         dicts["Data"] = data_list
+#         dicts["NodeID"] = nodepick
+#         ins = json.dumps(dicts)
+#         print ins
+#         return ins
     # else:
     #     t = time.time()
     #     current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
