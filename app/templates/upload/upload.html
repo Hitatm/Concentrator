@@ -40,11 +40,37 @@
                  $(this).parents("td").html(editval);
 
                  var localhost =document.getElementById('localhost').innerHTML;
-                 // var vpri =document.getElementById('pri').innerHTML ;
-                 // var vtime=document.getElementById('time').innerHTML;
-$.post("{{url_for('upload_modify')}}", {localhost:localhost},function(data){   
-console.log(data);alert('ok' + data);
- });       
+                 var id =document.getElementById('id').innerHTML;
+                 var HeartIntSec =document.getElementById('HeartIntSec').innerHTML;
+                 var AckHeartInt =document.getElementById('AckHeartInt').innerHTML;
+                 var MaxAckFail =document.getElementById('MaxAckFail').innerHTML;
+                 var tcpAddr =document.getElementById('tcpAddr').innerHTML;
+                 var tcpPort =document.getElementById('tcpPort').innerHTML;
+                 var tcpRemoteConfigPort =document.getElementById('tcpRemoteConfigPort').innerHTML;
+                 var udpAddr =document.getElementById('udpAddr').innerHTML;
+                 var udpPort =document.getElementById('udpPort').innerHTML;
+                 var rootAddr =document.getElementById('rootAddr').innerHTML;
+                 var rootPort =document.getElementById('rootPort').innerHTML;
+                 var rootRoomId =document.getElementById('rootRoomId').innerHTML;
+                 var rootX =document.getElementById('rootX').innerHTML;
+                 var rootY =document.getElementById('rootY').innerHTML;
+                 var dbIpAddr =document.getElementById('dbIpAddr').innerHTML;
+                 var dbUser =document.getElementById('dbUser').innerHTML;
+                 var dbPassword =document.getElementById('dbPassword').innerHTML;
+                 var dbSchema =document.getElementById('dbSchema').innerHTML;
+                 var tcpWebServerAddr =document.getElementById('tcpWebServerAddr').innerHTML;
+                 var tcpWebServerPort =document.getElementById('tcpWebServerPort').innerHTML;
+                 var remoteAddr =document.getElementById('remoteAddr').innerHTML;
+                 var remotePort =document.getElementById('remotePort').innerHTML;
+                 var netPort =document.getElementById('netPort').innerHTML;
+                 var serverIp =document.getElementById('serverIp').innerHTML;
+
+$.post("{{url_for('upload_modify')}}", {localhost:localhost,id:id,HeartIntSec:HeartIntSec,AckHeartInt:AckHeartInt,MaxAckFail:MaxAckFail,tcpAddr:tcpAddr,tcpPort:tcpPort,tcpRemoteConfigPort:tcpRemoteConfigPort,udpAddr:udpAddr,udpPort:udpPort,rootAddr:rootAddr,rootRoomId:rootRoomId,rootX:rootX,rootY:rootY,dbIpAddr:dbIpAddr,dbUser:dbUser,dbPassword:dbPassword,dbSchema:dbSchema,tcpWebServerAddr:tcpWebServerAddr,tcpWebServerPort:tcpWebServerPort,remoteAddr:remoteAddr,remotePort:remotePort,netPort:netPort,serverIp:serverIp},
+
+    function(data){   
+        console.log(data);
+    }
+);       
 
               }
          );
@@ -234,91 +260,99 @@ console.log(data);alert('ok' + data);
                 </tr>
                 <tr>       
                     <th width="25%"> id </th>
-                    <td width="35%">{{json_dict['id']}}</td>
+                    <td width="35%" id="id">{{json_dict['id']}}</td>
                 </tr>
                 <tr>       
                     <th width="25%"> HeartIntSec </th>
-                    <td width="35%">{{json_dict['HeartIntSec']}}</td>
+                    <td width="35%" id="HeartIntSec">{{json_dict['HeartIntSec']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">AckHeartInt</th>
-                    <td width="35%">{{json_dict['AckHeartInt']}}</td>
+                    <td width="35%" id="AckHeartInt">{{json_dict['AckHeartInt']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">MaxAckFail</th>
-                    <td width="35%">{{json_dict['MaxAckFail']}}</td>
+                    <td width="35%" id="MaxAckFail">{{json_dict['MaxAckFail']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">tcpAddr</th>
-                    <td width="35%">{{json_dict['tcpAddr']}}</td>
+                    <td width="35%" id="tcpAddr">{{json_dict['tcpAddr']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">tcpPort</th>
-                    <td width="35%">{{json_dict['tcpPort']}}</td>
+                    <td width="35%" id="tcpPort">{{json_dict['tcpPort']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">tcpRemoteConfigPort</th>
-                    <td width="35%">{{json_dict['tcpRemoteConfigPort']}}</td>
+                    <td width="35%" id="tcpRemoteConfigPort">{{json_dict['tcpRemoteConfigPort']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">udpAddr</th>
-                    <td width="35%">{{json_dict['udpAddr']}}</td>
+                    <td width="35%" id="udpAddr">{{json_dict['udpAddr']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">udpPort</th>
-                    <td width="35%">{{json_dict['udpPort']}}</td>
+                    <td width="35%" id="udpPort">{{json_dict['udpPort']}}</td>
+                </tr>
+                <tr>         
+                    <th width="25%">rootAddr</th>
+                    <td width="35%" id="rootAddr">{{json_dict['rootAddr']}}</td>
+                </tr>
+                <tr>         
+                    <th width="25%">rootPort</th>
+                    <td width="35%" id="rootPort">{{json_dict['rootPort']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">rootRoomId</th>
-                    <td width="35%">{{json_dict['rootRoomId']}}</td>
+                    <td width="35%" id="rootRoomId">{{json_dict['rootRoomId']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">rootX</th>
-                    <td width="35%">{{json_dict['rootX']}}</td>
+                    <td width="35%" id="rootX">{{json_dict['rootX']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">rootY</th>
-                    <td width="35%">{{json_dict['rootY']}}</td>
+                    <td width="35%" id="rootY">{{json_dict['rootY']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">dbIpAddr</th>
-                    <td width="35%">{{json_dict['dbIpAddr']}}</td>
+                    <td width="35%" id="dbIpAddr">{{json_dict['dbIpAddr']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">dbUser</th>
-                    <td width="35%">{{json_dict['dbUser']}}</td>
+                    <td width="35%" id="dbUser">{{json_dict['dbUser']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">dbPassword</th>
-                    <td width="35%">{{json_dict['dbPassword']}}</td>
+                    <td width="35%" id="dbPassword">{{json_dict['dbPassword']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">dbSchema</th>
-                    <td width="35%">{{json_dict['dbSchema']}}</td>
+                    <td width="35%" id="dbSchema">{{json_dict['dbSchema']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">tcpWebServerAddr</th>
-                    <td width="35%">{{json_dict['tcpWebServerAddr']}}</td>
+                    <td width="35%" id="tcpWebServerAddr">{{json_dict['tcpWebServerAddr']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">tcpWebServerPort</th>
-                    <td width="35%">{{json_dict['tcpWebServerPort']}}</td>
+                    <td width="35%" id="tcpWebServerPort">{{json_dict['tcpWebServerPort']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">remoteAddr</th>
-                    <td width="35%">{{json_dict['remoteAddr']}}</td>
+                    <td width="35%" id="remoteAddr">{{json_dict['remoteAddr']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">remotePort</th>
-                    <td width="35%">{{json_dict['remotePort']}}</td>
+                    <td width="35%" id="remotePort">{{json_dict['remotePort']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">netPort</th>
-                    <td width="35%">{{json_dict['netPort']}}</td>
+                    <td width="35%" id="netPort">{{json_dict['netPort']}}</td>
                 </tr>
                 <tr>         
                     <th width="25%">serverIp</th>
-                    <td width="35%">{{json_dict['serverIp']}}</td>
+                    <td width="35%" id="serverIp">{{json_dict['serverIp']}}</td>
                 </tr>
             </tbody>
         </table>

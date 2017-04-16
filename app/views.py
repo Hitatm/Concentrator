@@ -73,9 +73,91 @@ def upload():
 @app.route('/upload_modify/', methods=['POST', 'GET'])
 @app.route('/upload_modify', methods=['POST', 'GET'])
 def upload_modify():
+    c = Connect()
+    config_dicts = c.all_config_json() # read config.json and put all items in this dict
     if request.method == 'POST':
         val1 = request.form.get("localhost")
-        print val1
+        if val1:
+            config_dicts["localhost"] = val1
+        val2 = request.form.get("id")
+        if val2:
+            config_dicts["id"] = val2
+        val3 = request.form.get("HeartIntSec")
+        if val3:
+            config_dicts["HeartIntSec"] = val3
+        val4 = request.form.get("AckHeartInt")
+        if val4:
+            config_dicts["AckHeartInt"] = val4
+        val5 = request.form.get("MaxAckFail")
+        if val5:
+            config_dicts["MaxAckFail"] = val5
+        val6 = request.form.get("tcpAddr")
+        if val6:
+            config_dicts["tcpAddr"] = val6
+        val7 = request.form.get("tcpPort")
+        if val7:
+            config_dicts["tcpPort"] = val7
+        val8 = request.form.get("tcpRemoteConfigPort")
+        if val8:
+            config_dicts["tcpRemoteConfigPort"] = val8
+        val9 = request.form.get("udpAddr")
+        if val9:
+            config_dicts["udpAddr"] = val9
+        val10 = request.form.get("udpPort")
+        if val10:
+            config_dicts["udpPort"] = val10
+        val11 = request.form.get("rootAddr")
+        if val11:
+            config_dicts["rootAddr"] = val11
+        val12 = request.form.get("rootPort")
+        if val12:
+            config_dicts["rootPort"] = val12
+        val13 = request.form.get("rootRoomId")
+        if val13:
+            config_dicts["rootRoomId"] = val13
+        val14 = request.form.get("rootX")
+        if val14:
+            config_dicts["rootX"] = val14
+        val15 = request.form.get("rootY")
+        if val15:
+            config_dicts["rootY"] = val15
+        val16 = request.form.get("dbIpAddr")
+        if val16:
+            config_dicts["dbIpAddr"] = val16
+        val17 = request.form.get("dbUser")
+        if val17:
+            config_dicts["dbUser"] = val17
+        val18 = request.form.get("dbPassword")
+        if val18:
+            config_dicts["dbPassword"] = val18
+        val19 = request.form.get("dbSchema")
+        if val19:
+            config_dicts["dbSchema"] = val19
+        val20 = request.form.get("tcpWebServerAddr")
+        if val20:
+            config_dicts["tcpWebServerAddr"] = val20
+        val21 = request.form.get("tcpWebServerPort")
+        if val21:
+            config_dicts["tcpWebServerPort"] = val21
+        val22 = request.form.get("remoteAddr")
+        if val22:
+            config_dicts["remoteAddr"] = val22
+        val23 = request.form.get("remotePort")
+        if val23:
+            config_dicts["remotePort"] = val23
+        val24 = request.form.get("netPort")
+        if val24:
+            config_dicts["netPort"] = val24
+        val25 = request.form.get("serverIp")
+        if val25:
+            config_dicts["serverIp"] = val25
+        json_config_dicts = json.dumps(config_dicts)
+        currentdir = os.path.dirname(__file__)
+        conf_file =  currentdir +'/utils/Config/config.json'  #协议配置文件
+        with open(conf_file, 'w') as f:
+            f.write(json_config_dicts)
+            f.close()
+
         return "OK"
     else:
         return "damn"
