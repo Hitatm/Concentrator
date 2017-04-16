@@ -8,21 +8,56 @@
 <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
 <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
 <link href="../../static/table/editable.css" rel="stylesheet" type="text/css"/>
-<!-- <link href="../../static/table/handsontable.full.min.css" rel="stylesheet" type="text/css"/>
-<link href="../../static/table/main.css" rel="stylesheet" type="text/css"/>
-<script src="../../static/table/handsontable.full.min.js" type="text/javascript"></script> -->
-<script src="../../static/table/editable.js" type="text/javascript"></script>
+
+<!-- <script src="../../static/table/editable.js" type="text/javascript"></script> -->
 <script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript">
+<!-- <script type="text/javascript">
     function setToEditable(tableid){
         document.getElementById(tableid).onclick=editCell;  
     }
-</script>
+</script> -->
+<script type="text/javascript">  
+  $(function(){
+        $("td").dblclick(
+            function(){
+          var inval = $(this).html();  
+           
+           var inid =  $(this).parents().attr("localhost");
+          //document.write(inid);
+           $(this).html("<input id="+inid+" value="+inval+"> ");
+           //被双击的格，变成输入框，并给该框斌值和id
+           var sid="#"+inid;
+ 
+           var idattr=$(this).attr("localhost");
+           
+              $(sid).focus().on("blur",
+              function()
+             { 
+//在输入框中，取得焦点后，再失去焦点后,取得当前框的值,把当前框的值传给当前元素的上一层元素
+                 var editval = $(this).val();
+                
+                 $(this).parents("td").html(editval);
 
+                 var localhost =document.getElementById('localhost').innerHTML;
+                 // var vpri =document.getElementById('pri').innerHTML ;
+                 // var vtime=document.getElementById('time').innerHTML;
+$.post("{{url_for('upload_modify')}}", {localhost:localhost},function(data){   
+console.log(data);alert('ok' + data);
+ });       
+
+              }
+         );
+          
+  });  
+         });
+ 
+
+</script>
 </head>
 
-<body onload="setToEditable('editable')">
+<!-- <body onload="setToEditable('editable')"> -->
+<body>
 <div class="container">
     <br>
     <div class="jumbotron">
@@ -195,7 +230,7 @@
             <tbody> 
                 <tr>       
                     <th width="25%"> localhost </th>
-                    <td width="35%">{{json_dict['localhost']}}</td>
+                    <td width="35%" id="localhost">{{json_dict['localhost']}}</td>
                 </tr>
                 <tr>       
                     <th width="25%"> id </th>
@@ -290,8 +325,23 @@
     </div>  
 
             <br>
+<script type="text/javascript">
+//     var postdata = {
+//     localhost : 
+// };
+// $(function(){
+// $('#localhost').focus().on("blur",
+//               function() {
+// var postdata =document.getElementById('localhost').innerHTML;
+// $.post("{{url_for('upload_modify')}}", 
+//     {localhost:postdata},
+//     function(data){   
+//     console.log(data);
+//     });
+//  });
+// });
 
-
+</script>
 
 </body>
 </html>

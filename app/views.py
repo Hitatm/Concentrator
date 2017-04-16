@@ -70,11 +70,16 @@ def upload():
         json_dict = configfile.all_config_json()
         return render_template('./upload/upload.html',json_dict = json_dict)
 
-# @app.route('/upload_modify/', methods=['POST', 'GET'])
-# @app.route('/upload_modify', methods=['POST', 'GET'])
-# def upload_modify():
-#     if request.methods = "POST":
-        
+@app.route('/upload_modify/', methods=['POST', 'GET'])
+@app.route('/upload_modify', methods=['POST', 'GET'])
+def upload_modify():
+    if request.method == 'POST':
+        val1 = request.form.get("localhost")
+        print val1
+        return "OK"
+    else:
+        return "damn"
+
 
 
 #--------------------------------------------与后台通信----------------------------------------------------
