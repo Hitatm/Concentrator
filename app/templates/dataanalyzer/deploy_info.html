@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>部署信息表</title>
+
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/upload/buttons.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/upload/default.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/upload/fileinput.min.css" rel="stylesheet" type="text/css"/>
+
+<script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script src="../../static/jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js" type="text/javascript"></script>
+<script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="../../static/bootstrap-3.3.5/js/fileinput.min.js" type="text/javascript"></script>
+<script src="../../static/upload/fileinput_locale_zh.js" type="text/javascript"></script>
+
+<script type="text/javascript">  
+  $(function(){
+        $("td").dblclick(
+            function(){
+           
+              $(sid).focus().on("blur",
+              function()
+             { 
+//在输入框中，取得焦点后，再失去焦点后,取得当前框的值,把当前框的值传给当前元素的上一层元素
+                 var editval = $(this).val();
+                
+                 $(this).parents("td").html(editval);
+
+                 var ID =document.getElementById('ID').innerHTML;
+                 var NodeID =document.getElementById('NodeID').innerHTML;
+                 var MeterID =document.getElementById('MeterID').innerHTML;
+                 var Place =document.getElementById('Place').innerHTML;
+                 
+$("#submit").click(function ()
+{$.post("{{url_for('deploy_modify')}}", {ID:ID,NodeID:NodeID,MeterID:MeterID,Place:Place},
+
+    function(data){   
+        console.log(data);
+    }
+); 
+});      
+
+              }
+         );
+          
+  });  
+         });
+ 
+
+</script>
+ 
+</head>
+<body>
+<br>
+<div class="container">
+    <h2 class="text-center">节点-表-地理位置部署信息</h2>
+</div>
+
+<table class="table table-hover table-responsive  table-condensed table-striped">
+      <thead>
+        <tr>
+            <th class="text-center">序号</th>
+            <th class="text-center">节点ID</th>
+            <th class="text-center">表ID</th>
+            <th class="text-center">地理位置</th>
+        </tr>
+      </thead>
+      <tbody>
+
+
+      {% for item in nodeplace: %}
+
+      <tr data-toggle="modal" data-target="#myModal">
+      <th scope="row" class="text-center" id = "id">{{ item[0] }}</th>
+          <td class="text-nowrap text-center" id = "NodeID">{{ item[1] }}</td>
+          <td class="text-center text-nowrap" id = "MeterID">{{ item[2] }}</td>
+          <td class="text-center text-nowrap" id = "Place">{{ item[3] }}</td>
+        </tr>
+
+      {% endfor %}
+      </tbody>
+      <button id="submit" type="submit" >提交更改</button>    
+    </table>
+
+</body>
+</html>

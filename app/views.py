@@ -158,9 +158,41 @@ def upload_modify():
             f.write(json_config_dicts)
             f.close()
 
-        return "OK"
+        return "It works"
     else:
-        return "damn"
+        return "Error when writing to the config.json file"
+
+# 部署信息表
+@app.route('/deploy_info/', methods=['POST', 'GET'])
+@app.route('/deploy_info', methods=['POST', 'GET'])
+def deploy_info():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    else:
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
+        nodeplace = c.fetchall()
+        conn.close()
+
+        return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
+
+@app.route('/deploy_modify/', methods=['POST', 'GET'])
+@app.route('/deploy_modify', methods=['POST', 'GET'])
+def deploy_modify():
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
+    nodeplace = c.fetchall()
+    conn.close()
+    if request.method == 'POST':
+        val1 = request.form.get("NodeID")
+        if val1:
+
+        val2 = request.form.get("MeterID")
 
 
 
@@ -413,7 +445,7 @@ def instruction2():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
-    c.execute("select distinct NodeID from NetMonitor;") # not NetMonitor but another node.db
+    c.execute("select distinct NodeID from NetMonitor;") # not NetMonitor but from NodePlace
     nodes = list(c.fetchall()) #tuple  -- list
     total = len(nodes)
     previous = 0 #total - len(nodes)
@@ -424,6 +456,7 @@ def instruction2():
             c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node))
             temp = c.fetchall()
             NODE_DICT_NET[temp[0][0]] = temp[0][1]
+    conn.close()
     # print NODE_DICT_NET
     return render_template('./client/getdata.html')
 
