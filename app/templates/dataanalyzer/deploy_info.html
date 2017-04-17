@@ -23,7 +23,7 @@
 <script src="../../static/table/bootstrap-table-zh-CN.js" type="text/javascript"></script>
 
   <script type="text/javascript">  
-  
+
         $(document).ready(function () {  
             $("#btnDel").click(function () {  
                 $(":checked").parent().parent().fadeOut("show"); //隐藏所有被选中的input元素  
@@ -40,33 +40,33 @@
             })  
   
             //全选  
-            $("#checkAll").click(function () {  
+            // $("#checkAll").click(function () {  
   
-                if ($("#checkAll").attr("checked") == false) {  
+            //     if ($("#checkAll").attr("checked") == false) {  
   
-                    $("input[name='checkbox']").each(function () {  
-                        $(this).attr("checked", true);  
-                    });  
-                } else {  
+            //         $("input[name='checkbox']").each(function () {  
+            //             $(this).attr("checked", true);  
+            //         });  
+            //     } else {  
   
-                    $("input[name='checkbox']").each(function () {  
-                        $(this).attr("checked", false);  
-                    });  
-                }  
+            //         $("input[name='checkbox']").each(function () {  
+            //             $(this).attr("checked", false);  
+            //         });  
+            //     }  
   
-            });  
+            // });  
         });  
     </script>  
 
     <script>  
         function append() {  
-            var numberoftr = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr').length+1;
-  
-            var strAppend = '<tr style="background: rgb(255, 255, 255) none repeat scroll 0% 0%;"><th class="text-center"><input type="checkbox" value="" editable="false" name="checkbox"></th><th scope="row" class="text-center" id="id">'+numberoftr+'</th><td class="text-center"></td><td class="text-center"></td><td class="text-center"></td><th class="text-center"><button type="submit" onclick="addnew()">添加</th></tr>';
+            var numberoftr = document.getElementsByTagName("tbody")[0].getElementsByTagName('tr').length;
+            // console.log(numberoftr);
+            var strAppend = '<tr style="background: rgb(255, 255, 255) none repeat scroll 0% 0%;"><th class="text-center"><input type="checkbox" value="" editable="false" name="checkbox"></th><th scope="row" class="text-center" id="id">'+numberoftr+'</th><td class="text-center"></td><td class="text-center"></td><td class="text-center"></td><th class="text-center"><button type="submit" onclick="addnew('+numberoftr+')">添加</th></tr>';
 
   
             $("#AddFamily tbody ").append(strAppend).editableTableWidget();  
-  
+            return numberoftr-1
         }  
     </script>  
 
@@ -84,6 +84,62 @@
             });
         }
 
+    </script>
+    <script type="text/javascript">
+    function del() {
+        // var n = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr').length;
+        var checkboxs = document.getElementsByName('checkbox');
+        // console.log(checkboxs);
+        var arr = new Array();
+        for (var i=0; i<checkboxs.length; i++) 
+        {
+             if(checkboxs[i].checked==true)
+             {
+               var cv=checkboxs[i].value
+               // console.log(cv);
+           
+                arr.push(cv);
+            }
+        }
+        console.log(arr);
+        $.ajax({
+            type:"POST",
+            url:"{{url_for('deploy_del')}}",
+            data:{del_list:arr},
+            datatype: "json",
+            });
+        
+        }
+    </script>
+    <script type="text/javascript">
+        function addnew(numberoftr)
+        {   
+            var flag = 0;
+            // console.log(numberoftr);
+            var NodeID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr-1].getElementsByTagName('td')[0].innerHTML;
+            if(NodeID.length==0){    
+            flag++;}
+            var MeterID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr-1].getElementsByTagName('td')[1].innerHTML;
+            if(MeterID.length==0){    
+            flag++;}
+            var Place = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr-1].getElementsByTagName('td')[2].innerHTML;
+            if(Place.length==0){    
+            flag++;}
+            if (flag)
+            {
+                alert("请补全内容!");
+            }
+            else
+            {
+                $.ajax({
+                type:"POST",
+                url:"{{url_for('deploy_add')}}",
+                data:{ID:numberoftr, NodeID:NodeID, MeterID:MeterID, Place:Place},
+                datatype: "json",
+                });
+            }
+
+        }
     </script>
     <style>  
         table {  
@@ -108,17 +164,13 @@
   
  <body>  
   
-    <div class="heading">  
-  
+    <div class="heading" align="center">  
+    <h2>部署信息表</h2>
         <button id="build" type="button" class="btn  btn-success" data-toggle="modal" data-target="" onclick="append()">  
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加   
         </button>  
   
-        <button id="btnEdit" type="button" class="btn   btn-warning">  
-            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改   
-        </button>  
-   
-        <button id="btnDel" type="button" class="btn  btn-danger" data-toggle="modal" data-target="#DeleteForm" onclick="">  
+        <button id="btnDel" type="button" class="btn  btn-danger" data-toggle="modal" data-target="#DeleteForm" onclick="del()">
             <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>删除  
         </button>  
   
@@ -142,7 +194,7 @@
             {% for item in nodeplace: %}
             <tr>
                 <th class="text-center">  
-                    <input name="checkbox" type="checkbox" id="{{item[0]}}" >  
+                    <input name="checkbox" type="checkbox" value="{{item[0]}}" >  
                 </th>
               <th scope="row" class="text-center" id = "id">{{ item[0] }}</th>
                   <td class="text-nowrap text-center" id = "NodeID">{{ item[1] }}</td>

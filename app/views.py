@@ -208,7 +208,6 @@ def deploy_modify():
             c = conn.cursor()
             c.execute("delete from NodePlace where ID = ?;",(ID))
             conn.commit()
-            print "delete"
             c.execute("insert into NodePlace VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
             conn.commit()
             conn.close()
@@ -220,6 +219,51 @@ def deploy_modify():
 
     return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
 
+@app.route('/deploy_del/', methods=['POST', 'GET'])
+@app.route('/deploy_del', methods=['POST', 'GET'])
+def deploy_del():
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    del_list = list()
+    if request.method == 'POST':
+        get_list = request.form.getlist("del_list[]")
+    for item in get_list:
+        del_list.append(item.encode('ascii'))
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("delete from NodePlace where ID in ------------ (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
+    nodeplace = c.fetchall()
+    conn.close()
+
+    return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
+
+@app.route('/deploy_add/', methods=['POST', 'GET'])
+@app.route('/deploy_add', methods=['POST', 'GET'])
+def deploy_add():
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    if request.method == 'POST':
+        ID = request.form["ID"] 
+        NodeID = request.form["NodeID"].encode('ascii')
+        MeterID = request.form["MeterID"].encode('ascii')
+        Place = request.form["Place"].encode('ascii')
+        # print ID, NodeID, MeterID, Place
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute("insert into NodePlace VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
+        conn.commit()
+        conn.close()
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
+    nodeplace = c.fetchall()
+    conn.close()
+
+    return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
 
 #--------------------------------------------与后台通信----------------------------------------------------
 @app.route('/monitor/', methods=['POST', 'GET'])
