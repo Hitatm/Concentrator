@@ -183,17 +183,42 @@ def deploy_info():
 @app.route('/deploy_modify', methods=['POST', 'GET'])
 def deploy_modify():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    if request.method == 'POST':
+        ID = request.form["ID"] 
+        NodeID = request.form["NodeID"].encode('ascii')
+        MeterID = request.form["MeterID"].encode('ascii')
+        Place = request.form["Place"].encode('ascii')
+        # print ID, NodeID, MeterID, Place
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute("select ID, NodeID, MeterID, Place from NodePlace where ID=?;",(ID))
+        old_data = c.fetchall()
+        conn.close()
+        # print old_data[0]
+        flag = 0  #flag==0 未修改 flag==1 修改了
+        if (old_data[0][1].encode('ascii') != NodeID):
+            flag = 1
+        if (old_data[0][2].encode('ascii') != MeterID):
+            flag = 1
+        if (old_data[0][3].encode('ascii') != Place):
+            flag = 1
+        # print flag
+        if flag==1:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("delete from NodePlace where ID = ?;",(ID))
+            conn.commit()
+            print "delete"
+            c.execute("insert into NodePlace VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
+            conn.commit()
+            conn.close()
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
     c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
     nodeplace = c.fetchall()
     conn.close()
-    if request.method == 'POST':
-        val1 = request.form.get("NodeID")
-        if val1:
 
-        val2 = request.form.get("MeterID")
-
+    return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
 
 
 #--------------------------------------------与后台通信----------------------------------------------------
