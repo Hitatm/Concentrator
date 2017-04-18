@@ -273,6 +273,41 @@ def deploy_add():
     return "添加成功"
     # return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
 
+#节点信息查询
+@app.route('/node_search/', methods=['POST', 'GET'])
+@app.route('/node_search', methods=['POST', 'GET'])
+def node_search():
+    nodeid_list = list()
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute('select distinct NodeID from NodePlace;')
+    nodeid = c.fetchall()
+    conn.close()
+    for i in range(len(nodeid)):
+        nodeid_list.append(nodeid[i][0].encode('ascii'))  
+
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        nodepick  =  request.form['nodeselect']
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        # c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        c.execute('select * from NetMonitor where NodeID == ?;',(nodepick,))
+        display = c.fetchall()
+        # print display
+        conn.close()
+        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display)
+    else:
+        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list)
+
+
 #--------------------------------------------与后台通信----------------------------------------------------
 @app.route('/monitor/', methods=['POST', 'GET'])
 @app.route('/monitor', methods=['POST', 'GET'])
