@@ -917,6 +917,52 @@ def flowanalyzer():
         # templist.append(tempstr)
         # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
+#上报数量分析
+@app.route('/count_appdata/', methods=['POST', 'GET'])
+def count_appdata():
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute('select distinct NodeID from NodePlace;')
+    node = c.fetchall()
+    conn.close()
+    nodelist = list()
+    for i in range(len(node)):
+        nodelist.append(node[i][0].encode('ascii'))  
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        countlist = list()
+        for eachnode in nodelist:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, eachnode))
+            # c.execute('select count(*) from ApplicationData where NodeID == ?;',(eachnode,))
+            datacount = c.fetchall()
+            conn.close()
+            countlist.append(datacount[0][0])   
+
+        return render_template('./dataanalyzer/count_appdata.html',nodelist=nodelist, countlist=countlist)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        countlist = list()
+        for eachnode in nodelist:
+            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(previous_time, current_time, eachnode))
+            datacount = c.fetchall()
+            conn.close()
+            countlist.append(datacount[0][0])     
+
+        return render_template('./dataanalyzer/count_appdata.html',nodelist=nodelist, countlist=countlist)
 
 # 应用数据分析
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
@@ -1001,9 +1047,7 @@ def topodisplay():
         m = dict()
         for key ,value in Parentnode.items():
             n = {'category':2, 'name':key}
-            # nodes.append("{category:2, name:"+"'"+key+"'}")
             nodes.append(n)
-            # links.append("{source : '"+value+"', target : '"+key+"', weight : 1}")
             m = {'source':value, 'target':key, 'weight':1}
             links.append(m)
 

@@ -1,5 +1,5 @@
 # Concentrator
-bulid a web server runing on embedded Linux system, then we can access the control the system via any connected devices such as laptop or android phone
+We are creating a web server running on embedded Linux systems, and having access to the system via any connected devices such as laptops or smart phones.
 
 
 # work record   
@@ -46,23 +46,6 @@ bulid a web server runing on embedded Linux system, then we can access the contr
 |16|  3 35 9   			|  43|3   |接收时间戳  |
 |17|  34 					|  46|1   |接收序列号  |
 |18| 1 					|  47|1   |时间同步level  |
-
-0
-1:'realtimestamp'
-2:'nodetimestamp'
-3:'syntimediff'
-4:'syntimestamp'
-5:'ID'
-6:'ParentID'
-7:'energy'
-8:'voltage'
-9:'BeaconInterval'
-10:'num_of_neighbour'
-11:'rtx'
-12:'restarttimes'
-13:'synparentID'
-14:'synsqnum'
-15:'synlevel'
 
 #数据库格式
 0. ID INTEGER PRIMARY KEY AUTOINCREMENT,

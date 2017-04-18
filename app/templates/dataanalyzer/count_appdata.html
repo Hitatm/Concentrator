@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>应用数据分析</title>
+    <title>上报数量分析</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -105,7 +105,7 @@
 <div>
     <div class="container ">
        
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('appdataanalyzer')}}">
+        <form enctype="multipart/form-data" method="POST" action="{{url_for('count_appdata')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -115,14 +115,8 @@
                         <span id="searchDateRange" name="searchDateRange"></span>          
                                  <b class="caret"></b>
                                  <input type="hidden" id="timesrange" name="field_name"  />
-                                 
+                         &nbsp;&nbsp;&nbsp;        
                         </div>
-                        节点选择:&nbsp;&nbsp;
-                        <select id="nodeselect" name="nodeselect">
-                        {% for node in nodelist: %}
-                            <option value={{node}}>&nbsp;{{node}}&nbsp;</option>
-                        {% endfor %}
-                        </select>
                         <button type="submit" class="btn  btn-success">提交</button>
                     </div>
                         
@@ -131,8 +125,8 @@
          </div>  
 </div>
 
-<div class="container" style="height: 700px; width: 90%">
-    <div id="time_flow" style="height: 500px;width: 80%;float:left;"></div>
+<div class="container" style="height: 700px; width: 95%">
+    <div id="time_flow" style="height: 500px;width: 90%;float:left;"></div>
 </div>
 <br><!--协议流量图-->
 
@@ -161,10 +155,13 @@
 
                 option = {
                     title : {
-                        text: '节点应用数据随时间变化',
+                        text: '节点上报数量随时间变化',
                     },
                     tooltip : {
                         trigger: 'axis'
+                    },
+                    legend: {
+                        data:['上报数据数量']
                     },
                     toolbox: {
                         show : true,
@@ -180,23 +177,21 @@
                     xAxis : [
                         {
                             type : 'category',
-                            boundaryGap : false,
-                            data : {{currenttime}}
+                            name : '    节点号',
+                            data : {{nodelist}}
                         }
                     ],
                     yAxis : [
                         {
-                            type : 'value',
-                            axisLabel : {
-                                formatter: '{value}'
-                            }
+                            name : '上报数据个数',
+                            type : 'value'
                         }
                     ],
                     series : [
                         {
-                            name:{{NodeID}},
-                            type:'line',
-                            data:{{Datalist}},
+                            name:'上报数据数量',
+                            type:'bar',
+                            data:{{countlist}},
                             markPoint : {
                                 data : [
                                     {type : 'max', name: '最大值'},
@@ -211,7 +206,7 @@
                         },
                     ]
                 };
-            
+        
 
                 // 为echarts对象加载数据
                 myChart.setOption(option);
