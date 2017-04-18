@@ -201,9 +201,6 @@
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加   
         </button>  
 
-        <button id="btnEdit" type="button" class="btn   btn-warning" onclick="modify()">  
-            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改   
-        </button> 
   
         <button id="btnDel" type="button" class="btn  btn-danger" data-toggle="modal" data-target="#DeleteForm" onclick="del()">
             <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>删除  
@@ -235,7 +232,9 @@
                   <td class="text-center text-nowrap" id = "MeterID">{{ item[2] }}</td>
                   <td class="text-center text-nowrap" id = "Place">{{ item[3] }}</td>
                   <th class="text-center text-nowrap">
-                  <button id={{item[0]}} type="submit" value={{item[1]}} onclick="postsubmit(this.id, this.value)">提交更改</button>
+                  <button id="btnEdit" type="button" class="btn   btn-warning" onclick="modify()">  
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>编辑</button> 
+                  <button id={{item[0]}} type="submit" class= "btn btn-primary" value={{item[1]}} onclick="postsubmit(this.id, this.value)">提交更改</button>
                   </th>
                   </tr>
               {% endfor %}
