@@ -281,11 +281,36 @@ def node_search():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
-    c.execute('select distinct NodeID from NodePlace;')
+    # c.execute('select distinct NodeID from NodePlace;') # real sql
+    c.execute('select distinct NodeID from NetMonitor;') # a test
     nodeid = c.fetchall()
     conn.close()
     for i in range(len(nodeid)):
-        nodeid_list.append(nodeid[i][0].encode('ascii'))  
+        nodeid_list.append(nodeid[i][0].encode('ascii'))
+    # print nodeid_list
+
+    cpu = list()
+    lpm = list()
+    tx = list()
+    rx = list()
+
+    for eachnode in nodeid_list:
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute('select CPU from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
+        cpucost = c.fetchall()
+        cpu.append(cpucost[0][0])
+        c.execute('select LPM from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
+        lpmcost = c.fetchall()
+        lpm.append(lpmcost[0][0])
+        c.execute('select TX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
+        txcost = c.fetchall()
+        tx.append(txcost[0][0])
+        c.execute('select RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
+        rxcost = c.fetchall()
+        rx.append(rxcost[0][0])
+        conn.close()
+    # print cpu,lpm,tx,rx
 
     if PCAPS == None:
         flash(u"请完成认证登陆!")
@@ -309,9 +334,9 @@ def node_search():
         c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
         appdata = c.fetchall()
         # print appdata
-        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display,appdata=appdata)
+        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx)
     else:
-        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list)
+        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx)
 
 
 #--------------------------------------------与后台通信----------------------------------------------------
@@ -478,6 +503,12 @@ def instruction3():
     data0 = "40"
     datalist = []
     datalist.append(data0)
+
+    display = Display()
+    send_data = display.send_display() #旧数据展示
+    write_data = display.write_display()
+    adjtime_data = display.adjtime_display()
+    display_datadict = display.parameters_display()
     if request.method == 'POST':
         data1 = request.form['PANID']
         if data1:
@@ -541,7 +572,7 @@ def instruction3():
         ins = json.dumps(dicts)
 
     sendins.TCP_send(ins)
-    return render_template('./client/monitor.html')
+    return render_template('./client/monitor.html',display=display,send_data=send_data,write_data=write_data,adjtime_data=adjtime_data,display_datadict=display_datadict)
 
 @app.route('/getdata/', methods=['POST', 'GET'])
 @app.route('/getdata', methods=['POST', 'GET'])
@@ -928,7 +959,8 @@ def count_appdata():
     conn.close()
     nodelist = list()
     for i in range(len(node)):
-        nodelist.append(node[i][0].encode('ascii'))  
+        nodelist.append(node[i][0].encode('ascii'))
+    # print nodelist  
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))

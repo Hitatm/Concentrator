@@ -14,7 +14,7 @@ class Connect:
 
 	def TCP_send(self, ins):
 		serverip = self.CONFIG_DICT['serverIp']
-		serverport = self.CONFIG_DICT['tcpPort']
+		serverport = int(self.CONFIG_DICT['tcpPort'])
 		cli=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 		cli.connect((serverip,serverport))
 		cli.send(ins)
@@ -22,7 +22,7 @@ class Connect:
 
 	def UDP_send(self, ins):
 		serverip = self.CONFIG_DICT['serverIp']
-		serverport = self.CONFIG_DICT['udpPort']
+		serverport = int(self.CONFIG_DICT['udpPort'])
 		cli=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		cli.connect((serverip,serverport))
 		cli.send(ins)
