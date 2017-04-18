@@ -183,15 +183,15 @@ def deploy_info():
 @app.route('/deploy_modify', methods=['POST', 'GET'])
 def deploy_modify():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    if request.method == 'POST':
-        ID = request.form["ID"] 
+    if request.method == 'POST': 
+        ID = request.form["ID"]  
         NodeID = request.form["NodeID"].encode('ascii')
         MeterID = request.form["MeterID"].encode('ascii')
         Place = request.form["Place"].encode('ascii')
         # print ID, NodeID, MeterID, Place
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
-        c.execute("select ID, NodeID, MeterID, Place from NodePlace where ID=?;",(ID))
+        c.execute("select ID, NodeID, MeterID, Place from NodePlace where ID=?;",(ID,))
         old_data = c.fetchall()
         conn.close()
         # print old_data[0]
@@ -203,21 +203,17 @@ def deploy_modify():
         if (old_data[0][3].encode('ascii') != Place):
             flag = 1
         # print flag
-        if flag==1:
+        if flag==0:
+            return "未进行更改"
+        elif flag==1:
             conn = sqlite3.connect(databasepath)
             c = conn.cursor()
-            c.execute("delete from NodePlace where ID = ?;",(ID))
+            c.execute("delete from NodePlace where ID = ?;",(ID,))
             conn.commit()
-            c.execute("insert into NodePlace VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
+            c.execute("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
             conn.commit()
             conn.close()
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
-    nodeplace = c.fetchall()
-    conn.close()
-
-    return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
+            return "更改成功"
 
 @app.route('/deploy_del/', methods=['POST', 'GET'])
 @app.route('/deploy_del', methods=['POST', 'GET'])
@@ -228,11 +224,14 @@ def deploy_del():
         get_list = request.form.getlist("del_list[]")
     for item in get_list:
         del_list.append(item.encode('ascii'))
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    c.execute("delete from NodePlace where ID in ------------ (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
-    conn.commit()
-    conn.close()
+    # print del_list
+    for item in del_list:
+        if item:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("delete from NodePlace where ID=? ;",(item,))
+            conn.commit()
+            conn.close()
 
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
@@ -247,23 +246,32 @@ def deploy_del():
 def deploy_add():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     if request.method == 'POST':
-        ID = request.form["ID"] 
         NodeID = request.form["NodeID"].encode('ascii')
         MeterID = request.form["MeterID"].encode('ascii')
         Place = request.form["Place"].encode('ascii')
-        # print ID, NodeID, MeterID, Place
+        # print NodeID, MeterID, Place
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
-        c.execute("insert into NodePlace VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
+        c.execute("select NodeID from NodePlace where NodeID=?;",(NodeID,))
+        node = c.fetchall()
+        print node
+        conn.close()
+        if node:
+            return "Error,节点已存在" #节点已存在
+        else:
+            conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",(str(NodeID),str(Place),str(MeterID)))
         conn.commit()
         conn.close()
+     
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
     c.execute("select ID, NodeID, MeterID, Place from NodePlace;")
     nodeplace = c.fetchall()
     conn.close()
-
-    return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
+    return "添加成功"
+    # return render_template('./dataanalyzer/deploy_info.html',nodeplace = nodeplace)
 
 #--------------------------------------------与后台通信----------------------------------------------------
 @app.route('/monitor/', methods=['POST', 'GET'])

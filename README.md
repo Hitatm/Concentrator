@@ -111,4 +111,3 @@ data6. inactive
 data7. DIO_minlen
 data8. DIO_max
 
-#把ID从页面展示删除，删除时可以返回ID了，接下来根据ID删除即可

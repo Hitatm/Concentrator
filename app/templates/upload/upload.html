@@ -14,14 +14,14 @@
 
 <script type="text/javascript">  
   $(function(){
-        $("td").dblclick(
+        $("td").click(
             function(){
           var inval = $(this).html();  
            
            var inid =  $(this).parents().attr("localhost");
           //document.write(inid);
            $(this).html("<input id="+inid+" value="+inval+"> ");
-           //被双击的格，变成输入框，并给该框斌值和id
+           //被击的格，变成输入框，并给该框斌值和id
            var sid="#"+inid;
  
            var idattr=$(this).attr("localhost");

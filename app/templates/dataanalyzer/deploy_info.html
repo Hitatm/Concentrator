@@ -38,6 +38,7 @@
             $("tr").mouseout(function () {  
                 $(this).css("background", "#fff");  //离开后背景颜色回复白色  
             })  
+
   
             //全选  
             // $("#checkAll").click(function () {  
@@ -57,12 +58,17 @@
             // });  
         });  
     </script>  
+    <script>  
+        function modify() {  
+            $("tbody").editableTableWidget();  
+        }  
+    </script>  
 
     <script>  
         function append() {  
             var numberoftr = document.getElementsByTagName("tbody")[0].getElementsByTagName('tr').length;
             // console.log(numberoftr);
-            var strAppend = '<tr style="background: rgb(255, 255, 255) none repeat scroll 0% 0%;"><th class="text-center"><input type="checkbox" value="" editable="false" name="checkbox"></th><th scope="row" class="text-center" id="id">'+numberoftr+'</th><td class="text-center"></td><td class="text-center"></td><td class="text-center"></td><th class="text-center"><button type="submit" onclick="addnew('+numberoftr+')">添加</th></tr>';
+            var strAppend = '<tr style="background: rgb(255, 255, 255) none repeat scroll 0% 0%;"><th class="text-center"><input type="checkbox" value="" editable="false" name="checkbox"></th><td class="text-center"></td><td class="text-center"></td><td class="text-center"></td><th class="text-center"><button type="submit" onclick="addnew('+numberoftr+')">添加</th></tr>';
 
   
             $("#AddFamily tbody ").append(strAppend).editableTableWidget();  
@@ -71,16 +77,34 @@
     </script>  
 
     <script type="text/javascript">
-        function postsubmit(value)
+        function postsubmit(id, nodeid)
         {
-            var NodeID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[value-1].getElementsByTagName('td')[0].innerHTML;
-            var MeterID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[value-1].getElementsByTagName('td')[1].innerHTML;
-            var Place = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[value-1].getElementsByTagName('td')[2].innerHTML;
+            // console.log(value);
+            var numberoftr = document.getElementsByTagName("tbody")[0].getElementsByTagName('tr').length;
+            var num;
+            // console.log(numberoftr);
+            for (var i = 0; i<numberoftr-1; i++) {
+                if (document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[i].getElementsByTagName('td')[0].innerHTML == nodeid)
+                {   
+                    num = i;
+                    break;
+                }       
+            }
+            var NodeID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[i].getElementsByTagName('td')[0].innerHTML;
+            var MeterID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[i].getElementsByTagName('td')[1].innerHTML;
+            var Place = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[i].getElementsByTagName('td')[2].innerHTML;
+            // console.log(id,nodeid,MeterID,Place);
             $.ajax({
             type:"POST",
             url:"{{url_for('deploy_modify')}}",
-            data:{ID:value,NodeID:NodeID,MeterID:MeterID,Place:Place},
+            data:{ID:id,NodeID:NodeID,MeterID:MeterID,Place:Place},
             datatype: "json",
+            success: function(dat) { alert(dat);
+                    if (dat == "更改成功")
+                    {
+                        window.location.reload();
+                    }
+                }
             });
         }
 
@@ -101,7 +125,7 @@
                 arr.push(cv);
             }
         }
-        console.log(arr);
+        // console.log(arr);
         $.ajax({
             type:"POST",
             url:"{{url_for('deploy_del')}}",
@@ -116,13 +140,13 @@
         {   
             var flag = 0;
             // console.log(numberoftr);
-            var NodeID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr-1].getElementsByTagName('td')[0].innerHTML;
+            var NodeID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr].getElementsByTagName('td')[0].innerHTML;
             if(NodeID.length==0){    
             flag++;}
-            var MeterID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr-1].getElementsByTagName('td')[1].innerHTML;
+            var MeterID = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr].getElementsByTagName('td')[1].innerHTML;
             if(MeterID.length==0){    
             flag++;}
-            var Place = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr-1].getElementsByTagName('td')[2].innerHTML;
+            var Place = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr')[numberoftr].getElementsByTagName('td')[2].innerHTML;
             if(Place.length==0){    
             flag++;}
             if (flag)
@@ -134,9 +158,16 @@
                 $.ajax({
                 type:"POST",
                 url:"{{url_for('deploy_add')}}",
-                data:{ID:numberoftr, NodeID:NodeID, MeterID:MeterID, Place:Place},
+                data:{NodeID:NodeID, MeterID:MeterID, Place:Place},
                 datatype: "json",
+                success: function(dat) { alert(dat);
+                    if (dat == "添加成功")
+                    {
+                        window.location.reload();
+                    }
+                }
                 });
+                
             }
 
         }
@@ -169,6 +200,10 @@
         <button id="build" type="button" class="btn  btn-success" data-toggle="modal" data-target="" onclick="append()">  
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加   
         </button>  
+
+        <button id="btnEdit" type="button" class="btn   btn-warning" onclick="modify()">  
+            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改   
+        </button> 
   
         <button id="btnDel" type="button" class="btn  btn-danger" data-toggle="modal" data-target="#DeleteForm" onclick="del()">
             <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>删除  
@@ -183,7 +218,6 @@
   
             <thead>  
                 <th class="check-header hidden-xs">  </th>
-            <th class="text-center">序号</th>
             <th class="text-center">节点ID</th>
             <th class="text-center">表ID</th>
             <th class="text-center">地理位置</th>
@@ -196,12 +230,12 @@
                 <th class="text-center">  
                     <input name="checkbox" type="checkbox" value="{{item[0]}}" >  
                 </th>
-              <th scope="row" class="text-center" id = "id">{{ item[0] }}</th>
+              <!-- <th scope="row" class="text-center" id = "id">{{ item[0] }}</th> -->
                   <td class="text-nowrap text-center" id = "NodeID">{{ item[1] }}</td>
                   <td class="text-center text-nowrap" id = "MeterID">{{ item[2] }}</td>
                   <td class="text-center text-nowrap" id = "Place">{{ item[3] }}</td>
                   <th class="text-center text-nowrap">
-                  <button id="submit" type="submit" value={{item[0]}} onclick="postsubmit(this.value)">提交更改</button>
+                  <button id={{item[0]}} type="submit" value={{item[1]}} onclick="postsubmit(this.id, this.value)">提交更改</button>
                   </th>
                   </tr>
               {% endfor %}
@@ -214,26 +248,24 @@
         </table>  
     </div>  
   
-    <script>  
+    <script type="text/javascript"> 
   
-  
-        //绑定编辑、回车事件  
         $(function () {  
             //   $('#build').click(build);//实现创建表格  
-            $('#btnEdit').click(edit);  
+            $('td').click(edit);  
   
-            $('#cells, #rows').keyup(function (e) {  
-                if (e.keyCode === 13) {  
-                  //添加存入数据库的代码  
-                }  
-            });  
+            // $('#cells, #rows').keyup(function (e) {  
+            //     if (e.keyCode === 13) {  
+            //       //添加存入数据库的代码  
+            //     }  
+            // });  
         });  
   
         //将表格转成可编辑的表格  
         function edit(index) {  
-            //  $('#table').editableTableWidget();--效果是单击编辑按钮后，所有的都可以编辑  
-            // $(":checked").editableTableWidget();           
-            $(":checked").parent().parent().editableTableWidget();//整行的可以编辑  
+             // $('#table').editableTableWidget();//效果是单击编辑按钮后，所有的都可以编辑  
+            $(":checked").editableTableWidget();           
+            // $(":checked").parent().parent().editableTableWidget();//整行的可以编辑  
   
         }  
   
