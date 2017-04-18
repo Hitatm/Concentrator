@@ -115,8 +115,7 @@ function check5(object)
                     <section id="section-underline-1">
                         <form name="instruction_send" method="POST" action='{{url_for('instruction_send')}}'>
                         <legend>指令下发:</legend>
-                        <input type="text" name="emit_data" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
-                         placeholder={{send_data}}>
+                        <input type="text" name="emit_data" placeholder={{send_data}}>
 
                         <select id="mySelect" name="mySelect" onchange="check(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
@@ -140,8 +139,7 @@ function check5(object)
                     <section id="section-underline-2">
                     <form name="instruction_write" method="POST" action='{{url_for('instruction_write')}}'>
                         <legend>指令烧写:</legend>
-                        <input type="text" name="write_data" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
-                         placeholder="{{write_data}}"/>
+                        <input type="text" name="write_data" placeholder="{{write_data}}"/>
 
                         <select id="mySelect2" name="mySelect2" onchange="check2(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>

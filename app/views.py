@@ -303,7 +303,13 @@ def node_search():
         display = c.fetchall()
         # print display
         conn.close()
-        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display)
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        # c.execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
+        appdata = c.fetchall()
+        # print appdata
+        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display,appdata=appdata)
     else:
         return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list)
 

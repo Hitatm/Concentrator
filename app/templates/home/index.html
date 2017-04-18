@@ -128,71 +128,25 @@
 					</a>
 
 				</li>
-
 				<li class="">
 
-					<a href="javascript:;">
+					<a href="{{ url_for('deploy_info') }}"  target="main-content">
 
-					<i class="icon-bar-chart"></i>
+					<i class="icon-align-left"></i> 
 
-					<span class="title">网络服务</span>
+					<span class="title">部署信息</span>
 
-					<span class="arrow "></span>
+					<span class=""></span>
 
 					</a>
 
-					<ul class="sub-menu">
-
-						<li >
-							<a href="{{ url_for('basedata') }}" target="main-content">
-							   网络基本信息
-							</a>
-						</li>
-						<li >
-							<a href="{{ url_for('protoanalyzer') }}"  target="main-content">
-							  拓扑数量分析
-							</a>
-						</li>
-                        <li >
-							<a href="{{ url_for('flowanalyzer') }}"  target="main-content">
-							  拓扑流量分析
-							</a>
-						</li>
-						
-						<li >
-							<a href="{{ url_for('appdataanalyzer') }}"  target="main-content">
-							  应用数据分析
-							</a>
-						</li>
-
-						<li >
-							<a href="{{ url_for('deploy_info') }}"  target="main-content">
-							  部署信息展示
-							</a>
-						</li>
-
-						<li >
-							<a href="{{ url_for('node_search') }}"  target="main-content">
-							  节点信息查询
-							</a>
-						</li>
-
-                        <li >
-							<a href="{{ url_for('topodisplay') }}"  target="main-content">
-							  拓扑展示
-							</a>
-						</li>
-					    
-					</ul>
-
 				</li>
+
 				<li class="">
 
 					<a href="javascript:;">
 
-					<i>
-						<img src="../../static/media/image/portlet-config-icon.png"/>
-					</i>
+					<i class="icon-wrench"></i>
 
 					<span class="title">子网控制</span>
 
@@ -226,13 +180,54 @@
 					</ul>
 
 				</li>
+
+				<li class="">
+
+					<a href="javascript:;">
+
+					<i class="icon-bar-chart"></i>
+
+					<span class="title">网络监测</span>
+
+					<span class="arrow "></span>
+
+					</a>
+
+					<ul class="sub-menu">
+
+						<li >
+							<a href="{{ url_for('basedata') }}" target="main-content">
+							   网络基本信息
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('protoanalyzer') }}"  target="main-content">
+							  拓扑数量分析
+							</a>
+						</li>
+                        <li >
+							<a href="{{ url_for('flowanalyzer') }}"  target="main-content">
+							  拓扑流量分析
+							</a>
+						</li>
+
+                        <li >
+							<a href="{{ url_for('topodisplay') }}"  target="main-content">
+							  拓扑展示
+							</a>
+						</li>
+					    
+					</ul>
+
+				</li>
+
 				<li class="">
 
 					<a href="javascript:;">
 
 					<i class="icon-eye-open"></i>
 
-					<span class="title">数据上报分析</span>
+					<span class="title">应用数据分析</span>
 
 					<span class="arrow "></span>
 
@@ -241,8 +236,8 @@
 					<ul class="sub-menu">
 
 						<li>
-							<a href="#" target="main-content">
-							   数据分析
+							<a href="{{ url_for('appdataanalyzer') }}"  target="main-content">
+							  应用数据分析
 							</a>
 						</li>
 
@@ -261,13 +256,28 @@
 					</ul>
 
 				</li>
-					<li class="">
+
+				<li class="">
+
+					<a href="{{ url_for('node_search') }}"  target="main-content">
+
+					<i class="icon-search"></i>
+
+					<span class="title">节点信息查询</span>
+
+					<span class=""></span>
+
+					</a>
+
+				</li>
+
+				<li class="">
 
 					<a href="javascript:;">
 
 					<i class="icon-warning-sign"></i>
 
-					<span class="title">异常信息</span>
+					<span class="title">异常信息提示</span>
 
 					<span class="arrow "></span>
 
@@ -342,8 +352,8 @@
  				<li class=""> 
  
  				    <a  href="{{url_for('logout')}}" >
-				       <img src="../../static/media/image/portlet-reload-icon.png" alt="" />
- 						<span class="title"> &nbsp;&nbsp; 退出登录</span> 
+				       <i class="icon-refresh"></i>
+ 						<span class="title">退出登录</span> 
  					<!-- <span class="arrow "></span>  -->
 				   </a>
  

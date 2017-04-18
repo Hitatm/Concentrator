@@ -104,13 +104,14 @@
 <body>
 
 <div>
-<h2 align="center">节点信息查询</h2>
+<h1 align="center">节点信息查询</h1>
     <div class="container ">
        
         <form enctype="multipart/form-data" method="POST" action="{{url_for('node_search')}}">
 
-                           <h4>请选择时间段:</h4>
+                           
                     <div class="controls">
+                        请选择时间段:
                         <div id="reportrange" class="pull-left dateRange" >
                        
                         <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
@@ -119,22 +120,23 @@
                                  <input type="hidden" id="timesrange" name="field_name"  />
                                  
                         </div>
-                    </div>
-                    <div>
-                    <br /><br />
-                        节点选择:&nbsp;&nbsp;
+                        &nbsp;&nbsp;节点选择:&nbsp;&nbsp;
                         <select id="nodeselect" name="nodeselect">
                         {% for node in nodelist: %}
                             <option value={{node}}>&nbsp;{{node}}&nbsp;</option>
                         {% endfor %}
                         </select>
-                        <button type="submit" >提交</button>
+                        <button type="submit" class="btn  btn-success">提交</button>
+
                     </div>
+                        
                         
                     
         　</form> 
-         </div>  
+         </div> 
 </div>
+<div style="height: 700px;overflow:scroll;">
+<h2 align="center">网络数据</h2>
 <table class="table table-hover table-responsive  table-condensed table-striped">
       <thead>
         <tr>
@@ -196,6 +198,37 @@
       {% endfor %}
       </tbody>
     </table>
+    </div>
+
+<div style="height: 700px;overflow:scroll;">
+<h2 align="center">应用数据</h2>
+    <table class="table table-hover table-responsive  table-condensed table-striped">
+      <thead>
+        <tr>
+            <th class="text-center">序号</th>
+            <th class="text-center">节点ID</th>
+
+            <th class="text-center">时间</th>
+
+            <th class="text-center">应用数据</th>
+        </tr>
+      </thead>
+      <tbody>
+
+
+      {% for item in appdata: %}
+
+      <tr data-toggle="modal" data-target="#myModal">
+      <th scope="row" class="text-center" id="id">{{ item[0] }}</th>
+          <td class="text-nowrap text-center">{{ item[1] }}</td>
+          <td class="text-center text-nowrap">{{ item[2] }}</td>
+          <td class="text-center" id="current">{{ item[3] }}</td>
+        </tr>
+
+      {% endfor %}
+      </tbody>
+    </table>
+</div>
 <br>
 
 </body>
