@@ -352,6 +352,7 @@ def monitor():
         write_data = display.write_display()
         adjtime_data = display.adjtime_display()
         display_datadict = display.parameters_display()
+        # print display_datadict
 
     return render_template('./client/monitor.html',send_data = send_data, write_data = write_data, adjtime_data = adjtime_data, display_datadict = display_datadict)
 
@@ -391,7 +392,7 @@ def instruction_send():
         ins = json.dumps(dicts)
     sendins.TCP_send(ins)
     
-    return render_template('./client/monitor.html')
+    return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_write/', methods=['POST', 'GET'])
 @app.route('/instruction_write', methods=['POST', 'GET'])
@@ -428,7 +429,7 @@ def instruction_write():
         dicts["addrList"] = addrlist
 
     sendins.TCP_send(ins)
-    return render_template('./client/monitor.html')
+    return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_restart/', methods=['POST', 'GET'])
 @app.route('/instruction_restart', methods=['POST', 'GET'])
@@ -450,7 +451,7 @@ def instruction_restart():
         ins = json.dumps(dicts)
 
     sendins.TCP_send(ins)
-    return render_template('./client/monitor.html')
+    return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_reset/', methods=['POST', 'GET'])
 @app.route('/instruction_reset', methods=['POST', 'GET'])
@@ -472,7 +473,7 @@ def instruction_reset():
         ins = json.dumps(dicts)
     
     sendins.TCP_send(ins)
-    return render_template('./client/monitor.html')
+    return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_adjtime/', methods=['POST', 'GET'])
 @app.route('/instruction_adjtime', methods=['POST', 'GET'])
@@ -490,7 +491,7 @@ def instruction_adjtime():
     ins = json.dumps(dicts)
     
     sendins.TCP_send(ins)
-    return render_template('./client/monitor.html')
+    return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction3/', methods=['POST', 'GET'])
 @app.route('/instruction3', methods=['POST', 'GET'])
@@ -504,11 +505,6 @@ def instruction3():
     datalist = []
     datalist.append(data0)
 
-    display = Display()
-    send_data = display.send_display() #旧数据展示
-    write_data = display.write_display()
-    adjtime_data = display.adjtime_display()
-    display_datadict = display.parameters_display()
     if request.method == 'POST':
         data1 = request.form['PANID']
         if data1:
@@ -572,7 +568,7 @@ def instruction3():
         ins = json.dumps(dicts)
 
     sendins.TCP_send(ins)
-    return render_template('./client/monitor.html',display=display,send_data=send_data,write_data=write_data,adjtime_data=adjtime_data,display_datadict=display_datadict)
+    return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/getdata/', methods=['POST', 'GET'])
 @app.route('/getdata', methods=['POST', 'GET'])
