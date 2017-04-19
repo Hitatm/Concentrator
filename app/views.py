@@ -183,29 +183,68 @@ def deploy_info():
 @app.route('/deploy_modify', methods=['POST', 'GET'])
 def deploy_modify():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    if request.method == 'POST': 
-        ID = request.form["ID"]  
-        NodeID = request.form["NodeID"].encode('ascii')
-        MeterID = request.form["MeterID"].encode('ascii')
-        Place = request.form["Place"]
-        # print ID, NodeID, MeterID, Place
+    flag = 0  #flag==0 未修改 flag==1 修改了 flag==2 NodeID长度过长 flag==3 NodeID长度为3 flag==4 NodeID长度为2 flag==5 NodeID长度为1
+    if request.method == 'POST':
+        ID = request.form["ID"]
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
         c.execute("select ID, NodeID, MeterID, Place from NodePlace where ID=?;",(ID,))
         old_data = c.fetchall()
-        conn.close()
-        # print old_data[0]
-        flag = 0  #flag==0 未修改 flag==1 修改了
-        if (old_data[0][1].encode('ascii') != NodeID):
-            flag = 1
-        if (old_data[0][2].encode('ascii') != MeterID):
-            flag = 1
-        if (old_data[0][3] != Place):
-            flag = 1
-        # print flag
+        conn.close()          
+        NodeID = str(request.form["NodeID"])
+        MeterID = str(request.form["MeterID"])
+        Place = request.form["Place"]
+        if len(NodeID) == 4:
+            # print old_data[0]
+            if (str(old_data[0][1]) != NodeID):
+                flag = 1
+            elif (str(old_data[0][2]) != MeterID):
+                flag = 1
+            elif (old_data[0][3] != Place):
+                flag = 1
+            else:
+                flag = 0
+        elif len(NodeID) > 4:
+            flag = 2
+        elif len(NodeID) == 3:
+            flag = 3
+        elif len(NodeID) == 2:
+            flag = 4
+        elif len(NodeID) == 1:
+            flag = 5
+        # print ID, NodeID, MeterID, Place
         if flag==0:
             return "未进行更改"
-        elif flag==1:
+        elif flag==2:
+            return "节点ID长度过长，请重新输入！(4位)"
+        elif flag==3:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("delete from NodePlace where ID = ?;",(ID,))
+            conn.commit()
+            c.execute("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("0"+str(NodeID)),Place,str(MeterID)))
+            conn.commit()
+            conn.close()
+            return "更改成功"
+        elif flag==4:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("delete from NodePlace where ID = ?;",(ID,))
+            conn.commit()
+            c.execute("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("00"+str(NodeID)),Place,str(MeterID)))
+            conn.commit()
+            conn.close()
+            return "更改成功"
+        elif flag==5:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("delete from NodePlace where ID = ?;",(ID,))
+            conn.commit()
+            c.execute("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("000"+str(NodeID)),Place,str(MeterID)))
+            conn.commit()
+            conn.close()
+            return "更改成功"
+        else:
             conn = sqlite3.connect(databasepath)
             c = conn.cursor()
             c.execute("delete from NodePlace where ID = ?;",(ID,))
