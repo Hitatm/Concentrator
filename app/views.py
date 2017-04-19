@@ -321,6 +321,18 @@ def node_search():
         end_time = selectime.encode("utf-8")[22:41]
         nodepick  =  request.form['nodeselect']
         databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+
+        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+        conn = sqlite3.connect(databasepath)
+        c = conn.cursor()
+        c.execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        voltage = c.fetchall()
+        time_list = list()
+        voltage_list = list()
+        for i in range(len(voltage)):
+            time_list.append(voltage[i][0].encode('ascii'))
+            voltage_list.append(voltage[i][1].encode('ascii'))
+
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
         # c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
@@ -334,7 +346,7 @@ def node_search():
         c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
         appdata = c.fetchall()
         # print appdata
-        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx)
+        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,time_list=time_list,voltage_list=voltage_list,currenttime=time_list)
     else:
         return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx)
 
@@ -646,27 +658,24 @@ def update_schedule():
     syn_config = Config()
     sendins = Connect()
     senddicts = {}
+
     if request.method == 'POST':
+        data = request.get_json()
+        bitmap_array = data['x']
+        syn_config.set_SynBitMap(bitmap_array)
+        config_dict =syn_config.get_New_Synconfig()
         period = request.form.get('period')
+        # period = data['p']
+        config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
         if period:
             syn_config.get_syn_period(period)
-            f=open(syn_config.Config_FILE,'r')
-            config_dict =json.load(f)
-            f.close()
+            # config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
             senddicts["pama_data"] = config_dict
             senddicts["type"] = "pama_syn"
             update_synperiod_ins = json.dumps(senddicts)
             sendins.TCP_send(update_synperiod_ins)
         else:
-            data = request.get_json()
-            x = data['x']
-            syn_config.set_SynBitMap(x)
-            # print syn_config.get_active_time()
-            f=open(syn_config.Config_FILE,'r')
-            config_dict =json.load(f)
-            f.close()
             bitmaplist = config_dict["bitmap"]
-            config_dict["bitmap"] = str(config_dict["bitmap"])
             subkey = ['minute', 'seqNum', 'level', 'bitmap', 'second', 'hour']
             update_schedule_dict = {key:config_dict[key] for key in subkey}
             senddicts["pama_data"] = update_schedule_dict
@@ -675,6 +684,34 @@ def update_schedule():
             config_dict["bitmap"] = bitmaplist
             # print update_schedule_ins
             sendins.TCP_send(update_schedule_ins)  
+
+    l=syn_config.get_active_list()
+    dicts={'lists':l}
+    lists= json.dumps(dicts)
+
+    return render_template('./client/scheduling.html',scheduleNow=lists)
+
+@app.route('/update_schedule_withtime/',methods=['POST', 'GET'])
+def update_schedule_withtime():
+    syn_config = Config()
+    sendins = Connect()
+    senddicts = {}
+    data = request.get_json()
+    bitmap_array = data['x']
+
+    syn_config.set_SynBitMap(bitmap_array)
+
+    if request.method == 'POST':
+        config_dict =syn_config.get_New_Synconfig()
+        period = request.form.get('period')
+        period = data['p']
+        config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
+        if period:
+            syn_config.get_syn_period(period)
+            senddicts["pama_data"] = config_dict
+            senddicts["type"] = "pama_syn"
+            update_synperiod_ins = json.dumps(senddicts)
+            sendins.TCP_send(update_synperiod_ins) 
 
     l=syn_config.get_active_list()
     dicts={'lists':l}

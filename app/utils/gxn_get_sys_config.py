@@ -44,7 +44,11 @@ class Config:
         for x in lists:
             index   = (int(x))/8
             index_2 = (int(x))%8
+            # data = int(1<<(7-index_2))
+            # if data > 127:
+            #     data = data - 256
             listbitmap[index]|= (1<<(7-index_2))
+            
         self.CONFIG_DICT['bitmap']=listbitmap
         # print self.CONFIG_DICT
         self.write_config()
@@ -66,9 +70,22 @@ class Config:
         with open(self.Config_FILE, 'w') as f:
             f.write(json.dumps(self.CONFIG_DICT))
             f.close()
+    def get_New_Synconfig(self):
+        f=open(self.Config_FILE,'r')
+        self.CONFIG_DICT =json.load(f)
+        f.close()
+        return self.CONFIG_DICT
+    def format_To_SendBitMap(self,lists):
+        # print lists
+        for x in xrange(0,len(lists)):
+            if int(lists[x]) > 127:
+                lists[x]= int(lists[x])-256
+        return lists
+
+
 
 # sysconfig=Config()
-
+# print sysconfig.format_To_SendBitMap(sysconfig.CONFIG_DICT['bitmap'])
 # lists=[1,2,3,4,5,6,7,8,143,123]
 # # print "first",sysconfig.CONFIG_DICT
 # sysconfig.set_SynBitMap(lists)

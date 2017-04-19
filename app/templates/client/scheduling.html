@@ -212,7 +212,7 @@
 <br />
 <form name="period_set" method="POST" action='{{url_for('update_schedule')}}'>
 <input type="text" name="period" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="请输入时间同步周期"/>
-<button type="submit" >时间同步周期设置</button>
+<button class="btn btn-primary" onclick="sendmap_withtime()">时间同步周期设置</button>
 </form>
 
 
@@ -242,6 +242,31 @@
   });
     }
 	</script>
+    <script type="text/javascript">
+        $('.ui-choose').ui_choose();
+        var uc_example = $('#uc_example').ui_choose();
+        uc_example.click = function(value, item) {
+            console.log('click', value);
+        };
+        function sendmap_withtime()
+        {
+        var uc_example = $('#uc_example').ui_choose();
+        var array = new Array();  //定义数组
+        array=$("#uc_example").val();
+        // var jsons=JSON.stringify(array);
+        // alert(jsons);
+
+        $.ajax({
+        type:"post",
+        url:"{{url_for('update_schedule_withtime')}}",
+        cache:false,
+        contentType: "application/json;charset=UTF-8",
+        dataType:"json",
+        data: JSON.stringify({x: array,p:$("#period").val()}),
+        success: function(dat) { console.log(dat)}
+      });
+    }
+    </script>
 
 </body>
 </html>
