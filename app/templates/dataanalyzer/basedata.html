@@ -191,7 +191,7 @@
           <td class="text-center">{{ pcap[8] }}</td>
           <td class="text-center">{{ pcap[13] }}</td>
           <td class="text-center">{{ pcap[14] }}</td>
-          {% if pcap[17]  > 10 %}
+          {% if pcap[17]  > 25 %}
           <td class="text-center" id="current" style="color:Red">{{ pcap[17] }}</td>
           {% else %}
           <td class="text-center" id="current">{{ pcap[17] }}</td>
@@ -200,7 +200,7 @@
           <td class="text-center">{{ pcap[4] }}</td>
           <td class="text-center">{{ pcap[6] }}</td>
           <td class="text-center">{{ pcap[5] }}</td>
-          {% if pcap[7]  > 4 %}
+          {% if pcap[7]  < 3 %}
           <td class="text-center text-nowrap" id="voltage" style="color:Red">{{ pcap[7] }}</td>
           {% else %}
           <td class="text-center text-nowrap" id="voltage">{{ pcap[7] }}</td>
@@ -219,7 +219,7 @@
 
 
 <!-- 模态框（Modal） -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+<!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true" style="width:600px;margin:auto; overflow:auto;word-break:break-all">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -245,7 +245,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <!--清除过滤器-->
 <script>
@@ -254,7 +254,7 @@
     })
 </script>
 <!--table点击事件-->
-<script>
+<!-- <script>
     var id=0;
     $(function () {
     $("table > tbody > tr").click(function () {
@@ -280,14 +280,14 @@
         cache: false,//是否缓存
     });
     }
-</script>
+</script> -->
 <!--自动补全-->
-<script>
+<!-- <script>
     var availableTags = ["TCP", "UDP", "ARP", "ICMP", "HTTP", "HTTPS", "DNS", "SSH", "Telnet", "POP3", "SNMP", "SMTP"];
     $("#proto").autocomplete({
         source: availableTags
     });
-</script>
+</script> -->
 <!--模态框拖拽-->
 <script>
     $("#myModal").draggable({

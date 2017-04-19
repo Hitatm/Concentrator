@@ -187,7 +187,7 @@ def deploy_modify():
         ID = request.form["ID"]  
         NodeID = request.form["NodeID"].encode('ascii')
         MeterID = request.form["MeterID"].encode('ascii')
-        Place = request.form["Place"].encode('ascii')
+        Place = request.form["Place"]
         # print ID, NodeID, MeterID, Place
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
@@ -200,7 +200,7 @@ def deploy_modify():
             flag = 1
         if (old_data[0][2].encode('ascii') != MeterID):
             flag = 1
-        if (old_data[0][3].encode('ascii') != Place):
+        if (old_data[0][3] != Place):
             flag = 1
         # print flag
         if flag==0:
@@ -210,7 +210,9 @@ def deploy_modify():
             c = conn.cursor()
             c.execute("delete from NodePlace where ID = ?;",(ID,))
             conn.commit()
-            c.execute("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str(NodeID),str(Place),str(MeterID)))
+            c.execute("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str(NodeID),Place,str(MeterID)))
+            # c.execute("update NodePlace set (NodeID,Place,MeterID) (?,?,?) where ID=?;",(str(NodeID),Place,str(MeterID),ID))
+            # conn.commit()
             conn.commit()
             conn.close()
             return "更改成功"
@@ -248,7 +250,7 @@ def deploy_add():
     if request.method == 'POST':
         NodeID = request.form["NodeID"].encode('ascii')
         MeterID = request.form["MeterID"].encode('ascii')
-        Place = request.form["Place"].encode('ascii')
+        Place = request.form["Place"]
         # print NodeID, MeterID, Place
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
@@ -260,10 +262,10 @@ def deploy_add():
             return "Error,节点已存在" #节点已存在
         else:
             conn = sqlite3.connect(databasepath)
-        c = conn.cursor()
-        c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",(str(NodeID),str(Place),str(MeterID)))
-        conn.commit()
-        conn.close()
+            c = conn.cursor()
+            c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",(str(NodeID),Place,str(MeterID)))
+            conn.commit()
+            conn.close()
      
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
@@ -299,16 +301,20 @@ def node_search():
         c = conn.cursor()
         c.execute('select CPU from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
         cpucost = c.fetchall()
-        cpu.append(cpucost[0][0])
+        if cpucost:
+            cpu.append(cpucost[0][0])
         c.execute('select LPM from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
         lpmcost = c.fetchall()
-        lpm.append(lpmcost[0][0])
+        if lpmcost:
+           lpm.append(lpmcost[0][0])
         c.execute('select TX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
         txcost = c.fetchall()
-        tx.append(txcost[0][0])
+        if txcost:
+            tx.append(txcost[0][0])
         c.execute('select RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(eachnode,))
         rxcost = c.fetchall()
-        rx.append(rxcost[0][0])
+        if rxcost:
+            rx.append(rxcost[0][0])
         conn.close()
     # print cpu,lpm,tx,rx
 
@@ -326,27 +332,29 @@ def node_search():
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
         c.execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        # c.execute('select currenttime, volage from NetMonitor where NodeID == ?;',(nodepick,))
         voltage = c.fetchall()
         time_list = list()
         voltage_list = list()
         for i in range(len(voltage)):
             time_list.append(voltage[i][0].encode('ascii'))
-            voltage_list.append(voltage[i][1].encode('ascii'))
+            voltage_list.append(voltage[i][1])
+        # print time_list,voltage_list
 
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
-        # c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        c.execute('select * from NetMonitor where NodeID == ?;',(nodepick,))
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        # c.execute('select * from NetMonitor where NodeID == ?;',(nodepick,))
         display = c.fetchall()
         # print display
         conn.close()
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
-        # c.execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
+        c.execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        # c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
         appdata = c.fetchall()
         # print appdata
-        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,time_list=time_list,voltage_list=voltage_list,currenttime=time_list)
+        return render_template('./dataanalyzer/node_search.html',nodeid=nodepick,nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,voltage_list=voltage_list,currenttime=time_list)
     else:
         return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx)
 
@@ -602,7 +610,7 @@ def instruction2():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     conn = sqlite3.connect(databasepath)
     c = conn.cursor()
-    c.execute("select distinct NodeID from NetMonitor;") # not NetMonitor but from NodePlace
+    c.execute("select distinct NodeID from NodePlace;") # not NetMonitor but from NodePlace
     nodes = list(c.fetchall()) #tuple  -- list
     total = len(nodes)
     previous = 0 #total - len(nodes)
@@ -833,8 +841,8 @@ def basedata():
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        # c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
-        c.execute('select * from NetMonitor;')
+        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        # c.execute('select * from NetMonitor;')
         pcaps = c.fetchall()
         conn.close()
         return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
@@ -948,9 +956,8 @@ def flowanalyzer():
         traffic_key_list = list()
         traffic_value_list = list()
         for key ,value in topo_traff_dict.items():
-            traffic_key_list.append(key.encode('UTF-8'))
+            traffic_key_list.append(key.encode('ascii'))
             traffic_value_list.append(value)
- 
         lists=topo_traffic_analyzer(topodata_list)
         templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
         # templist.append(tempstr)
@@ -973,11 +980,11 @@ def flowanalyzer():
         traffic_key_list = list()
         traffic_value_list = list()
         for key ,value in topo_traff_dict.items():
-            traffic_key_list.append(key.encode('UTF-8'))
+            traffic_key_list.append(key.encode('ascii'))
             traffic_value_list.append(value)
- 
         lists=topo_traffic_analyzer(topodata_list)
         templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
+        # print traffic_key_list, traffic_value_list,previous_time, current_time
         # templist.append(tempstr)
         # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
@@ -1092,15 +1099,15 @@ def topodisplay():
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
+        c.execute('select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
         ID_list = c.fetchall()
         conn.close()
         # print ID_list
         Parentnode = dict()
         # Childnode = dict()
         for node in ID_list:
-            ID = node[0].encode('UTF-8') # ID
-            ParentID = node[1].encode('UTF-8') # parentID
+            ID = node[0] # ID
+            ParentID = node[1] # parentID
             if ID in Parentnode:
                 continue
             else:
@@ -1111,9 +1118,11 @@ def topodisplay():
         n = dict()
         m = dict()
         for key ,value in Parentnode.items():
-            n = {'category':2, 'name':key}
+            n = {"category":1, "name":key.encode('ascii')}
+            # n = "{category:2, name:"+str(key)+"}"
             nodes.append(n)
-            m = {'source':value, 'target':key, 'weight':1}
+            # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+            m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
             links.append(m)
 
         return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)
@@ -1127,15 +1136,15 @@ def topodisplay():
         except:
             print("no such database in "+ databasepath)
         c = conn.cursor()
-        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        c.execute('select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
         ID_list = c.fetchall()
         conn.close()
         # print ID_list
         Parentnode = dict()
         # Childnode = dict()
         for node in ID_list:
-            ID = node[0].encode('UTF-8') # ID
-            ParentID = node[1].encode('UTF-8') # parentID
+            ID = node[0] # ID
+            ParentID = node[1] # parentID
             if ID in Parentnode:
                 continue
             else:
@@ -1146,11 +1155,11 @@ def topodisplay():
         n = dict()
         m = dict()
         for key ,value in Parentnode.items():
-            n = {'category':2, 'name':key}
-            # nodes.append("{category:2, name:"+"'"+key+"'}")
+            n = {"category":1, "name":key.encode('ascii')}
+            # n = "{category:2, name:"+str(key)+"}"
             nodes.append(n)
-            # links.append("{source : '"+value+"', target : '"+key+"', weight : 1}")
-            m = {'source':value, 'target':key, 'weight':1}
+            # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+            m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
             links.append(m)
 
         return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)

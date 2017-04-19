@@ -145,6 +145,8 @@
                 'echarts',
                 'echarts/chart/line',// 使用柱状图就加载bar模块，按需加载
                 'echarts/chart/force'//力导向图
+                // ,'echarts/chart/chord'//力导向图
+
             ],
             function (ec) {
                 // 基于准备好的dom，初始化echarts图表
@@ -165,7 +167,7 @@
                         show : true,
                         feature : {
                             restore : {show: true},
-                            magicType: {show: true, type: ['force', 'chord']}
+                            magicType: {show: true, type: ['force']}
                         }
                     },
 
