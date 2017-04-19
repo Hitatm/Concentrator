@@ -194,7 +194,6 @@
       
   
  <body>  
-  
     <div class="heading" align="center">  
     <h2>部署信息表</h2>
         <button id="build" type="button" class="btn  btn-success" data-toggle="modal" data-target="" onclick="append()">  
@@ -209,7 +208,7 @@
   
     </div>  
   <br>
- 
+
   
     <div class="widget-content padded clearfix">  
         <table id="AddFamily" class="table table-bordered table-striped" width="1000px" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto">  
@@ -400,10 +399,11 @@
             cloneProperties: ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',  
                 'text-align', 'font', 'font-size', 'font-family', 'font-weight',  
                 'border', 'border-top', 'border-bottom', 'border-left', 'border-right'],  
-            editor: $('<input>')  
+            editor: $('<input onkeyup="this.value=this.value.replace(/[^0-9a-fA-F]/g,&apos;&apos;).toUpperCase()" onafterpaste="this.value=this.value.replace(/[^0-9a-fA-F]/g,&apos;&apos;).toUpperCase()">')  
         };  
   
   
     </script>  
 </body>
 </html>
+<!-- <input onkeyup="this.value=this.value.replace(/[^0-9a-fA-F]/g," ")"="" onafterpaste="this.value=this.value.replace(/[^0-9a-fA-F]/g,"> -->

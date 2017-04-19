@@ -287,22 +287,43 @@ def deploy_del():
 def deploy_add():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     if request.method == 'POST':
-        NodeID = request.form["NodeID"].encode('ascii')
-        MeterID = request.form["MeterID"].encode('ascii')
+        NodeID = str(request.form["NodeID"])
+        MeterID = str(request.form["MeterID"])
         Place = request.form["Place"]
         # print NodeID, MeterID, Place
-        conn = sqlite3.connect(databasepath)
-        c = conn.cursor()
-        c.execute("select NodeID from NodePlace where NodeID=?;",(NodeID,))
-        node = c.fetchall()
-        print node
-        conn.close()
-        if node:
-            return "Error,节点已存在" #节点已存在
-        else:
+        if len(NodeID) == 4:
             conn = sqlite3.connect(databasepath)
             c = conn.cursor()
-            c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",(str(NodeID),Place,str(MeterID)))
+            c.execute("select NodeID from NodePlace where NodeID=?;",(NodeID,))
+            node = c.fetchall()
+            print node
+            conn.close()
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                conn = sqlite3.connect(databasepath)
+                c = conn.cursor()
+                c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",(str(NodeID),Place,str(MeterID)))
+                conn.commit()
+                conn.close()
+        elif len(NodeID) > 4:
+            return "节点ID长度过长，请重新输入！(4位)"
+        elif len(NodeID) == 3:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("0"+str(NodeID),Place,str(MeterID)))
+            conn.commit()
+            conn.close()
+        elif len(NodeID) == 2:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("00"+str(NodeID),Place,str(MeterID)))
+            conn.commit()
+            conn.close()
+        elif len(NodeID) == 1:
+            conn = sqlite3.connect(databasepath)
+            c = conn.cursor()
+            c.execute("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("000"+str(NodeID),Place,str(MeterID)))
             conn.commit()
             conn.close()
      
