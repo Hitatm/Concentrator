@@ -3,7 +3,6 @@ __author__ = 'dj'
 
 from app import app
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
-from flask_socketio import SocketIO,emit
 from forms import Upload, ProtoFilter,User_and_pwd
 from utils.upload_tools import allowed_file, get_filetype, random_name
  
@@ -67,7 +66,7 @@ def upload():
     else:
         json_dict = dict()
         configfile = Connect()
-        json_dict = configfile.all_config_json()
+        json_dict = configfile.display_config()
         return render_template('./upload/upload.html',json_dict = json_dict)
 
 @app.route('/upload_modify/', methods=['POST', 'GET'])
@@ -76,81 +75,33 @@ def upload_modify():
     c = Connect()
     config_dicts = c.all_config_json() # read config.json and put all items in this dict
     if request.method == 'POST':
-        val1 = request.form.get("localhost")
+        val1 = request.form.get("id")
         if val1:
-            config_dicts["localhost"] = val1
-        val2 = request.form.get("id")
+            config_dicts["id"] = val1
+        val2 = request.form.get("HeartIntSec")
         if val2:
-            config_dicts["id"] = val2
-        val3 = request.form.get("HeartIntSec")
+            config_dicts["HeartIntSec"] = val2
+        val3 = request.form.get("AckHeartInt")
         if val3:
-            config_dicts["HeartIntSec"] = val3
-        val4 = request.form.get("AckHeartInt")
+            config_dicts["AckHeartInt"] = val3
+        val4 = request.form.get("rootAddr")
         if val4:
-            config_dicts["AckHeartInt"] = val4
-        val5 = request.form.get("MaxAckFail")
+            config_dicts["rootAddr"] = val4
+        val5 = request.form.get("ftpuser")
         if val5:
-            config_dicts["MaxAckFail"] = val5
-        val6 = request.form.get("tcpAddr")
+            config_dicts["ftpuser"] = val5
+        val6 = request.form.get("ftphost")
         if val6:
-            config_dicts["tcpAddr"] = val6
-        val7 = request.form.get("tcpPort")
+            config_dicts["ftphost"] = val6
+        val7 = request.form.get("ftpPwd")
         if val7:
-            config_dicts["tcpPort"] = val7
-        val8 = request.form.get("tcpRemoteConfigPort")
+            config_dicts["ftpPwd"] = val7
+        val8 = request.form.get("ftpPort")
         if val8:
-            config_dicts["tcpRemoteConfigPort"] = val8
-        val9 = request.form.get("udpAddr")
+            config_dicts["ftpPort"] = val8
+        val9 = request.form.get("serverIp")
         if val9:
-            config_dicts["udpAddr"] = val9
-        val10 = request.form.get("udpPort")
-        if val10:
-            config_dicts["udpPort"] = val10
-        val11 = request.form.get("rootAddr")
-        if val11:
-            config_dicts["rootAddr"] = val11
-        val12 = request.form.get("rootPort")
-        if val12:
-            config_dicts["rootPort"] = val12
-        val13 = request.form.get("rootRoomId")
-        if val13:
-            config_dicts["rootRoomId"] = val13
-        val14 = request.form.get("rootX")
-        if val14:
-            config_dicts["rootX"] = val14
-        val15 = request.form.get("rootY")
-        if val15:
-            config_dicts["rootY"] = val15
-        val16 = request.form.get("dbIpAddr")
-        if val16:
-            config_dicts["dbIpAddr"] = val16
-        val17 = request.form.get("dbUser")
-        if val17:
-            config_dicts["dbUser"] = val17
-        val18 = request.form.get("dbPassword")
-        if val18:
-            config_dicts["dbPassword"] = val18
-        val19 = request.form.get("dbSchema")
-        if val19:
-            config_dicts["dbSchema"] = val19
-        val20 = request.form.get("tcpWebServerAddr")
-        if val20:
-            config_dicts["tcpWebServerAddr"] = val20
-        val21 = request.form.get("tcpWebServerPort")
-        if val21:
-            config_dicts["tcpWebServerPort"] = val21
-        val22 = request.form.get("remoteAddr")
-        if val22:
-            config_dicts["remoteAddr"] = val22
-        val23 = request.form.get("remotePort")
-        if val23:
-            config_dicts["remotePort"] = val23
-        val24 = request.form.get("netPort")
-        if val24:
-            config_dicts["netPort"] = val24
-        val25 = request.form.get("serverIp")
-        if val25:
-            config_dicts["serverIp"] = val25
+            config_dicts["serverIp"] = val9
         json_config_dicts = json.dumps(config_dicts)
         currentdir = os.path.dirname(__file__)
         conf_file =  currentdir +'/utils/Config/config.json'  #协议配置文件
@@ -399,7 +350,7 @@ def node_search():
         for i in range(len(voltage)):
             time_list.append(voltage[i][0].encode('ascii'))
             voltage_list.append(voltage[i][1])
-        # print time_list,voltage_list
+        # print time_list
 
         conn = sqlite3.connect(databasepath)
         c = conn.cursor()
@@ -414,7 +365,7 @@ def node_search():
         # c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
         appdata = c.fetchall()
         # print appdata
-        return render_template('./dataanalyzer/node_search.html',nodeid=nodepick,nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,voltage_list=voltage_list,currenttime=time_list)
+        return render_template('./dataanalyzer/node_search.html',nodeid=nodepick,nodelist = nodeid_list,pcaps=display,appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,voltage_list=voltage_list,time_list=time_list)
     else:
         return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx)
 
@@ -650,40 +601,6 @@ def instruction3():
     sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
-@app.route('/getdata/', methods=['POST', 'GET'])
-@app.route('/getdata', methods=['POST', 'GET'])
-def getdata():
-    if PCAPS == None:
-        flash(u"请完成认证登陆!")
-        return redirect(url_for('login'))
-    else:
-        return render_template('./client/getdata.html')
-
-@app.route('/instruction2/', methods=['POST', 'GET'])
-@app.route('/instruction2', methods=['POST', 'GET'])
-def instruction2():
-    global NODE_DICT_NET
-    # global NUMBER_NET
-    global NODE_SET
-    NODE_SET = set()
-    # NUMBER_NET=0
-    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    c.execute("select distinct NodeID from NodePlace;") # not NetMonitor but from NodePlace
-    nodes = list(c.fetchall()) #tuple  -- list
-    total = len(nodes)
-    previous = 0 #total - len(nodes)
-    now = previous
-    if request.method == 'GET':   
-        for node in nodes:
-            NODE_SET.add(str(node[0]))
-            c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node))
-            temp = c.fetchall()
-            NODE_DICT_NET[temp[0][0]] = temp[0][1]
-    conn.close()
-    # print NODE_DICT_NET
-    return render_template('./client/getdata.html')
 
 
 @app.route('/update_net/', methods=['POST', 'GET'])
@@ -697,7 +614,7 @@ def update_net():
     c = conn.cursor()
     for node ,value in NODE_DICT_NET.items():
         # print node,value
-        c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node,))
+        c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID == ?", (node,))
         temp = c.fetchall()
         # print temp
         if int(temp[0][1])-value>0:
@@ -732,8 +649,7 @@ def update_schedule():
         bitmap_array = data['x']
         syn_config.set_SynBitMap(bitmap_array)
         config_dict =syn_config.get_New_Synconfig()
-        period = request.form.get('period')
-        # period = data['p']
+        period = data['p']
         config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
         if period:
             syn_config.get_syn_period(period)
@@ -742,6 +658,7 @@ def update_schedule():
             senddicts["type"] = "pama_syn"
             update_synperiod_ins = json.dumps(senddicts)
             sendins.TCP_send(update_synperiod_ins)
+            # print update_synperiod_ins
         else:
             bitmaplist = config_dict["bitmap"]
             subkey = ['minute', 'seqNum', 'level', 'bitmap', 'second', 'hour']
@@ -750,37 +667,8 @@ def update_schedule():
             senddicts["type"] = "schedule"
             update_schedule_ins = json.dumps(senddicts)
             config_dict["bitmap"] = bitmaplist
-            # print update_schedule_ins
             sendins.TCP_send(update_schedule_ins)  
-
-    l=syn_config.get_active_list()
-    dicts={'lists':l}
-    lists= json.dumps(dicts)
-
-    return render_template('./client/scheduling.html',scheduleNow=lists)
-
-@app.route('/update_schedule_withtime/',methods=['POST', 'GET'])
-def update_schedule_withtime():
-    syn_config = Config()
-    sendins = Connect()
-    senddicts = {}
-    data = request.get_json()
-    bitmap_array = data['x']
-
-    syn_config.set_SynBitMap(bitmap_array)
-
-    if request.method == 'POST':
-        config_dict =syn_config.get_New_Synconfig()
-        period = request.form.get('period')
-        period = data['p']
-        config_dict["bitmap"]=syn_config.format_To_SendBitMap(config_dict["bitmap"])
-        if period:
-            syn_config.get_syn_period(period)
-            senddicts["pama_data"] = config_dict
-            senddicts["type"] = "pama_syn"
-            update_synperiod_ins = json.dumps(senddicts)
-            sendins.TCP_send(update_synperiod_ins) 
-
+            # print update_schedule_ins
     l=syn_config.get_active_list()
     dicts={'lists':l}
     lists= json.dumps(dicts)
@@ -823,13 +711,36 @@ def monitor_update_period():
 @app.route('/post_monitor_data', methods=['POST', 'GET'])
 #上报网络监测数据指令
 def post_monitor_data():
+    global NODE_DICT_NET
+    # global NUMBER_NET
+    global NODE_SET
+    NODE_SET = set()
+    # NUMBER_NET=0
+    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
+    conn = sqlite3.connect(databasepath)
+    c = conn.cursor()
+    c.execute("select distinct NodeID from NodePlace;") # not NetMonitor but from NodePlace
+    nodes = list(c.fetchall()) #tuple  -- list
+    total = len(nodes)
+    previous = 0 #total - len(nodes)
+    now = previous
+
     sendins = Connect()
     dicts = {}
-    if request.method == 'POST':
+
+    if request.method == 'GET':   
+        for node in nodes:
+            NODE_SET.add(str(node[0]))
+            c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID like ?", (node))
+            temp = c.fetchall()
+            NODE_DICT_NET[temp[0][0]] = temp[0][1]
         dicts["pama_data"] = "00"   
-    dicts["type"] = "mcast"
-    ins = json.dumps(dicts)
-    sendins.TCP_send(ins)
+        dicts["type"] = "mcast"
+        ins = json.dumps(dicts)
+        sendins.TCP_send(ins)
+        # print ins
+    conn.close()
+   
     return render_template('./client/sendmonitor.html')
 
 @app.route('/post_config/', methods=['POST', 'GET'])

@@ -9,6 +9,7 @@ class Connect:
 		self.BASE_DIR = os.path.dirname(__file__)
 		self.Config_FILE=self.BASE_DIR+'/Config/config.json'  #json配置文件
 		f=open(self.Config_FILE,'r')
+		# print json.load(f)
 		self.CONFIG_DICT =json.load(f)
 		f.close()
 
@@ -30,5 +31,23 @@ class Connect:
 
 	def all_config_json(self):
 		return self.CONFIG_DICT
+
+	def display_config(self):
+		display_dict = dict()
+		display_dict["id"] = self.CONFIG_DICT['id']
+		display_dict["HeartIntSec"] = self.CONFIG_DICT['HeartIntSec']
+		display_dict["AckHeartInt"] = self.CONFIG_DICT['AckHeartInt']		
+		display_dict["rootAddr"] = self.CONFIG_DICT['rootAddr']
+		display_dict["ftpuser"] = self.CONFIG_DICT['ftpuser']
+		display_dict["ftphost"] = self.CONFIG_DICT['ftphost']
+		display_dict["ftpPwd"] = self.CONFIG_DICT['ftpPwd']
+		display_dict["ftpPort"] = self.CONFIG_DICT['ftpPort']
+		display_dict["serverIp"] = self.CONFIG_DICT['serverIp']
+
+		return display_dict
+		
+
+
+
 
 

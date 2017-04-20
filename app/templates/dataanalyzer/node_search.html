@@ -235,9 +235,12 @@
     <div id="energy_consume" style="height: 600px;width: 90%;float:left;"></div>
 </div>
 
-<div class="container" style="height: 700px; width: 95%">
+<div style="height: 700px; width: 95%">
 <h2 align="center">电压随时间变化</h2>
+<h4>{{time_list}}</h4>
+
     <div id="voltage" style="height: 600px;width: 90%;float:left;"></div>
+
 </div>
 {% autoescape off %}
     <!-- ECharts单文件引入 -->
@@ -363,10 +366,13 @@
 
                 option = {
                     title : {
-                        text: '节点应用数据随时间变化',
+                        text: '节点{{nodeid}}电压随时间变化',
                     },
                     tooltip : {
                         trigger: 'axis'
+                    },
+                    legend: {
+                        data:{{nodeid}}
                     },
                     toolbox: {
                         show : true,
@@ -383,7 +389,7 @@
                         {
                             type : 'category',
                             boundaryGap : false,
-                            data : {{currenttime}}
+                            data : {{time_list}}
                         }
                     ],
                     yAxis : [
@@ -396,7 +402,7 @@
                     ],
                     series : [
                         {
-                            name:{{nodeid}},
+                            name:'最高气温',
                             type:'line',
                             data:{{voltage_list}},
                             markPoint : {
@@ -410,9 +416,9 @@
                                     {type : 'average', name: '平均值'}
                                 ]
                             }
-                        },
+                        }
                     ]
-                };          
+                };        
 
                 // 为echarts对象加载数据
                 myChart.setOption(option);

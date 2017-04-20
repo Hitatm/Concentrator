@@ -10,15 +10,48 @@
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/upload/buttons.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/upload/default.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/tabs/css/demo.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/upload/fileinput.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/progress-bar/ui.progress-bar.css" rel="stylesheet" type="text/css"/>
 
-    <link rel="stylesheet" type="text/css" href="../../static/tabs/css/demo.css" />
     <link rel="stylesheet" type="text/css" href="../../static/tabs/css/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../static/tabs/css/tabstyles.css" />
     <script src="../../static/tabs/js/modernizr.custom.js"></script>
 <script src="../../static/bootstrap-3.3.5/js/jquery-1.11.3.min.js" type="text/javascript"></script>
 <script src="../../static/bootstrap-3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+<script>
+    function toPercent(data){
+    // var strData = parseFloat(data)*100;
+    var strData = parseFloat(data.toFixed(2)*100);
+    var ret = strData.toString()+"%";
+    return ret;
+    }
+    var timeTicket;
+    clearInterval(timeTicket);
+    timeTicket = setInterval(function (){
+            $.ajax({
+            type:"get",
+            url:"{{url_for('update_net')}}",
+            cache:false,
+            contentType: "application/json;charset=UTF-8",
+            dataType:"json",
+            success:function(msg)
+            {
+                var rate = msg['now']/msg['total'];
+                rate = toPercent(rate);
+                var r = "width:" + rate + ";";
+                var div1 = document.getElementById('bar');  
+                div1.style=r;
+                // $('.ui-label').text(rate);
+                $('.value').text(rate);
+            }
 
+            })
+
+    }, 2000);
+    
+
+    </script>
 </head>
 
 <body>
@@ -28,13 +61,37 @@
             <div class="tabs tabs-style-underline">
                 <nav>
                     <ul>
-                        <li><a href="#section-underline-1"><span>修改网络监测数据上报周期</span></a></li>
-                        <li><a href="#section-underline-2"><span>上报网络监测数据指令</span></a></li>
+                        <li><a href="#section-underline-1"><span>上报网络监测数据指令</span></a></li>
+                        <li><a href="#section-underline-2"><span>修改网络监测数据上报周期</span></a></li>
                         <li><a href="#section-underline-3"><span>上报网络参数配置指令</span></a></li>
                     </ul>
                 </nav>
                 <div class="content-wrap">
+                    
                     <section id="section-underline-1">
+                        <!-- <legend>上报网络监测数据指令:</legend>
+
+                        <button type="submit" class="btn btn-success" style="width:107px;height:48px;">上报监测数据</button> -->
+                        <tr>
+
+                            <td>
+                                <form name="post_monitor_data" method="GET" action='{{url_for('post_monitor_data')}}'>
+                                <legend>获取网络监测数据:</legend>
+                                    <!-- Progress bar -->
+                                    <div id="progress_bar" class="ui-progress-bar ui-container">
+                                    <div class="ui-progress" id="bar" style="width: 0.00%;">
+                                    <span class="ui-label" > <b class="value">0%</b> </span>
+                                    </div>
+                                    <!-- /Progress bar -->
+                                </div>
+                                <button type="submit" class="btn btn-success">&nbsp;提&nbsp;&nbsp;交&nbsp;</button>
+                                </form> 
+                            
+                            </td>
+                        </tr>
+                        </form>
+                    </section>
+                    <section id="section-underline-2">
                         <form name="monitor_update_period" method="POST" action='{{url_for('monitor_update_period')}}'>
                         <legend>修改网络监测数据上报周期:(0-255)</legend>
                         <input type="text" name="update_period" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" onblur="if(this.value>255){alert('上报周期过长！');this.focus();}"
@@ -42,14 +99,6 @@
 
                         <button type="submit" class="btn btn-success" style="width:160px;height:48px;">修改上报周期</button>
     
-                        </form>
-                    </section>
-                    <section id="section-underline-2">
-                    <form name="post_monitor_data" method="POST" action='{{url_for('post_monitor_data')}}'>
-                        <legend>上报网络监测数据指令:</legend>
-
-                        <button type="submit" class="btn btn-success" style="width:107px;height:48px;">上报监测数据</button>
-
                         </form>
                     </section>
                     <section id="section-underline-3">
