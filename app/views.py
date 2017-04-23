@@ -12,7 +12,6 @@ from utils.gxn_topo_analyzer import topo_statistic,topo_traffic_statistic,topo_t
 from utils.gxn_get_sys_config import Config
 from utils.connect import Connect
 from utils.db_operate import DBClass
-from utils.db_conn import connectDB
 
 from utils.old_data_display import Display, Modify
 from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,startAllProcesses,stopAllProcesses
@@ -21,7 +20,7 @@ import os
 import collections
 import time
 from time import strftime,gmtime
-import sqlite3
+# import sqlite3
 import socket
 import json
 import math
@@ -250,48 +249,91 @@ def node_search():
             voltage_list.append(voltage[i][1])
         # print time_list
 
-        conn = sqlite3.connect(databasepath)
-        c = conn.cursor()
-        c.execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        # c.execute('select * from NetMonitor where NodeID == ?;',(nodepick,))
-        display = c.fetchall()
-        # print display
-        conn.close()
-        conn = sqlite3.connect(databasepath)
-        c = conn.cursor()
-        c.execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        # c.execute('select * from ApplicationData where NodeID == ?;',(nodepick,))
-        appdata = c.fetchall()
-        # print appdata
-        cpu = list()
-        lpm = list()
-        tx = list()
-        rx = list()
+        display = DATABASE.my_db_execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        appdata = DATABASE.my_db_execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
 
-        conn = sqlite3.connect(databasepath)
-        c = conn.cursor()
-        c.execute('select CPU from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        cpucost = c.fetchall()
+        cpucost = DATABASE.my_db_execute('select CPU from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
         if cpucost:
-            cpu.append(cpucost[0][0])
-        c.execute('select LPM from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        lpmcost = c.fetchall()
+            cpu=float(cpucost[0][0])/32768
+        lpmcost = DATABASE.my_db_execute('select LPM from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
         if lpmcost:
-           lpm.append(lpmcost[0][0])
-        c.execute('select TX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        txcost = c.fetchall()
+           lpm=float(lpmcost[0][0])/32768
+        txcost = DATABASE.my_db_execute('select TX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
         if txcost:
-            tx.append(txcost[0][0])
-        c.execute('select RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        rxcost = c.fetchall()
+            tx=float(txcost[0][0])/32768
+        rxcost = DATABASE.my_db_execute('select RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
         if rxcost:
-            rx.append(rxcost[0][0])
-        conn.close()
-        return render_template('./dataanalyzer/node_search.html',nodeid=nodepick,nodelist = nodeid_list,pcaps=display,
+            rx=float(rxcost[0][0])/32768
+        # conn.close()
+        # print nodepick,cpu,rx,tx,lpm
+        return render_template('./dataanalyzer/node_search.html',
+            nodeid=nodepick,nodelist = nodeid_list,pcaps=display,
             appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
             voltage_list=voltage_list,time_list=time_list)
     else:
         return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list)
+
+@app.route('/network_data/', methods=['POST', 'GET'])
+@app.route('/network_data', methods=['POST', 'GET'])
+def network_data():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        select = request.form['filter_type']
+        nid = request.form['value']
+        if select == "all":
+            pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        elif select == "ID":
+            pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;",(start_time, end_time, nid))
+        elif select == "parentID":
+            pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ? and ParentID == ?;",(start_time, end_time, nid))
+        else:
+            pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+
+        pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
+        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps)
+
+@app.route('/app_data/', methods=['POST', 'GET'])
+@app.route('/app_data', methods=['POST', 'GET'])
+def app_data():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        select = request.form['filter_type']
+        nid = request.form['value']
+        if select == "all":
+            pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        elif select == "ID":
+            pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;",(start_time, end_time, nid))
+        else:
+            pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(start_time, end_time)) 
+        lendict = dict()
+        for pcap in pcaps:
+            lendict[int(pcap[0])] = len(str(pcap[3]))
+        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+
+        pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
+        lendict = dict()
+        for pcap in pcaps:
+            lendict[int(pcap[0])] = len(str(pcap[3]))
+        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict)
 
 
 #--------------------------------------------与后台通信----------------------------------------------------
@@ -532,14 +574,9 @@ def instruction3():
 #获取网络监测数据
 def update_net():
     global NODE_DICT_NET
-    # global NUMBER_NET
-    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
     for node ,value in NODE_DICT_NET.items():
         # print node,value
-        c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID == ?", (node,))
-        temp = c.fetchall()
+        temp = DATABASE.my_db_execute("select nodeID, count(nodeID) from NetMonitor where nodeID == ?", (node,))
         # print temp
         if int(temp[0][1])-value>0:
             # NUMBER_NET+= 1
@@ -549,7 +586,7 @@ def update_net():
     dicts["total"] = len(NODE_DICT_NET)
     dicts["now"] = dicts["total"] - len(NODE_SET)
     ins = json.dumps(dicts)
-    conn.close()
+    # conn.close()
     # print ins
     return ins
 
@@ -640,11 +677,8 @@ def post_monitor_data():
     global NODE_SET
     NODE_SET = set()
     # NUMBER_NET=0
-    databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    c.execute("select distinct NodeID from NodePlace;") # not NetMonitor but from NodePlace
-    nodes = list(c.fetchall()) #tuple  -- list
+    nodes = list(DATABASE.my_db_execute("select distinct NodeID from NodePlace;",None))
+    # nodes = list(c.fetchall()) #tuple  -- list
     total = len(nodes)
     previous = 0 #total - len(nodes)
     now = previous
@@ -655,15 +689,14 @@ def post_monitor_data():
     if request.method == 'GET':   
         for node in nodes:
             NODE_SET.add(str(node[0]))
-            c.execute("select nodeID, count(nodeID) from NetMonitor where nodeID == ?", (node))
-            temp = c.fetchall()
+            temp = DATABASE.my_db_execute("select nodeID, count(nodeID) from NetMonitor where nodeID == ?", (node))
             NODE_DICT_NET[temp[0][0]] = temp[0][1]
         dicts["pama_data"] = "00"   
         dicts["type"] = "mcast"
         ins = json.dumps(dicts)
         sendins.TCP_send(ins)
         # print ins
-    conn.close()
+    # conn.close()
    
     return render_template('./client/sendmonitor.html')
 
@@ -706,28 +739,7 @@ def logout():
 
 
 #-------------------------------------------数据分析----------------------------------------------------
-#基本数据
-@app.route('/basedata/', methods=['POST', 'GET'])
-def basedata():
-    if PCAPS == None:
-        flash(u"请完成认证登陆!")
-        return redirect(url_for('login'))
-    elif request.method == 'POST':
-        selectime  =  request.form['field_name']
-        start_time = selectime.encode("utf-8")[0:19]
-        end_time = selectime.encode("utf-8")[22:41]
 
-        c = connectDB()
-        pcaps = c.all_NetMonitor_withtime(start_time, end_time)
-        return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
-    else:
-        t = time.time()
-        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
-        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-
-        c = connectDB()
-        pcaps = c.all_NetMonitor_withtime(previous_time, current_time)
-        return render_template('./dataanalyzer/basedata.html',pcaps=pcaps)
 
 #协议分析
 @app.route('/protoanalyzer/', methods=['POST', 'GET'])
@@ -740,8 +752,7 @@ def protoanalyzer():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
 
-        c = connectDB()
-        topodata_list = c.all_NetMonitor_withtime(start_time, end_time)
+        topodata_list = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         http_dict = topo_statistic(topodata_list)
         http_dict = sorted(http_dict.iteritems(), key=lambda d:d[1], reverse=True)
         http_key_list = list()
@@ -760,8 +771,7 @@ def protoanalyzer():
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
-        c = connectDB()
-        topodata_list = c.all_NetMonitor_withtime(previous_time, current_time)
+        topodata_list = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         http_dict = topo_statistic(topodata_list)
         http_dict = sorted(http_dict.iteritems(), key=lambda d:d[1], reverse=True)
         http_key_list = list()
@@ -787,8 +797,7 @@ def flowanalyzer():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         
-        c = connectDB()
-        topodata_list = c.all_NetMonitor_withtime(start_time, end_time)
+        topodata_list = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         topo_traff_dict=topo_traffic_statistic(topodata_list)
         traffic_key_list = list()
         traffic_value_list = list()
@@ -807,8 +816,7 @@ def flowanalyzer():
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         
-        c = connectDB()
-        topodata_list = c.all_NetMonitor_withtime(previous_time, current_time)
+        topodata_list = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         topo_traff_dict=topo_traffic_statistic(topodata_list)
         traffic_key_list = list()
         traffic_value_list = list()
@@ -824,11 +832,10 @@ def flowanalyzer():
 @app.route('/count_appdata/', methods=['POST', 'GET'])
 def count_appdata():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    conn = sqlite3.connect(databasepath)
-    c = conn.cursor()
-    c.execute('select distinct NodeID from NodePlace;')
-    node = c.fetchall()
-    conn.close()
+    # conn = sqlite3.connect(databasepath)
+
+    node = DATABASE.my_db_execute('select distinct NodeID from NodePlace;',None)
+    # conn.close()
     nodelist = list()
     for i in range(len(node)):
         nodelist.append(node[i][0].encode('ascii'))
@@ -842,13 +849,7 @@ def count_appdata():
         end_time = selectime.encode("utf-8")[22:41]
         countlist = list()
         for eachnode in nodelist:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            conn = sqlite3.connect(databasepath)
-            c = conn.cursor()
-            c.execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, eachnode))
-            # c.execute('select count(*) from ApplicationData where NodeID == ?;',(eachnode,))
-            datacount = c.fetchall()
-            conn.close()
+            datacount = DATABASE.my_db_execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, eachnode))
             countlist.append(datacount[0][0])   
 
         return render_template('./dataanalyzer/count_appdata.html',nodelist=nodelist, countlist=countlist)
@@ -858,12 +859,7 @@ def count_appdata():
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         countlist = list()
         for eachnode in nodelist:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            conn = sqlite3.connect(databasepath)
-            c = conn.cursor()
-            c.execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(previous_time, current_time, eachnode))
-            datacount = c.fetchall()
-            conn.close()
+            datacount = DATABASE.my_db_execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(previous_time, current_time, eachnode))
             countlist.append(datacount[0][0])     
 
         return render_template('./dataanalyzer/count_appdata.html',nodelist=nodelist, countlist=countlist)
@@ -872,17 +868,10 @@ def count_appdata():
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
 def appdataanalyzer():
     nodeid_list = list()
-    try:
-        databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-        conn = sqlite3.connect(databasepath)
-    except:
-        print("no such database in "+ databasepath)
-    c = conn.cursor()
-    c.execute('select distinct NodeID from NodePlace;')
-    appdata = c.fetchall()
+    appdata = DATABASE.my_db_execute('select distinct NodeID from NodePlace;',None)
     for i in range(len(appdata)):
         nodeid_list.append(appdata[i][0].encode('ascii'))
-    conn.close()
+    # conn.close()
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -891,16 +880,8 @@ def appdataanalyzer():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         nodepick  =  request.form['nodeselect']
-        try:
-            databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-            conn = sqlite3.connect(databasepath)
-        except:
-            print("no such database in "+ databasepath)
-        c = conn.cursor()
-        c.execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        # c.execute('select currenttime, Data from ApplicationData where NodeID == ?;',(nodepick))
-        appdata = c.fetchall()
-        conn.close()
+        
+        appdata = DATABASE.my_db_execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
         dicts= {}
         time_list = list()
         data_list = list()
@@ -926,8 +907,7 @@ def topodisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
 
-        c = connectDB()
-        ID_list = c.NetMonitor_ID_withtime(start_time, end_time)
+        ID_list = DATABASE.my_db_execute("select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         # print ID_list
         Parentnode = dict()
         # Childnode = dict()
@@ -956,8 +936,7 @@ def topodisplay():
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-        c = connectDB()
-        ID_list = c.NetMonitor_ID_withtime(previous_time, current_time)
+        ID_list = DATABASE.my_db_execute("select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         # print ID_list
         Parentnode = dict()
         # Childnode = dict()
@@ -1011,22 +990,20 @@ def exceptinfo():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         # 电流过大
-        c = connectDB()
-        data = c.NetMonitor_current_error(start_time, end_time)
-        for i in range (len(data)):
-            warning_dict["seqnum"] = data[i][0]
-            warning_dict["warn"] = "current = " + str(data[i][1])
-            warning_dict["ip_port"] = data[i][2] #NodeID
-            warning_dict["time"] = data[i][3] #currenttime
+        idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>25;',(start_time, end_time))
+        for i in range (len(idata)):
+            warning_dict["seqnum"] = idata[i][0]
+            warning_dict["warn"] = "current = " + str(idata[i][1])
+            warning_dict["ip_port"] = idata[i][2] #NodeID
+            warning_dict["time"] = idata[i][3] #currenttime
             warning_list.append(warning_dict)
         # 电压过高
-        c = connectDB()
-        data = c.NetMonitor_voltage_error(start_time, end_time)
-        for i in range (len(data)):
-            warning_dict["seqnum"] = data[i][0]
-            warning_dict["warn"] = "voltage = " + str(data[i][1])
-            warning_dict["ip_port"] = data[i][2] #NodeID
-            warning_dict["time"] = data[i][3] #currenttime
+        vdata = DATABASE.my_db_execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage<3;',(start_time, end_time))
+        for i in range (len(vdata)):
+            warning_dict["seqnum"] = vdata[i][0]
+            warning_dict["warn"] = "voltage = " + str(vdata[i][1])
+            warning_dict["ip_port"] = vdata[i][2] #NodeID
+            warning_dict["time"] = vdata[i][3] #currenttime
             warning_list.append(warning_dict)
 
         return render_template('./exceptions/exception.html', warning=warning_list)
@@ -1037,22 +1014,20 @@ def exceptinfo():
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         # 电流过大
-        c = connectDB()
-        data = c.NetMonitor_current_error(previous_time, current_time)
-        for i in range (len(data)):
-            warning_dict["seqnum"] = data[i][0]
-            warning_dict["warn"] = "current = " + data[i][1]
-            warning_dict["ip_port"] = data[i][2] #NodeID
-            warning_dict["time"] = data[i][3] #currenttime
+        idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>25;',(previous_time, current_time))
+        for i in range (len(idata)):
+            warning_dict["seqnum"] = idata[i][0]
+            warning_dict["warn"] = "current = " + idata[i][1]
+            warning_dict["ip_port"] = idata[i][2] #NodeID
+            warning_dict["time"] = idata[i][3] #currenttime
             warning_list.append(warning_dict)
         # 电压过高
-        c = connectDB()
-        data = c.NetMonitor_voltage_error(previous_time, current_time)
-        for i in range (len(data)):
-            warning_dict["seqnum"] = data[i][0]
-            warning_dict["warn"] = "current = " + data[i][1]
-            warning_dict["ip_port"] = data[i][2] #NodeID
-            warning_dict["time"] = data[i][3] #currenttime
+        vdata = DATABASE.my_db_execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage<3;',(previous_time, current_time))       
+        for i in range (len(vdata)):
+            warning_dict["seqnum"] = vdata[i][0]
+            warning_dict["warn"] = "current = " + vdata[i][1]
+            warning_dict["ip_port"] = vdata[i][2] #NodeID
+            warning_dict["time"] = vdata[i][3] #currenttime
             warning_list.append(warning_dict)
 
         return render_template('./exceptions/exception.html', warning=warning_list)

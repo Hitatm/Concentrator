@@ -94,3 +94,7 @@ data6. inactive
 data7. DIO_minlen
 data8. DIO_max
 
+guolv
+cpu /32768 (float) x
+xuhao x
+appdata len, not value

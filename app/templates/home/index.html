@@ -191,11 +191,6 @@
 					<ul class="sub-menu">
 
 						<li >
-							<a href="{{ url_for('basedata') }}" target="main-content">
-							   网络基本信息
-							</a>
-						</li>
-						<li >
 							<a href="{{ url_for('protoanalyzer') }}"  target="main-content">
 							  拓扑数量分析
 							</a>
@@ -248,7 +243,7 @@
 
 				<li class="">
 
-					<a href="{{ url_for('node_search') }}"  target="main-content">
+					<a href="javascript:;">
 
 					<i class="icon-search"></i>
 
@@ -256,8 +251,32 @@
 
 					<span class=""></span>
 
-					</a>
+					<span class="arrow "></span>
 
+					</a>
+					
+					<ul class="sub-menu">
+
+						<li >
+
+							<a href="{{ url_for('node_search') }}"  target="main-content">
+							   运行基本参数
+							</a>
+						</li>
+						<li >
+
+							<a href="{{ url_for('network_data') }}" target="main-content">
+							   网络数据
+							</a>
+						</li>
+						<li >
+
+							<a href="{{ url_for('app_data') }}" target="main-content">
+							   应用数据
+							</a>
+						</li>
+
+					</ul>
 				</li>
 
 				<li class="">

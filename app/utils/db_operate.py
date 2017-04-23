@@ -1,13 +1,13 @@
 #coding:UTF-8
 
 import os
-# from app import app
+from app import app
 import sqlite3
 import time
 
 class DBClass:
 	def __init__(self):
-		self.DB_FILE = '/home/winzzhhzzhh/lab/Concentrator/datalog/'+'topo3.db'
+		self.DB_FILE = os.path.join(app.config['DB_FOLDER'],"topo3.db")
 	def my_db_execute(self,str_exe,parameter):
 		conn = sqlite3.connect(self.DB_FILE)
 		c = conn.cursor()

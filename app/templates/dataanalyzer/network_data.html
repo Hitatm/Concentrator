@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>基本信息</title>
+    <title>网络数据</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -106,17 +106,37 @@
         });
 
     </script>
-
+<script type="text/javascript">
+function ifnull() {
+  var t = document.getElementById("filter").value;
+  if (t != "all")
+  {
+    var y = document.getElementById("proto").value;
+    // console.log(y);
+    if (y.length==0)
+    {
+      alert("请输入内容!");
+    }
+    else
+    {
+      document.getElementById("myform").submit();
+    }
+  }
+  else {
+    document.getElementById("myform").submit();
+  }
+}
+</script>
 </head>
 <body>
 <br>
 <div class="container">
-    <h2 class="text-center">数据包基本信息</h2>
+    <h2 class="text-center">网络数据</h2>
 </div>
 <div>
     <div class="container">
        
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('basedata')}}">
+        <form enctype="multipart/form-data" id = "myform" method="POST" action="{{url_for('network_data')}}">
 
                    <h4>请选择时间段:</h4>
             <div class="controls">
@@ -128,29 +148,19 @@
                          <input type="hidden" id="timesrange" name="field_name"  />
                          
                 </div>
-                <button type="submit" >提交</button>
+                <select name="filter_type" id="filter">&nbsp;&nbsp;
+                  <option value="all" selected>所&nbsp;&nbsp;&nbsp;&nbsp;有</option>
+                  <option value="ID">节点&nbsp;&nbsp;&nbsp;ID</option>
+                  <option value="parentID">父节点ID</option>
+              </select>&nbsp;&nbsp;
+            <input type="text" id="proto" name="value">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-success" onclick="ifnull()">&nbsp;提&nbsp;&nbsp;&nbsp;交&nbsp;</button>
             </div>
             <br />
         　</form> 
     </div>  
 </div>
 
-<div class="container">
-    <form class="form-inline" method="POST" action="{{ url_for('basedata') }}">
-  <div class="form-group">
-    <label for="proto">协议过滤 : </label>&nbsp;&nbsp;
-      <select class="form-control" name="filter_type">&nbsp;&nbsp;
-          <option value="all" selected>所&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;有</option>
-          <option value="ID">节点&nbsp;&nbsp;&nbsp;ID</option>
-          <option value="synparentID">同步父节点ID</option>
-          <option value="synlevel">同步等级</option>
-      </select>&nbsp;&nbsp;
-    <input type="text" class="form-control" id="proto" name="value">&nbsp;&nbsp;
-  </div>
-  <button type="submit" class="btn btn-success">&nbsp;过&nbsp;&nbsp;&nbsp;滤&nbsp;</button>&nbsp;&nbsp;
-        <button type="submit" class="btn btn-info cancle">&nbsp;清&nbsp;&nbsp;&nbsp;除&nbsp;</button>
-</form>
-</div>
 
 <br>
 <!-- <div class="bs-example" data-example-id="hoverable-table"> -->
@@ -163,18 +173,18 @@
             <th class="text-center">父节点</th>
             <th class="text-center">节点时间</th>
             <th class="text-center">同步时间</th>
-            <th class="text-center">cycletime</th>
-            <th class="text-center">cycletimeDirection</th>
+            <th class="text-center">CT</th>
+            <th class="text-center">CTD</th>
             <th class="text-center">电流</th>
-            <th class="text-center">cpu能耗</th>
-            <th class="text-center">lpm能耗</th>
-            <th class="text-center">TX能耗</th>
-            <th class="text-center">RX能耗</th>
+            <th class="text-center">CPU</th>
+            <th class="text-center">LPM</th>
+            <th class="text-center">TX</th>
+            <th class="text-center">RX</th>
             <th class="text-center">电压</th>
             <th class="text-left">邻居数</th>
             <th class="text-left">重启标记</th>
             <th class="text-left">信标间隔</th>
-            <th class="text-left">路由度量(rtx)</th>
+            <th class="text-left">RTX</th>
         </tr>
       </thead>
       <tbody>
@@ -183,7 +193,7 @@
       {% for pcap in pcaps: %}
 
       <tr data-toggle="modal" data-target="#myModal">
-      <th scope="row" class="text-center" id="id">{{ pcap[0] }}</th>
+      <th scope="row" class="text-center" id="id">{{pcap[0]}}</th>
           <td class="text-nowrap text-center">{{ pcap[16] }}</td>
           <td class="text-center text-nowrap">{{ pcap[1] }}</td>
           <td class="text-left text-nowrap">{{ pcap[2] }}</td>
@@ -196,10 +206,10 @@
           {% else %}
           <td class="text-center" id="current">{{ pcap[17] }}</td>
           {% endif %}
-          <td class="text-center">{{ pcap[3] }}</td>
-          <td class="text-center">{{ pcap[4] }}</td>
-          <td class="text-center">{{ pcap[6] }}</td>
-          <td class="text-center">{{ pcap[5] }}</td>
+          <td class="text-center" id="tdcpu">{{ pcap[3] }}</td>
+          <td class="text-center" id="tdlpm">{{ pcap[4] }}</td>
+          <td class="text-center" id="tdtx">{{ pcap[6] }}</td>
+          <td class="text-center" id="tdrx">{{ pcap[5] }}</td>
           {% if pcap[7]  < 3 %}
           <td class="text-center text-nowrap" id="voltage" style="color:Red">{{ pcap[7] }}</td>
           {% else %}
@@ -209,90 +219,21 @@
           <td class="text-left text-nowrap">{{ pcap[12] }}</td>
           <td class="text-left text-nowrap">{{ pcap[9] }}</td>
           <td class="text-left text-nowrap">{{ pcap[11] }}</td>
-
         </tr>
 
       {% endfor %}
       </tbody>
     </table>
-<!-- </div> -->
 
-
-<!-- 模态框（Modal） -->
-<!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true" style="width:600px;margin:auto; overflow:auto;word-break:break-all">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">数据包详情</h4>
-      </div>
-      <div class="modal-body">
-
-
-           <div class="container-fluid">
-            <div class="accordion"  id="accordion">
-
-            <div class="mydata"></div>
-
-          </div>
-        </div>
-
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-<!--清除过滤器-->
-<script>
-    $(".cancle").click(function(){
-        $("input").val(null);
-    })
-</script>
-<!--table点击事件-->
-<!-- <script>
-    var id=0;
-    $(function () {
-    $("table > tbody > tr").click(function () {
-        id=$(this).children('th').eq(0).text();
-        $.ajax({
-        type: "GET",//jquery 请求方式为 get
-        url: "/datashow?id="+id,//jquery 请求URL
-        dataType: "html",//jquery接受类型 可以 json js html 等数据
-        cache: false,//是否缓存
-        success: function(a) {
-            $(".mydata").html(a);
+<!-- <script type="text/javascript">
+    (function(){
+        var len = $('table tr').length;
+        for(var i = 1;i<len;i++){
+            $('table tr:eq('+i+') th:first').text(i);
         }
-    });
-    });
-})
+            
+}); 
+</script> -->
 
-    function savepdf()
-    {
-        $.ajax({
-        type: "GET",//jquery 请求方式为 get
-        url: "/savepdf?id="+id,//jquery 请求URL
-        dataType: "html",//jquery接受类型 可以 json js html 等数据
-        cache: false,//是否缓存
-    });
-    }
-</script> -->
-<!--自动补全-->
-<!-- <script>
-    var availableTags = ["TCP", "UDP", "ARP", "ICMP", "HTTP", "HTTPS", "DNS", "SSH", "Telnet", "POP3", "SNMP", "SMTP"];
-    $("#proto").autocomplete({
-        source: availableTags
-    });
-</script> -->
-<!--模态框拖拽-->
-<script>
-    $("#myModal").draggable({
-    handle: ".modal-header"
-});
-</script>
 </body>
 </html>
