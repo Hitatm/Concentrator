@@ -3,11 +3,11 @@
 import socket
 import json
 import os
+from app import app
 
 class Connect:
 	def __init__(self):
-		self.BASE_DIR = os.path.dirname(__file__)
-		self.Config_FILE=self.BASE_DIR+'/Config/config.json'  #json配置文件
+		self.Config_FILE = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
 		f=open(self.Config_FILE,'r')
 		# print json.load(f)
 		self.CONFIG_DICT =json.load(f)
