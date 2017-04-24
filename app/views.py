@@ -456,8 +456,8 @@ def instruction_restart():
         addrlist.append(nodeip)
         dicts["addrList"] = addrlist
         ins = json.dumps(dicts)
-    print ins
-    # sendins.TCP_send(ins)
+    # print ins
+    sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_reset/', methods=['POST', 'GET'])
@@ -601,7 +601,6 @@ def update_net():
     dicts["total"] = len(NODE_DICT_NET)
     dicts["now"] = dicts["total"] - len(NODE_SET)
     ins = json.dumps(dicts)
-    # conn.close()
     # print ins
     return ins
 
@@ -731,7 +730,6 @@ def post_monitor_data():
         ins = json.dumps(dicts)
         sendins.TCP_send(ins)
         # print ins
-    # conn.close()
    
     return render_template('./client/sendmonitor.html')
 
