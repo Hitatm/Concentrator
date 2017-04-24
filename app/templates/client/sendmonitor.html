@@ -75,7 +75,7 @@
                         <tr>
 
                             <td>
-                                <form name="post_monitor_data" method="GET" action='{{url_for('post_monitor_data')}}'>
+                                <form name="post_monitor_data" target="iframe1" method="GET" action='{{url_for('post_monitor_data')}}'>
                                 <legend>获取网络监测数据:</legend>
                                     <!-- Progress bar -->
                                     <div id="progress_bar" class="ui-progress-bar ui-container">
@@ -89,10 +89,11 @@
                             
                             </td>
                         </tr>
-                        </form>
+                        <iframe id="iframe1" name="iframe1" style="display:none;"></iframe> 
+
                     </section>
                     <section id="section-underline-2">
-                        <form name="monitor_update_period" method="POST" action='{{url_for('monitor_update_period')}}'>
+                        <form name="monitor_update_period" method="POST" target="iframe2" action='{{url_for('monitor_update_period')}}'>
                         <legend>修改网络监测数据上报周期:(0-255)</legend>
                         <input type="text" name="update_period" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" onblur="if(this.value>255){alert('上报周期过长！');this.focus();}"
                          placeholder={{display_data}}>轮
@@ -100,14 +101,18 @@
                         <button type="submit" class="btn btn-success" style="width:160px;height:48px;">修改上报周期</button>
     
                         </form>
+                        <iframe id="iframe2" name="iframe2" style="display:none;"></iframe> 
+
                     </section>
                     <section id="section-underline-3">
-                        <form name="post_config" method="POST" action='{{url_for('post_config')}}'>
+                        <form name="post_config" method="POST" target="iframe3" action='{{url_for('post_config')}}'>
                         <legend>上报网络参数配置指令:</legend>
 
                         <button type="submit" class="btn btn-success" style="width:107px;height:48px;">上报参数配置</button>
 
                         </form>
+                        <iframe id="iframe3" name="iframe3" style="display:none;"></iframe> 
+
                     </section>
             
 

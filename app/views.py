@@ -360,8 +360,9 @@ def instruction_send():
     modify = Modify() #将新配置数据写入配置文件
     sendins = Connect()
     datalist = []
-    datalist.append("80")
     dicts = {}
+    datalist.append("80")
+    datalength = ""
     if request.method == 'POST':
         recvdata = request.form['emit_data']
         if recvdata:
@@ -372,10 +373,14 @@ def instruction_send():
                 datalength = "0"+hex(len(recvdata)/2)[2:]
             else:
                 datalength = hex(len(recvdata))[2:]
+        else:
+            display = Display()
+            recvdata = display.send_display() #旧数据
+
         transmit_type = request.form['mySelect']
         nodeip = request.form['nodeIP']
-
-    datalist.append(datalength)
+    if datalength:
+        datalist.append(datalength)
     datalist.append(recvdata)
     data = ''.join(datalist)
     dicts["type"] = transmit_type
@@ -388,6 +393,7 @@ def instruction_send():
         dicts["addrList"] = addrlist
         ins = json.dumps(dicts)
     sendins.TCP_send(ins)
+    # print ins
     
     return render_template('./client/monitor.html',display_datadict=None)
 
@@ -399,6 +405,7 @@ def instruction_write():
     sendins = Connect()
     datalist = []
     datalist.append("82")
+    datalength = ""
     dicts = {}
     if request.method == 'POST':
         recvdata = request.form['write_data']
@@ -410,10 +417,13 @@ def instruction_write():
                 datalength = "0"+hex(len(recvdata)/2)[2:]
             else:
                 datalength = hex(len(recvdata))[2:]
+        else:
+            display = Display()
+            recvdata = display.write_display() #旧数据
         transmit_type = request.form['mySelect2']
         nodeip = request.form['nodeIP2']
-
-    datalist.append(datalength)
+    if datalength:
+        datalist.append(datalength)
     datalist.append(recvdata)
     data = ''.join(datalist)
     dicts["type"] = transmit_type
@@ -424,10 +434,10 @@ def instruction_write():
         addrlist = []
         addrlist.append(nodeip)
         dicts["addrList"] = addrlist
+        ins = json.dumps(dicts)
 
     sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
-
 @app.route('/instruction_restart/', methods=['POST', 'GET'])
 @app.route('/instruction_restart', methods=['POST', 'GET'])
 #重启指令下发
@@ -446,8 +456,8 @@ def instruction_restart():
         addrlist.append(nodeip)
         dicts["addrList"] = addrlist
         ins = json.dumps(dicts)
-
-    sendins.TCP_send(ins)
+    print ins
+    # sendins.TCP_send(ins)
     return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_reset/', methods=['POST', 'GET'])
@@ -470,6 +480,7 @@ def instruction_reset():
         ins = json.dumps(dicts)
     
     sendins.TCP_send(ins)
+    # print ins
     return render_template('./client/monitor.html',display_datadict=None)
 
 @app.route('/instruction_adjtime/', methods=['POST', 'GET'])
@@ -483,7 +494,10 @@ def instruction_adjtime():
         recvdata = request.form['timeperiod']
         if recvdata:
             modify.adjtime_modify(recvdata)
-            dicts["pama_data"] = recvdata   
+        else:
+            display = Display()
+            recvdata = display.adjtime_display() #旧数据
+    dicts["pama_data"] = recvdata
     dicts["type"] = "pama_corr"
     ins = json.dumps(dicts)
     
@@ -563,8 +577,9 @@ def instruction3():
         data = ''.join(datalist)
         dicts["pama_data"] = data
         ins = json.dumps(dicts)
-
+    # print "adsadsfasdf"
     sendins.TCP_send(ins)
+    # return 
     return render_template('./client/monitor.html',display_datadict=None)
 
 
@@ -598,7 +613,23 @@ def scheduling():
     lists= json.dumps(dicts)
     return render_template('./client/scheduling.html',scheduleNow=lists)
 
+@app.route('/setall_schedule/',methods=['POST', 'GET'])
+@app.route('/setall_schedule',methods=['POST', 'GET'])
+def setall_schedule():
+    if request.method == 'POST':
+        syn_config = Config()
+        syn_config.bitmap_checkall()
+    return "1"
 
+@app.route('/cancelall_schedule/',methods=['POST', 'GET'])
+@app.route('/cancelall_schedule',methods=['POST', 'GET'])
+def cancelall_schedule():
+    if request.method == 'POST':
+        syn_config = Config()
+        syn_config.bitmap_cancelall()
+    return "2"
+
+    
 @app.route('/update_schedule/',methods=['POST', 'GET'])
 def update_schedule():
     syn_config = Config()
@@ -659,13 +690,17 @@ def monitor_update_period():
         recvdata = request.form['update_period']
         if recvdata:
             modify.monitor_update_period_modify(recvdata)
-            if (int(recvdata)<16):
-                dicts["pama_data"] = "410" + hex(int(recvdata))[2:]
-            else:
-                dicts["pama_data"] = "41"+ hex(int(recvdata))[2:]   
+        else:
+            display = Display()
+            recvdata = display.monitor_update_period_display()
+        if (int(recvdata)<16):
+            dicts["pama_data"] = "410" + hex(int(recvdata))[2:]
+        else:
+            dicts["pama_data"] = "41"+ hex(int(recvdata))[2:]
     dicts["type"] = "mcast_ack"
     ins = json.dumps(dicts)
     sendins.TCP_send(ins)
+    # print ins
     return render_template('./client/sendmonitor.html')
 
 @app.route('/post_monitor_data/', methods=['POST', 'GET'])

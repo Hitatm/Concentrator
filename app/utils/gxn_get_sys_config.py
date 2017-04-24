@@ -55,6 +55,18 @@ class Config:
         self.write_config()
         return
 
+    def bitmap_checkall(self):
+        lists = [255]*18
+        self.CONFIG_DICT['bitmap']=lists
+        self.write_config()
+        return
+
+    def bitmap_cancelall(self):
+        lists = [0]*18
+        self.CONFIG_DICT['bitmap']=lists
+        self.write_config()
+        return
+
     def get_active_list(self):
         bitlist= self.CONFIG_DICT['bitmap']
         self.get_system_time()

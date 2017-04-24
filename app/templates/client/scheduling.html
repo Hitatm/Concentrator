@@ -6,6 +6,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>网络服务调度</title>
     <link href="../../static/ui-chose/src/ui-choose.css" rel="stylesheet" type="text/css"/>
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+
+    <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+
 
 	<style>
     .demo-box {
@@ -24,18 +28,16 @@
         border-bottom: 1px dashed #ccc;
         height: 40px;
         margin-bottom: 20px;
-        font: 18px/1.2 normal 'microsoft yahei';
     }
 
     .demo-table tr td {
         padding: 0px 10px;
-        font: 16px/1.8 normal 'microsoft yahei';
         vertical-align: top;
     }
 
     .ui-input {
         vertical-align: top;
-        height: 18px;
+        height: 20px;
         font-size: 16px;
         line-height: 20px;
         border: 1px solid #aaa;
@@ -60,7 +62,7 @@
 <body>
 
 	<header class="jq22-header">
-	<h1>选择网络调度</h1>
+	<h1 style="font-size:20px">选择网络调度</h1>
 	</header>
 	                    <select class="ui-choose" multiple="multiple" id="uc_example" >
 	                        <option value="0">00:00</option>
@@ -208,11 +210,53 @@
                             <option value="142">23:40</option>
                             <option value="143">23:50</option>
                         </select>
-<button onclick="sendmap()" class="btn btn-success">Send</button>
-<br />
-<input type="text" id="period" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="请输入时间同步周期"/>
-<button class="btn btn-primary" onclick="sendmap_withtime()">时间同步周期设置</button>
+<br>
+<input type="text" id="period" style="height: 40px;" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="请输入时间同步周期"/>
+<button class="btn btn-primary" onclick="sendmap_withtime()" style="font-size:18px">时间同步周期设置</button>
+&nbsp;&nbsp;&nbsp;
+<button onclick="sendmap()" class="btn btn-success" style="font-size:18px">下发调度</button>
+<button class="btn btn-warning" onclick="chooseall()" style="font-size:18px">全选</button>
+<button class="btn btn-info" onclick="cancelall()" style="font-size:18px">全部取消</button>
 
+
+
+<script type="text/javascript">
+    function chooseall(){
+         $.ajax({
+        type:"post",
+        url:"{{url_for('setall_schedule')}}",
+        cache:false,
+        contentType: "application/json;charset=UTF-8",
+        dataType:"json",
+        success: function(dat) { 
+            if (dat =="1")
+            {
+                 location.reload();
+            }
+        }
+    });
+    }
+
+</script>
+
+<script type="text/javascript">
+    function cancelall(){
+         $.ajax({
+        type:"post",
+        url:"{{url_for('cancelall_schedule')}}",
+        cache:false,
+        contentType: "application/json;charset=UTF-8",
+        dataType:"json",
+        success: function(dat) { 
+            if (dat =="2")
+            {
+                 location.reload();
+            }
+        }
+    });
+    }
+
+</script>
 
 	<script>
 	// 将所有.ui-choose实例化
