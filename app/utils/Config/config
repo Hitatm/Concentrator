@@ -1,1 +1,1 @@
-{"hour": "16", "level": 0, "seqNum": 17, "state": true, "bitmap": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "second": "44", "period": "20", "minute": "38"}
+{"hour": "17", "level": 0, "seqNum": 17, "second": "44", "bitmap": [128, 0, 0, 0, 8, 0, 0, 0, 0, 128, 0, 0, 0, 8, 0, 0, 0, 0], "state": true, "period": "20", "minute": "06"}

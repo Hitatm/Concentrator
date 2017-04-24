@@ -67,6 +67,24 @@ class Config:
         self.write_config()
         return
 
+    def recommend_schedule1(self):
+        lists = [170]*18
+        self.CONFIG_DICT['bitmap']=lists
+        self.write_config()
+        return
+
+    def recommend_schedule2(self):
+        lists = [128, 0, 0, 0, 8, 0, 0, 0, 0, 128, 0, 0, 0, 8, 0, 0, 0, 0]
+        self.CONFIG_DICT['bitmap']=lists
+        self.write_config()
+        return
+
+    def recommend_schedule3(self):
+        lists = [130, 8, 32, 130, 8, 32, 130, 8, 32, 130, 8, 32, 130, 8, 32, 130, 8, 32]
+        self.CONFIG_DICT['bitmap']=lists
+        self.write_config()
+        return
+
     def get_active_list(self):
         bitlist= self.CONFIG_DICT['bitmap']
         self.get_system_time()

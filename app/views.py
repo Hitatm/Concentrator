@@ -627,6 +627,30 @@ def cancelall_schedule():
         syn_config = Config()
         syn_config.bitmap_cancelall()
     return "2"
+@app.route('/recommend_schedule1/',methods=['POST', 'GET'])
+@app.route('/recommend_schedule1',methods=['POST', 'GET'])
+def recommend_schedule1():
+    if request.method == 'POST':
+        syn_config = Config()
+        syn_config.recommend_schedule1()
+    return "2"
+
+@app.route('/recommend_schedule2/',methods=['POST', 'GET'])
+@app.route('/recommend_schedule2',methods=['POST', 'GET'])
+def recommend_schedule2():
+    if request.method == 'POST':
+        syn_config = Config()
+        syn_config.recommend_schedule2()
+    return "2"
+
+@app.route('/recommend_schedule3/',methods=['POST', 'GET'])
+@app.route('/recommend_schedule3',methods=['POST', 'GET'])
+def recommend_schedule3():
+    if request.method == 'POST':
+        syn_config = Config()
+        syn_config.recommend_schedule3()
+    return "2"
+
 
     
 @app.route('/update_schedule/',methods=['POST', 'GET'])
