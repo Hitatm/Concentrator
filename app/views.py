@@ -129,7 +129,7 @@ def deploy_info():
 @app.route('/deploy_modify/', methods=['POST', 'GET'])
 @app.route('/deploy_modify', methods=['POST', 'GET'])
 def deploy_modify():
-    flag = 0  #flag==0 未修改 flag==1 修改了 flag==2 NodeID长度过长 flag==3 NodeID长度为3 flag==4 NodeID长度为2 flag==5 NodeID长度为1
+    flag = 0  #flag==0 未修改 flag==1 修改了 flag==2 NodeID长度过长 flag==3 NodeID长度为3 flag==4 NodeID长度为2 flag==5 NodeID长度为1 flag==1 NodeID长度为4
     if request.method == 'POST':
         ID = request.form["ID"]
         old_data = DATABASE.my_db_execute("select ID, NodeID, MeterID, Place from NodePlace where ID=?;",(ID,))
@@ -161,15 +161,36 @@ def deploy_modify():
         elif flag==2:
             return "节点ID长度过长，请重新输入！(4位)"
         elif flag==3:
-            DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
-            DATABASE.db_del_or_insert("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("0"+str(NodeID)),Place,str(MeterID)))
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",("0"+str(NodeID),))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
+                DATABASE.db_del_or_insert("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("0"+str(NodeID)),Place,str(MeterID)))
             return "更改成功"
         elif flag==4:
-            DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",("00"+str(NodeID),))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
+                DATABASE.db_del_or_insert("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("00"+str(NodeID)),Place,str(MeterID)))
             return "更改成功"
         elif flag==5:
-            DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
-            DATABASE.db_del_or_insert("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("000"+str(NodeID)),Place,str(MeterID)))
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",("000"+str(NodeID),))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
+                DATABASE.db_del_or_insert("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,str("000"+str(NodeID)),Place,str(MeterID)))
+            return "更改成功"
+        elif flag==1:
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",(NodeID,))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
+                DATABASE.db_del_or_insert("insert into NodePlace (ID,NodeID,Place,MeterID) VALUES (?,?,?,?);",(ID,NodeID,Place,str(MeterID)))
             return "更改成功"
         else:
             DATABASE.db_del_or_insert("delete from NodePlace where ID = ?;",(ID,))
@@ -212,11 +233,23 @@ def deploy_add():
         elif len(NodeID) > 4:
             return "节点ID长度过长，请重新输入！(4位)"
         elif len(NodeID) == 3:
-            DATABASE.db_del_or_insert("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("0"+str(NodeID),Place,str(MeterID)))
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",("0"+str(NodeID),))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("0"+str(NodeID),Place,str(MeterID)))
         elif len(NodeID) == 2:
-            DATABASE.db_del_or_insert("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("00"+str(NodeID),Place,str(MeterID)))
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",("00"+str(NodeID),))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("00"+str(NodeID),Place,str(MeterID)))
         elif len(NodeID) == 1:
-            DATABASE.db_del_or_insert("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("000"+str(NodeID),Place,str(MeterID)))
+            node=DATABASE.my_db_execute("select NodeID from NodePlace where NodeID=?;",("000"+str(NodeID),))
+            if node:
+                return "Error,节点已存在" #节点已存在
+            else:
+                DATABASE.db_del_or_insert("insert into NodePlace (NodeID,Place,MeterID) VALUES (?,?,?);",("000"+str(NodeID),Place,str(MeterID)))
      
     nodeplace = DATABASE.my_db_execute("select ID, NodeID, MeterID, Place from NodePlace;",None)
     return "添加成功"
@@ -891,7 +924,7 @@ def count_appdata():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
     # conn = sqlite3.connect(databasepath)
 
-    node = DATABASE.my_db_execute('select distinct NodeID from NodePlace;',None)
+    node = DATABASE.my_db_execute('select distinct NodeID from ApplicationData;',None)
     # conn.close()
     nodelist = list()
     for i in range(len(node)):
@@ -925,7 +958,7 @@ def count_appdata():
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
 def appdataanalyzer():
     nodeid_list = list()
-    appdata = DATABASE.my_db_execute('select distinct NodeID from NodePlace;',None)
+    appdata = DATABASE.my_db_execute('select distinct NodeID from ApplicationData;',None)
     for i in range(len(appdata)):
         nodeid_list.append(appdata[i][0].encode('ascii'))
     # conn.close()
