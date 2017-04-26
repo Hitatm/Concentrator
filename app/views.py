@@ -106,11 +106,12 @@ def upload_modify():
         if val9:
             config_dicts["serverIp"] = val9
         json_config_dicts = json.dumps(config_dicts)
-        conf_file = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
-        with open(conf_file, 'w') as f:
-            f.write(json_config_dicts)
-            f.close()
-
+        # print json_config_dicts
+        # conf_file = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
+        # with open(conf_file, 'w') as f:
+        #     f.write(json_config_dicts)
+        #     f.close()
+        c.update_config(json_config_dicts)
         return "It works"
     else:
         return "Error when writing to the config.json file"
@@ -1062,7 +1063,10 @@ def terminaltool():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        return redirect('http://192.168.1.152:6175/')
+        config=Connect()
+        url="http://"+config.all_config_json()["serverIp"]+":6175"
+        # print url
+        return redirect(url)
         # return render_template('./systemctrl/index.html')
 
 # ----------------------------------------------一异常信息页面---------------------------------------------

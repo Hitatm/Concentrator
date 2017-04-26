@@ -9,7 +9,6 @@ class Connect:
 	def __init__(self):
 		self.Config_FILE = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
 		f=open(self.Config_FILE,'r')
-		# print json.load(f)
 		self.CONFIG_DICT =json.load(f)
 		f.close()
 
@@ -43,9 +42,14 @@ class Connect:
 		display_dict["ftpPwd"] = self.CONFIG_DICT['ftpPwd']
 		display_dict["ftpPort"] = self.CONFIG_DICT['ftpPort']
 		display_dict["serverIp"] = self.CONFIG_DICT['serverIp']
-
 		return display_dict
-		
+	def update_config(self,dicts):
+		with open(self.Config_FILE, 'w') as f:
+			f.write(dicts)
+			f.close()
+		f=open(self.Config_FILE,'r')
+		self.CONFIG_DICT =json.load(f)
+		f.close()
 
 
 
