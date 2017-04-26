@@ -105,7 +105,7 @@
 <div>
     <div class="container ">
        
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('appdataanalyzer')}}">
+        <form class="navbar-form navbar-left" enctype="multipart/form-data" method="POST" action="{{url_for('appdataanalyzer')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -117,8 +117,7 @@
                                  <input type="hidden" id="timesrange" name="field_name"  />
                                  
                         </div>
-                        节点选择:&nbsp;&nbsp;
-                        <select id="nodeselect" name="nodeselect">
+                        <select id="nodeselect" class="form-control"  name="nodeselect">
                         {% for node in nodelist: %}
                             <option value={{node}}>&nbsp;{{node}}&nbsp;</option>
                         {% endfor %}
