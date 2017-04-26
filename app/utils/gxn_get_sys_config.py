@@ -99,7 +99,7 @@ class Config:
 
     def write_config(self):
         with open(self.Config_FILE, 'w') as f:
-            f.write(json.dumps(self.CONFIG_DICT))
+            f.write(json.dumps(self.CONFIG_DICT,sort_keys=True,indent =4,separators=(',', ': '),encoding="gbk",ensure_ascii=True))
             f.close()
     def get_New_Synconfig(self):
         f=open(self.Config_FILE,'r')

@@ -105,7 +105,7 @@ def upload_modify():
         val9 = request.form.get("serverIp")
         if val9:
             config_dicts["serverIp"] = val9
-        json_config_dicts = json.dumps(config_dicts)
+        json_config_dicts = json.dumps(config_dicts,sort_keys=True,indent =4,separators=(',', ': '),encoding="gbk",ensure_ascii=True)
         # print json_config_dicts
         # conf_file = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
         # with open(conf_file, 'w') as f:
@@ -643,7 +643,7 @@ def scheduling():
     syn_config = Config()
     l=syn_config.get_active_list()
     dicts={'lists':l}
-    lists= json.dumps(dicts)
+    lists= json.dumps(dicts,sort_keys=True,indent =4,separators=(',', ': '),encoding="gbk",ensure_ascii=True)
     return render_template('./client/scheduling.html',scheduleNow=lists)
 
 @app.route('/setall_schedule/',methods=['POST', 'GET'])
