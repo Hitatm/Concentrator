@@ -23,7 +23,7 @@ class DBClass:
 		conn = sqlite3.connect(self.DB_FILE)
 		c = conn.cursor()
 		if parameter!=None:
-			print parameter
+			# print parameter
 			c.execute(str_exe,parameter)
 		else:
 			c.execute(str_exe)

@@ -39,9 +39,10 @@ HIT_USER ='root'#用户名
 HIT_PWD  ='xiaoming'  #默认密码
 TOPODATA   = None #login
 REALDATA   = None #login
-TPDECODE   =TopoDecode()
 DATABASE   =DBClass()
-TOPODATA_DICT =collections.OrderedDict()
+
+# TOPODATA_DICT =collections.OrderedDict()
+# TPDECODE   =TopoDecode()
 
 NODE_DICT_NET=dict()
 NODE_SET=set()
@@ -104,12 +105,13 @@ def upload_modify():
         val9 = request.form.get("serverIp")
         if val9:
             config_dicts["serverIp"] = val9
-        json_config_dicts = json.dumps(config_dicts)
-        conf_file = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
-        with open(conf_file, 'w') as f:
-            f.write(json_config_dicts)
-            f.close()
-
+        json_config_dicts = json.dumps(config_dicts,sort_keys=True,indent =4,separators=(',', ': '),encoding="gbk",ensure_ascii=True)
+        # print json_config_dicts
+        # conf_file = os.path.join(app.config['CONFIG_FOLDER'],"config.json")
+        # with open(conf_file, 'w') as f:
+        #     f.write(json_config_dicts)
+        #     f.close()
+        c.update_config(json_config_dicts)
         return "It works"
     else:
         return "Error when writing to the config.json file"
@@ -257,13 +259,18 @@ def deploy_add():
 @app.route('/node_search/', methods=['POST', 'GET'])
 @app.route('/node_search', methods=['POST', 'GET'])
 def node_search():
+    time_list = list()
+    voltage_list = list()
     nodeid_list = list()
+
     nodeid = DATABASE.my_db_execute('select distinct NodeID from NetMonitor;',None)
     for i in range(len(nodeid)):
         nodeid_list.append(nodeid[i][0].encode('ascii'))
-    # print nodeid_list
-    # print cpu,lpm,tx,rx
+    nodeid_list.sort()
+ 
 
+
+    cpu ,lpm ,tx ,rx=[0,0,0,0]
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -274,36 +281,50 @@ def node_search():
         nodepick  =  request.form['nodeselect']
 
         voltage = DATABASE.my_db_execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        time_list = list()
-        voltage_list = list()
         for i in range(len(voltage)):
             time_list.append(voltage[i][0].encode('ascii'))
             voltage_list.append(voltage[i][1])
-        # print time_list
 
-        display = DATABASE.my_db_execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        appdata = DATABASE.my_db_execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
 
-        cpucost = DATABASE.my_db_execute('select CPU from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        if cpucost:
-            cpu=float(cpucost[0][0])/32768
-        lpmcost = DATABASE.my_db_execute('select LPM from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        if lpmcost:
-           lpm=float(lpmcost[0][0])/32768
-        txcost = DATABASE.my_db_execute('select TX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        if txcost:
-            tx=float(txcost[0][0])/32768
-        rxcost = DATABASE.my_db_execute('select RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
-        if rxcost:
-            rx=float(rxcost[0][0])/32768
-        # conn.close()
-        # print nodepick,cpu,rx,tx,lpm
+        energycost = DATABASE.my_db_execute('select CPU,LPM,TX,RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
+        cpu= round(float(energycost[0][0])/32768,2)
+        lpm= round(float(energycost[0][1])/32768,2)
+        tx = round(float(energycost[0][2])/32768,2)
+        rx = round(float(energycost[0][3])/32768,2)           
+
+        index_of_pick=nodeid_list.index(nodepick)
+        temp=nodeid_list[index_of_pick]
+        nodeid_list[index_of_pick]=nodeid_list[0]
+        nodeid_list[0]=temp
+        nodepick  =  "\""+nodepick+"\""
+
+        # print nodepick,nodeid_list,cpu,lpm,tx,rx,voltage_list,time_list
+
         return render_template('./dataanalyzer/node_search.html',
-            nodeid=nodepick,nodelist = nodeid_list,pcaps=display,
-            appdata=appdata,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
+            nodeid=nodepick,nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
             voltage_list=voltage_list,time_list=time_list)
     else:
-        return render_template('./dataanalyzer/node_search.html',nodelist = nodeid_list)
+        nodepick    =  nodeid_list[0]
+        end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+        start_time  = strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 24*60*60))
+
+        voltage = DATABASE.my_db_execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        for i in range(len(voltage)):
+            time_list.append(voltage[i][0].encode('ascii'))
+            voltage_list.append(voltage[i][1])
+
+        energycost = DATABASE.my_db_execute('select CPU,LPM,TX,RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
+        cpu= round(float(energycost[0][0])/32768,2)
+        lpm= round(float(energycost[0][1])/32768,2)
+        tx = round(float(energycost[0][2])/32768,2)
+        rx = round(float(energycost[0][3])/32768,2)    
+
+
+        nodepick  =  "\""+nodepick+"\""
+        # print nodepick,nodeid_list,cpu,lpm,tx,rx,voltage_list,time_list
+        return render_template('./dataanalyzer/node_search.html',
+            nodeid=nodepick,nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
+            voltage_list=voltage_list,time_list=time_list)
 
 @app.route('/network_data/', methods=['POST', 'GET'])
 @app.route('/network_data', methods=['POST', 'GET'])
@@ -641,7 +662,7 @@ def scheduling():
     syn_config = Config()
     l=syn_config.get_active_list()
     dicts={'lists':l}
-    lists= json.dumps(dicts)
+    lists= json.dumps(dicts,sort_keys=True,indent =4,separators=(',', ': '),encoding="gbk",ensure_ascii=True)
     return render_template('./client/scheduling.html',scheduleNow=lists)
 
 @app.route('/setall_schedule/',methods=['POST', 'GET'])
@@ -1026,7 +1047,7 @@ def topodisplay():
             m = {"source":key.encode('ascii'), "target":value.encode('ascii'), "weight":1}
             links.append(m)
 
-        return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)
+        return render_template('./dataanalyzer/topodisplay.html', Parentnode =nodes  ,nodes = Parentnode, links = links)
     else:
         Parentnode = dict()
         t = time.time()
@@ -1075,7 +1096,10 @@ def terminaltool():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     else:
-        return redirect('http://192.168.1.152:6175/')
+        config=Connect()
+        url="http://"+config.all_config_json()["serverIp"]+":6175"
+        # print url
+        return redirect(url)
         # return render_template('./systemctrl/index.html')
 
 # ----------------------------------------------一异常信息页面---------------------------------------------
@@ -1201,6 +1225,10 @@ def supervisor_stop_all():
 
 
 
+
+@app.route('/test/', methods=['POST', 'GET'])
+def test():
+    return render_template('./upload/timestamp.html')
 # ----------------------------------------------数据包构造页面---------------------------------------------
 #协议说明
 @app.route('/nettools/', methods=['POST', 'GET'])

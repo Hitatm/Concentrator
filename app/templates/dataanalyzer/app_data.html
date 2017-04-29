@@ -34,7 +34,7 @@
 <script type="text/javascript">
         $(document).ready(function (){
                     // 时间插件
-                    $('#reportrange span').html(moment().subtract('hours', 6).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
+                    $('#reportrange span').html(moment().subtract('hours', 24).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
                     $('#timesrange').val(($('#reportrange span').html()));
                     
                     $('#reportrange').daterangepicker(
@@ -136,7 +136,7 @@ function ifnull() {
 </div>
     <div class="container">
        
-        <form enctype="multipart/form-data" method="POST" id="myform" action="{{url_for('app_data')}}">
+        <form class="navbar-form navbar-left" enctype="multipart/form-data" method="POST" id="myform" action="{{url_for('app_data')}}">
 
                    <h4>请选择时间段:</h4>
             <div class="controls">
@@ -149,21 +149,19 @@ function ifnull() {
                          
                 </div>
 
-                <select name="filter_type" id="filter">&nbsp;&nbsp;
+                <select  class="form-control" name="filter_type" id="filter">&nbsp;&nbsp;
                     <option value="all" selected>所&nbsp;&nbsp;&nbsp;&nbsp;有</option>
                     <option value="ID">节点&nbsp;&nbsp;&nbsp;ID</option>
-                </select>&nbsp;&nbsp;
-              <input type="text" id="proto" name="value">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            
+                </select> 
+              <input type="text" class="form-control" id="proto" name="value">
+
                 <button type="button" class="btn btn-success" onclick="ifnull()">&nbsp;提&nbsp;&nbsp;&nbsp;交&nbsp;</button>
                 
             </div>
             
         　</form> 
     </div>  
-
-<br>
-<h2 align="center">应用数据</h2>
+  <hr>
     <table class="table table-hover table-responsive  table-condensed table-striped">
       <thead>
         <tr>
