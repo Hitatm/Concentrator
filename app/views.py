@@ -1010,6 +1010,8 @@ def appdataanalyzer():
 # 拓扑展示
 @app.route('/topodisplay/', methods=['POST', 'GET'])
 def topodisplay():
+    getrootaddr = Connect()
+    rootID = str(getrootaddr.rootaddr())[-2:]
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -1035,19 +1037,37 @@ def topodisplay():
             else:
                 Parentnode[ID] = ParentID
         # 遍历Parentnode的key，绘制散点图；遍历Parentnode的key和value，画箭头
+
         nodes = list()
         links = list()
         n = dict()
         m = dict()
-        for key ,value in Parentnode.items():
-            # n = {"category":1, "name":key.encode('ascii')}
-            n = {"category":1, "name":key.encode('ascii')}
-            nodes.append(n)
-            # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
-            m = {"source":key.encode('ascii'), "target":value.encode('ascii'), "weight":1}
-            links.append(m)
+        if rootID not in Parentnode.keys():
+            rootIDjson = {"category":3, "name":"root:"+str(rootID.encode('ascii'))}
+            nodes.append(rootIDjson)
+            for key ,value in Parentnode.items():
+                n = {"category":1, "name":key.encode('ascii')}
+                # n = "{category:2, name:"+str(key)+"}"
+                nodes.append(n)
+                # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                links.append(m)
+        else:
+            for key ,value in Parentnode.items():
+                if key==rootID:
+                    n = {"category":3, "name":key.encode('ascii')}
+                    nodes.append(n)
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
+                else:
+                    n = {"category":1, "name":key.encode('ascii')}
+                    # n = "{category:2, name:"+str(key)+"}"
+                    nodes.append(n)
+                    # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
 
-        return render_template('./dataanalyzer/topodisplay.html', Parentnode =nodes  ,nodes = Parentnode, links = links)
+        return render_template('./dataanalyzer/topodisplay.html',nodes = nodes, links = links)
     else:
         Parentnode = dict()
         t = time.time()
@@ -1076,15 +1096,33 @@ def topodisplay():
         links = list()
         n = dict()
         m = dict()
-        for key ,value in Parentnode.items():
-            n = {"category":1, "name":key.encode('ascii')}
-            # n = "{category:2, name:"+str(key)+"}"
-            nodes.append(n)
-            # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
-            m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
-            links.append(m)
+        if lasttime:
+            if rootID not in Parentnode.keys():
+                rootIDjson = {"category":3, "name":"root:"+str(rootID.encode('ascii'))}
+                nodes.append(rootIDjson)
+                for key ,value in Parentnode.items():
+                    n = {"category":1, "name":key.encode('ascii')}
+                    # n = "{category:2, name:"+str(key)+"}"
+                    nodes.append(n)
+                    # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
+        else:
+            for key ,value in Parentnode.items():
+                if key==rootID:
+                    n = {"category":3, "name":key.encode('ascii')}
+                    nodes.append(n)
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
+                else:
+                    n = {"category":1, "name":key.encode('ascii')}
+                    # n = "{category:2, name:"+str(key)+"}"
+                    nodes.append(n)
+                    # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
 
-        return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)
+        return render_template('./dataanalyzer/topodisplay.html',nodes = nodes, links = links)
 
 
 
