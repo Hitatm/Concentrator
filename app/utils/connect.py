@@ -31,6 +31,9 @@ class Connect:
 	def all_config_json(self):
 		return self.CONFIG_DICT
 
+	def rootaddr(self):
+		return self.CONFIG_DICT["rootAddr"]
+
 	def display_config(self):
 		display_dict = dict()
 		display_dict["id"] = self.CONFIG_DICT['id']

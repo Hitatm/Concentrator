@@ -19,11 +19,11 @@
         -86,
         -86
     ],
-    "hour": "22",
+    "hour": "15",
     "level": 0,
-    "minute": "46",
-    "period": "1",
-    "second": "51",
+    "minute": "58",
+    "period": 0,
+    "second": "57",
     "seqNum": 17,
     "state": true
 }

@@ -18,13 +18,12 @@ from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,star
 
 import os
 import collections
-import time
-from time import strftime,gmtime
+import time,datetime
+from time import strftime
 # import sqlite3
 import socket
 import json
 import math
-
 
 #导入函数到模板中
 app.jinja_env.globals['enumerate'] = enumerate
@@ -998,26 +997,34 @@ def appdataanalyzer():
         data_list = list()
         for i in range(len(appdata)):
             time_list.append(appdata[i][0].encode('ascii'))
-            data_list.append(appdata[i][1].encode('ascii'))
+            data_list.append(len(appdata[i][1]))
         time_list = sorted(time_list)
         data_list = sorted(data_list)
+        # print time_list,data_list
         return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=time_list,Datalist=data_list,NodeID=nodepick, nodelist = nodeid_list)
     else:
-        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodeid_list, currenttime=[],Datalist=[],NodeID="1")
+        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodeid_list, currenttime=[],Datalist=[],NodeID="")
     
 
 
 # 拓扑展示
 @app.route('/topodisplay/', methods=['POST', 'GET'])
 def topodisplay():
+    getrootaddr = Connect()
+    rootID = str(getrootaddr.rootaddr())[-2:]
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     elif request.method == 'POST':
         selectime  =  request.form['field_name']
-        start_time = selectime.encode("utf-8")[0:19]
-        end_time = selectime.encode("utf-8")[22:41]
-
+        echarts_start_time = selectime.encode("utf-8")[0:19]
+        echarts_end_time = selectime.encode("utf-8")[22:41]
+        lasttime = DATABASE.my_db_execute("select currenttime from NetMonitor where currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(echarts_start_time, echarts_end_time))
+        real_end_time = time.mktime(time.strptime(lasttime[0][0],'%Y-%m-%d %H:%M:%S')) #取选定时间内的最后一个时间，算这个时间与它前十分钟内的数据
+        real_start_time = real_end_time - 10 * 60
+        start_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
+        end_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+        # print start_time, end_time, type(start_time)
         ID_list = DATABASE.my_db_execute("select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         # print ID_list
         Parentnode = dict()
@@ -1030,48 +1037,92 @@ def topodisplay():
             else:
                 Parentnode[ID] = ParentID
         # 遍历Parentnode的key，绘制散点图；遍历Parentnode的key和value，画箭头
+
         nodes = list()
         links = list()
         n = dict()
         m = dict()
-        for key ,value in Parentnode.items():
-            # n = {"category":1, "name":key.encode('ascii')}
-            n = {"category":1, "name":key.encode('ascii')}
-            nodes.append(n)
-            # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
-            m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
-            links.append(m)
+        if rootID not in Parentnode.keys():
+            rootIDjson = {"category":3, "name":"root:"+str(rootID.encode('ascii'))}
+            nodes.append(rootIDjson)
+            for key ,value in Parentnode.items():
+                n = {"category":1, "name":key.encode('ascii')}
+                # n = "{category:2, name:"+str(key)+"}"
+                nodes.append(n)
+                # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                links.append(m)
+        else:
+            for key ,value in Parentnode.items():
+                if key==rootID:
+                    n = {"category":3, "name":key.encode('ascii')}
+                    nodes.append(n)
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
+                else:
+                    n = {"category":1, "name":key.encode('ascii')}
+                    # n = "{category:2, name:"+str(key)+"}"
+                    nodes.append(n)
+                    # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
 
-        return render_template('./dataanalyzer/topodisplay.html', Parentnode =nodes  ,nodes = Parentnode, links = links)
+        return render_template('./dataanalyzer/topodisplay.html',nodes = nodes, links = links)
     else:
+        Parentnode = dict()
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-        ID_list = DATABASE.my_db_execute("select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        # print ID_list
-        Parentnode = dict()
-        # Childnode = dict()
-        for node in ID_list:
-            ID = node[0] # ID
-            ParentID = node[1] # parentID
-            if ID in Parentnode:
-                continue
-            else:
-                Parentnode[ID] = ParentID
+        lasttime = DATABASE.my_db_execute("select currenttime from NetMonitor where currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(previous_time, current_time))
+        if lasttime:
+            real_end_time = time.mktime(time.strptime(lasttime[0][0],'%Y-%m-%d %H:%M:%S')) #取选定时间内的最后一个时间，算这个时间与它前十分钟内的数据
+            real_start_time = real_end_time - 10 * 60
+            start_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
+            end_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+            # print start_time, end_time
+            ID_list = DATABASE.my_db_execute("select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+            # print ID_list
+            
+            # Childnode = dict()
+            for node in ID_list:
+                ID = node[0] # ID
+                ParentID = node[1] # parentID
+                if ID in Parentnode:
+                    continue
+                else:
+                    Parentnode[ID] = ParentID
         # 遍历Parentnode的key，绘制散点图；遍历Parentnode的key和value，画箭头
         nodes = list()
         links = list()
         n = dict()
         m = dict()
-        for key ,value in Parentnode.items():
-            n = {"category":1, "name":key.encode('ascii')}
-            # n = "{category:2, name:"+str(key)+"}"
-            nodes.append(n)
-            # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
-            m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
-            links.append(m)
+        if lasttime:
+            if rootID not in Parentnode.keys():
+                rootIDjson = {"category":3, "name":"root:"+str(rootID.encode('ascii'))}
+                nodes.append(rootIDjson)
+                for key ,value in Parentnode.items():
+                    n = {"category":1, "name":key.encode('ascii')}
+                    # n = "{category:2, name:"+str(key)+"}"
+                    nodes.append(n)
+                    # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
+        else:
+            for key ,value in Parentnode.items():
+                if key==rootID:
+                    n = {"category":3, "name":key.encode('ascii')}
+                    nodes.append(n)
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
+                else:
+                    n = {"category":1, "name":key.encode('ascii')}
+                    # n = "{category:2, name:"+str(key)+"}"
+                    nodes.append(n)
+                    # m = "{source:"+str(value)+", target:"+str(key)+", weight:1}"
+                    m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
+                    links.append(m)
 
-        return render_template('./dataanalyzer/topodisplay.html', Parentnode = Parentnode ,nodes = nodes, links = links)
+        return render_template('./dataanalyzer/topodisplay.html',nodes = nodes, links = links)
 
 
 
