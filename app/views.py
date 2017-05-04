@@ -1013,7 +1013,7 @@ def appdataanalyzer():
 @app.route('/topodisplay/', methods=['POST', 'GET'])
 def topodisplay():
     getrootaddr = Connect()
-    rootID = str(getrootaddr.rootaddr())[-2:]
+    rootID = getrootaddr.rootaddr()
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -1021,16 +1021,19 @@ def topodisplay():
         selectime  =  request.form['field_name']
         echarts_start_time = selectime.encode("utf-8")[0:19]
         echarts_end_time = selectime.encode("utf-8")[22:41]
+        # print echarts_start_time
         lasttime = DATABASE.my_db_execute("select currenttime from NetMonitor where currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(echarts_start_time, echarts_end_time))
-        real_end_time = time.mktime(time.strptime(lasttime[0][0],'%Y-%m-%d %H:%M:%S')) #取选定时间内的最后一个时间，算这个时间与它前十分钟内的数据
-        real_start_time = real_end_time - 10 * 60
-        start_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
-        end_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
-        # print start_time, end_time, type(start_time)
-        ID_list = DATABASE.my_db_execute("select NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        # print ID_list
+        if lasttime:
+            real_end_time = time.mktime(time.strptime(lasttime[0][0],'%Y-%m-%d %H:%M:%S')) #取选定时间内的最后一个时间，算这个时间与它前十分钟内的数据
+            real_start_time = real_end_time - 10 * 60
+            start_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
+            end_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+            # print start_time, end_time
+        else:
+            return render_template('./dataanalyzer/topodisplay.html',nodes = [], links = [])
+        ID_list = DATABASE.my_db_execute("select distinct NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        # ID_list = DATABASE.my_db_execute("select distinct NodeID, ParentID from NetMonitor;",None)
         Parentnode = dict()
-        # Childnode = dict()
         for node in ID_list:
             ID = node[0] # ID
             ParentID = node[1] # parentID

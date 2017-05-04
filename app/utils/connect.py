@@ -32,7 +32,8 @@ class Connect:
 		return self.CONFIG_DICT
 
 	def rootaddr(self):
-		return self.CONFIG_DICT["rootAddr"]
+		root =str(self.CONFIG_DICT["rootAddr"].split(":")[-1])
+		return root
 
 	def display_config(self):
 		display_dict = dict()
