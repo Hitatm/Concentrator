@@ -14,7 +14,10 @@ class Config:
         self.CONFIG_DICT =json.load(f)
         f.close()
     def get_active_time(self):
-        bitlist= self.CONFIG_DICT['bitmap']
+        # bitlist= self.CONFIG_DICT['bitmap']
+        # print self.CONFIG_DICT['bitmap']
+        bitlist= self.format_To_originBitMap(self.CONFIG_DICT['bitmap'])
+        # print bitlist
         activetime_dict = dict()
         for index,x in enumerate(bitlist):
             # print x,
@@ -50,13 +53,14 @@ class Config:
             #     data = data - 256
             listbitmap[index]|= (1<<(7-index_2))
             
-        self.CONFIG_DICT['bitmap']=listbitmap
+        # self.CONFIG_DICT['bitmap']=listbitmap
+        self.CONFIG_DICT['bitmap']=self.format_To_SendBitMap(listbitmap)
         # print self.CONFIG_DICT
         self.write_config()
         return
 
     def bitmap_checkall(self):
-        lists = [255]*18
+        lists = [-1]*18
         self.CONFIG_DICT['bitmap']=lists
         self.write_config()
         return
@@ -68,25 +72,28 @@ class Config:
         return
 
     def recommend_schedule1(self):
-        lists = [170]*18
+        lists = [-86]*18
         self.CONFIG_DICT['bitmap']=lists
         self.write_config()
         return
 
     def recommend_schedule2(self):
-        lists = [128, 0, 0, 0, 8, 0, 0, 0, 0, 128, 0, 0, 0, 8, 0, 0, 0, 0]
+        lists = [-128, 0, 0, 0, 8, 0, 0, 0, 0, -128, 0, 0, 0, 8, 0, 0, 0, 0]
         self.CONFIG_DICT['bitmap']=lists
         self.write_config()
         return
 
     def recommend_schedule3(self):
-        lists = [130, 8, 32, 130, 8, 32, 130, 8, 32, 130, 8, 32, 130, 8, 32, 130, 8, 32]
+        lists = [-126, 8, 32, -126, 8, 32, -126, 8, 32, -126, 8, 32, -126, 8, 32, -126, 8, 32]
         self.CONFIG_DICT['bitmap']=lists
         self.write_config()
         return
 
     def get_active_list(self):
-        bitlist= self.CONFIG_DICT['bitmap']
+        # bitlist= self.CONFIG_DICT['bitmap']
+        # print self.CONFIG_DICT['bitmap']
+        bitlist= self.format_To_originBitMap(self.CONFIG_DICT['bitmap'])
+        # print bitlist
         self.get_system_time()
         active_list = []
         for index,x in enumerate(bitlist):
@@ -98,9 +105,11 @@ class Config:
         return active_list
 
     def write_config(self):
+        self.CONFIG_DICT['bitmap'] = self.format_To_SendBitMap(self.CONFIG_DICT['bitmap'])
         with open(self.Config_FILE, 'w') as f:
             f.write(json.dumps(self.CONFIG_DICT,sort_keys=True,indent =4,separators=(',', ': '),encoding="gbk",ensure_ascii=True))
             f.close()
+
     def get_New_Synconfig(self):
         f=open(self.Config_FILE,'r')
         self.CONFIG_DICT =json.load(f)
@@ -110,7 +119,15 @@ class Config:
         # print lists
         for x in xrange(0,len(lists)):
             if int(lists[x]) > 127:
-                lists[x]= int(lists[x])-256
+                lists[x]= int(lists[x]) - 256
+        # print lists
+        return lists
+
+    def format_To_originBitMap(self,lists):
+        for x in xrange(0,len(lists)):
+            if int(lists[x]) < 0:
+                lists[x]= int(lists[x]) + 256
+        # print lists
         return lists
 
 

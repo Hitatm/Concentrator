@@ -715,6 +715,8 @@ def update_schedule():
     if request.method == 'POST':
         data = request.get_json()
         bitmap_array = data['x']
+        if not bitmap_array:
+            bitmap_array = [0]*18
         syn_config.set_SynBitMap(bitmap_array)
         config_dict =syn_config.get_New_Synconfig()
         period = data['p']
