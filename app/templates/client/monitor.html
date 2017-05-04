@@ -97,7 +97,7 @@ function check5(object)
     <div class="container">
         
         <section>
-            <div class="tabs tabs-style-underline">
+            <div class="tabs tabs-style-underline container-fluid">
                 <nav>
                     <ul>
                         <li><a href="#section-underline-1"><span>指令下发</span></a></li>
@@ -111,24 +111,27 @@ function check5(object)
                 <div class="content-wrap">
                     <section id="section-underline-1">
                         <form name="instruction_send" target="iframe1" method="POST" action='{{url_for('instruction_send')}}'>
-                        <legend>指令下发:</legend>
-                        <input type="text" name="emit_data" placeholder={{send_data}}>
+ 
 
-                        <select id="mySelect" name="mySelect" onchange="check(this)">
+                       <hr>
+                       <div class="container">  
+                        <input  style="height:41px; font-size:19px" type="text" name="emit_data" placeholder={{send_data}}>
+                        <select style="height:41px; font-size:19px" id="mySelect"   name="mySelect" onchange="check(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
-                        <br />
+                         <button type="submit" class="btn btn-success" style="height:40px; font-size:19px">指令下发</button>
                         <div id="ipselect" style="display: none">    
-                        节点选择:<select name="nodeIP" onchange="check(this)">
+                        <label>节点选择:</label>
+                        <select style="height:40px; font-size:19px" name="nodeIP" onchange="check(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
                             <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
                             <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
                             <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
-                        <br />
-                        <button type="submit" class="btn btn-success" style="width:107px;height:48px;">指令下发</button>
+                       </div>
+                       
                         
 
                         </form>
@@ -137,16 +140,20 @@ function check5(object)
                     </section>
                     <section id="section-underline-2">
                     <form name="instruction_write" method="POST" target="iframe2" action='{{url_for('instruction_write')}}'>
-                        <legend>指令烧写:</legend>
-                        <input type="text" name="write_data" placeholder="{{write_data}}"/>
+                       <hr>
+                      
+                        <input  style="height:41px; font-size:19px" type="text" name="write_data" placeholder="{{write_data}}"/>
 
-                        <select id="mySelect2" name="mySelect2" onchange="check2(this)">
+                        <select style="height:41px; font-size:19px"  id="mySelect2" name="mySelect2" onchange="check2(this)">
                             <option value="mcast" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
-                        <br />
-                        <div id="ipselect2" style="display: none">    
-                        节点选择:<select name="nodeIP2" onchange="check2(this)">
+                    <button style="height:40px; font-size:19px" type="submit" class="btn btn-success" style="width:107px;height:48px;">指令烧写</button>
+
+                        <div  id="ipselect2" style="display: none">    
+                        <label>节点选择:</label>
+                        
+                        <select style="height:41px; font-size:19px" name="nodeIP2" onchange="check2(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
                             <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
                             <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
@@ -154,7 +161,7 @@ function check5(object)
                         </select>
                         </div>
                         <br />
-                        <button type="submit" class="btn btn-success" style="width:107px;height:48px;">指令烧写</button>
+                      
                         
 
                         </form>
@@ -166,42 +173,44 @@ function check5(object)
         
         <tr>
             <td>
-            <br /><br />
+                       <hr>
+            
     <div class="container-fluid">
         <div class="row-fluid">
             <div class="span12">
                 <form class="form-inline" name="instruction3" target="iframe3" method="POST" action='{{url_for('instruction3')}}'>
                     <fieldset id="box">
-                        <legend>网络参数配置指令下发:(请输入0-255之间的整数)</legend>
-                        PANID:
+                        <span>网络参数配置指令下发:（请输入０～２５５之间的整数）</span>
+                    <hr>
+                        <label> PANID:  </label>
                         <input type="text" name="PANID" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:56px;" placeholder={{display_datadict["PANID"]}}><br />
-                        CCA:
+                        <label> CCA:    </label>
                          <input type="text" name="CCA" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:68px;" placeholder={{display_datadict["CCA"]}}><br />
-                        发射功率:
+                        <label>发射功率:  </label>
                         <input type="text" name="emitpower" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:44px;" placeholder={{display_datadict["emitpower"]}}><br />
-                        CCA检查周期:
+                        <label>CCA检查周期:</label>
                         <input type="text" name="CCAcheckingperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:18px;" placeholder={{display_datadict["CCAcheckingperiod"]}}><br />
-                        inactive:
+                        <label>inactive:  </label>
                         <input type="text" name="inactive" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:50px;" placeholder={{display_datadict["inactive"]}}><br />
-                        channel:
+                        <label>channel:   </label>
                         <input type="text" name="channel" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:48px;" placeholder={{display_datadict["channel"]}}><br />
-                        DIO_minlen:
+                        <label>DIO_minlen: </label>
                         <input type="text" name="DIO_minlen" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:27px;" placeholder={{display_datadict["DIO_minlen"]}}><br />
-                        DIO_max:
+                        <label>DIO_max:    </label>
                         <input type="text" name="DIO_max" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"
                         onblur="if(this.value>255){alert('不能大于255！');this.focus();}"
                         style = "position:relative; left:43px;" placeholder={{display_datadict["DIO_max"]}}><br />
@@ -219,23 +228,27 @@ function check5(object)
                     </section>
                     <section id="section-underline-4">
                         <form name="instruction_restart" target="iframe4" method="POST" action='{{url_for('instruction_restart')}}'>
-                        <legend>节点重启:</legend>
+                       <hr>
+                 
 
-                        <select id="mySelect4" name="mySelect4" onchange="check4(this)">
+                        <select style="height:41px; font-size:19px" id="mySelect4" name="mySelect4" onchange="check4(this)">
                             <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
-                        <br />
-                        <div id="ipselect4" style="display: none">    
-                        节点选择:<select name="nodeIP4" onchange="check4(this)">
+                     　<button style="height:40px; font-size:19px" type="submit" class="btn btn-success">重启指令下发
+                     </button>
+                        <div id="ipselect4" style="display: none">   
+                        <label>节点选择:</label>
+
+                         <select style="height:41px; font-size:19px" name="nodeIP4" onchange="check4(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
                             <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
                             <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
                             <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
-                        <br />
-                        <button type="submit" class="btn btn-success" style="width:107px;height:48px;">重启指令下发</button>
+                 　
+                        
 
                         
 
@@ -245,23 +258,27 @@ function check5(object)
                     </section>
                     <section id="section-underline-5">
                     <form name="instruction_reset" target="iframe5" id="instruction_reset" method="POST" action='{{url_for('instruction_reset')}}'>
-                        <legend>恢复出厂设置:</legend>
+                      
+                       <hr>
 
-                        <select id="mySelect5" name="mySelect5" onchange="check5(this)">
+                        <select style="height:41px; font-size:19px" id="mySelect5" name="mySelect5" onchange="check5(this)">
                             <option value="mcast_ack" selected="selected">&nbsp;多&nbsp;播&nbsp;</option>
                             <option value="unicast_ack" >&nbsp;单&nbsp;播&nbsp;</option>
                         </select>
-                        <br />
+                  　 　
+                        <button style="height:40px; font-size:19px" type="button" class="btn btn-success" onclick="del()" 　>恢复出厂设置</button>
+
                         <div id="ipselect5" style="display: none">    
-                        节点选择:<select name="nodeIP5" onchange="check5(this)">
+                        <label>节点选择:</label>
+                        
+                        <select style="height:41px; font-size:19px" name="nodeIP5" onchange="check5(this)">
                             <option value="aaaa:0:0:0:12:7400:1:13">aaaa:0:0:0:12:7400:1:13</option>
                             <option value="aaaa:0:0:0:12:7400:1:49">aaaa:0:0:0:12:7400:1:49</option>
                             <option value="aaaa:0:0:0:12:7400:1:f3">aaaa:0:0:0:12:7400:1:f3</option>
                             <option value="aaaa:0:0:0:12:7400:1:79">aaaa:0:0:0:12:7400:1:79</option>
                         </select>
                         </div>
-                        <br />
-                        <button type="button" class="btn btn-success" onclick="del()" style="width:107px;height:48px;">恢复出厂设置</button>
+                     
                        
 
                         </form>
@@ -270,11 +287,12 @@ function check5(object)
                     </section>
                     <section id="section-underline-6">
                     <form name="instruction_adjtime" target="iframe6" method="POST" action='{{url_for('instruction_adjtime')}}'>
-                        <legend>设定根节点校时周期:</legend>
+                       <hr>
+                 
                         <input type="text" name="timeperiod" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" onblur="if(this.value>9999){alert('校时周期过长！');this.focus();}"
                          placeholder={{adjtime_data}}>
 
-                        <button type="submit" class="btn btn-success" style="width:160px;height:48px;">设定根节点校时周期</button>
+                        <button style="width:60px　height:40px; font-size:19px" type="submit" class="btn btn-success" 　>设定根节点校时周期</button>
                         
 
                         </form>

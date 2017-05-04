@@ -1,6 +1,6 @@
 {
     "bitmap": [
-        -126,
+        -118,
         8,
         32,
         -126,
@@ -21,9 +21,9 @@
     ],
     "hour": "10",
     "level": 0,
-    "minute": "21",
+    "minute": "24",
     "period": 0,
-    "second": "29",
+    "second": "01",
     "seqNum": 17,
     "state": true
 }

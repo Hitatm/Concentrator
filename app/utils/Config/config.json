@@ -1,4 +1,3 @@
-
 {
     "AckHeartInt": "3",
     "HeartIntSec": "30",
@@ -17,12 +16,12 @@
     "netPort": 12307,
     "remoteAddr": "127.0.0.1",
     "remotePort": "12304",
-    "rootAddr": "aaaa:0:0:0:12:7400:2:18",
+    "rootAddr": "aaaa:0:0:0:12:7400:2:aaa",
     "rootPort": 5678,
     "rootRoomId": "512",
     "rootX": 12,
     "rootY": 20,
-    "serverIp": "192.168.1.180",
+    "serverIp": "127.0.0.1",
     "tcpAddr": "0.0.0.0",
     "tcpByWebPort": 12301,
     "tcpPort": 12300,
