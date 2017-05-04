@@ -96,6 +96,15 @@ def topo_statistic(TOPODATA):
             nodes_dict[ID]=1
     return nodes_dict
 
+def appdata_statistic(APPDATA):
+    nodes_dict = dict()
+    for item in APPDATA:
+        ID = item[0]
+        if ID in nodes_dict:
+            nodes_dict[ID]+=1
+        else:
+            nodes_dict[ID]=1
+    return nodes_dict
 
 def topo_traffic_analyzer(TOPODICT):
     sysCongfig = Config()

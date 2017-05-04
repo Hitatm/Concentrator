@@ -8,7 +8,7 @@ from utils.upload_tools import allowed_file, get_filetype, random_name
  
 from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,topo_filter
 from utils.gxn_topo_decode  import TopoDecode
-from utils.gxn_topo_analyzer import topo_statistic,topo_traffic_statistic,topo_traffic_analyzer
+from utils.gxn_topo_analyzer import topo_statistic,appdata_statistic,topo_traffic_statistic,topo_traffic_analyzer
 from utils.gxn_get_sys_config import Config
 from utils.connect import Connect
 from utils.db_operate import DBClass
@@ -944,14 +944,6 @@ def flowanalyzer():
 @app.route('/count_appdata/', methods=['POST', 'GET'])
 def count_appdata():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
-    # conn = sqlite3.connect(databasepath)
-
-    node = DATABASE.my_db_execute('select distinct NodeID from ApplicationData;',None)
-    # conn.close()
-    nodelist = list()
-    for i in range(len(node)):
-        nodelist.append(node[i][0].encode('ascii'))
-    # print nodelist  
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -959,22 +951,41 @@ def count_appdata():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        countlist = list()
-        for eachnode in nodelist:
-            datacount = DATABASE.my_db_execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, eachnode))
-            countlist.append(datacount[0][0])   
 
-        return render_template('./dataanalyzer/count_appdata.html',nodelist=nodelist, countlist=countlist)
+        node = DATABASE.my_db_execute('select NodeID from ApplicationData where currenttime >= ? and currenttime <= ?;',(start_time, end_time))
+        node_dict = appdata_statistic(node)
+        node_dict = sorted(node_dict.iteritems(), key=lambda d:d[1], reverse=False)
+        node_key_list = list()
+        node_value_list = list()
+        count=0
+        for key, value in node_dict:
+            count+=1
+            if count%2==0:
+                node_key_list.append(key.encode('UTF-8'))
+            else:
+                node_key_list.append(key.encode('UTF-8')+'   ')
+            node_value_list.append(value)
+
+        return render_template('./dataanalyzer/count_appdata.html',nodelist=node_key_list, countlist=node_value_list)
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
-        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-        countlist = list()
-        for eachnode in nodelist:
-            datacount = DATABASE.my_db_execute('select count(*) from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(previous_time, current_time, eachnode))
-            countlist.append(datacount[0][0])     
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
+        node = DATABASE.my_db_execute('select NodeID from ApplicationData where currenttime >= ? and currenttime <= ?;',(previous_time, current_time))
+        node_dict = appdata_statistic(node)
+        node_dict = sorted(node_dict.iteritems(), key=lambda d:d[1], reverse=False)
+        node_key_list = list()
+        node_value_list = list()
+        count=0
+        for key, value in node_dict:
+            count+=1
+            if count%2==0:
+                node_key_list.append(key.encode('UTF-8'))
+            else:
+                node_key_list.append(key.encode('UTF-8')+'   ')
+            node_value_list.append(value)
 
-        return render_template('./dataanalyzer/count_appdata.html',nodelist=nodelist, countlist=countlist)
+        return render_template('./dataanalyzer/count_appdata.html',nodelist=node_key_list, countlist=node_value_list)
 
 # 应用数据分析
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
@@ -993,19 +1004,30 @@ def appdataanalyzer():
         end_time = selectime.encode("utf-8")[22:41]
         nodepick  =  request.form['nodeselect']
         
-        appdata = DATABASE.my_db_execute('select currenttime, Data from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        dicts= {}
+        appdata = DATABASE.my_db_execute('select currenttime from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
         time_list = list()
         data_list = list()
         for i in range(len(appdata)):
             time_list.append(appdata[i][0].encode('ascii'))
-            data_list.append(len(appdata[i][1]))
+            data_list.append(i+1)
         time_list = sorted(time_list)
         data_list = sorted(data_list)
-        # print time_list,data_list
         return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=time_list,Datalist=data_list,NodeID=nodepick, nodelist = nodeid_list)
     else:
-        return render_template('./dataanalyzer/appdataanalyzer.html',nodelist = nodeid_list, currenttime=[],Datalist=[],NodeID="")
+        node = DATABASE.my_db_execute('select distinct NodeID from ApplicationData limit 1;',None)
+        nodeid = (node[0][0].encode('ascii'))
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
+        appdata= DATABASE.my_db_execute('select NodeID from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(previous_time, current_time, nodeid))
+        time_list = list()
+        data_list = list()
+        for i in range(len(appdata)):
+            time_list.append(appdata[i][0].encode('ascii'))
+            data_list.append(i+1)
+        time_list = sorted(time_list)
+        data_list = sorted(data_list)
+        return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=time_list,Datalist=data_list,NodeID=nodeid, nodelist = nodeid_list)
     
 
 
