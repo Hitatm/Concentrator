@@ -121,8 +121,37 @@
     </div>  
 </div>
 <br><!--常见协议和数据包长度图-->
-<!-- <h3> 节点总数　{{nodecount}}</h3> -->
 <div id="topo" style="height:1000px;width:90%;float:center"></div>
+<div class="container">
+        <table class="table table-bordered" align="center">
+            <tbody> 
+                <tr>       
+                    <th width="25%"> 历史节点总数 </th>
+                    <td width="35%" id="numnodes">{{num_of_nodes}}</td>
+                </tr>
+                <tr>       
+                    <th width="25%"> 上报节点总数 </th>
+                    <td width="35%" id="nodecount">{{nodecount}}</td>
+                </tr>
+                <tr>         
+                    <th width="25%"> 最近一轮应上报个数 </th>
+                    <td width="35%" id="shouldpost">{{nodecount}}</td>
+                </tr>
+                <tr>         
+                    <th width="25%"> 最近一轮实际上报个数 </th>
+                    <td width="35%" id="post">{{post}}</td>
+                </tr>
+                <tr>         
+                    <th width="25%"> 本轮上报率 </th>
+                    <td width="35%" id="thispostrate">{{thispostrate}}</td>
+                </tr>
+                <tr>         
+                    <th width="25%"> 总平均上报率 </th>
+                    <td width="35%" id="postrate"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>  
 <!-- <div class="container" id="http" style="height:1000px; width: 80%;float:left"></div>
 
 <div class="container" style="height: 400px; width: 90%">

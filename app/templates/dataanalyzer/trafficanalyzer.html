@@ -164,7 +164,7 @@
                     }
                 },
                 title : {
-                    text: '拓扑每轮上报统计图(哈工大CPS－威海天罡仪表)',
+                    text: '拓扑每轮上报统计图',
                     // subtext: '',
                     x: 'center',
                     y:'top'
@@ -189,7 +189,7 @@
                     feature : {
                         mark : {show: true},
                         dataView : {show: true, readOnly: false},
-                        magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                        magicType : {show: true, type: ['line', 'bar', 'scatter']},
                         restore : {show: true},
                         saveAsImage : {show: true}
                     }
@@ -231,7 +231,6 @@
                 'echarts',
                 'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
                 'echarts/chart/line',// 使用柱状图就加载bar模块，按需加载
-                'echarts/chart/scatter' // 使用柱状图就加载bar模块，按需加载
             ],
             function (ec) {
                 // 基于准备好的dom，初始化echarts图表

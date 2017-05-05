@@ -856,6 +856,7 @@ def logout():
 #协议分析
 @app.route('/protoanalyzer/', methods=['POST', 'GET'])
 def protoanalyzer():
+    num_of_nodes = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor;",None)[0][0]
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -877,7 +878,16 @@ def protoanalyzer():
             else:
                 http_key_list.append(key.encode('UTF-8')+'     ')
             http_value_list.append(value)
-        return render_template('./dataanalyzer/protoanalyzer.html',http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
+        # 本轮上报个数
+        lasttime = DATABASE.my_db_execute("select currenttime from NetMonitor where currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(start_time, end_time))
+        if lasttime:
+            real_end_time = time.mktime(time.strptime(lasttime[0][0],'%Y-%m-%d %H:%M:%S')) #取选定时间内的最后一个时间，算这个时间与它前十分钟内的数据
+            real_start_time = real_end_time - 10 * 60
+            rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
+            rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+        post = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor where currenttime >= ? and currenttime <= ?;",(rstart_time, rend_time))[0][0]
+        thispostrate = round((float(post)/len(http_key_list)), 2)
+        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post=post, thispostrate=thispostrate , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -896,7 +906,17 @@ def protoanalyzer():
             else:
                 http_key_list.append(key.encode('UTF-8')+'     ')
             http_value_list.append(value)
-        return render_template('./dataanalyzer/protoanalyzer.html',http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
+        lasttime = DATABASE.my_db_execute("select currenttime from NetMonitor where currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(previous_time, current_time))
+        if lasttime:
+            real_end_time = time.mktime(time.strptime(lasttime[0][0],'%Y-%m-%d %H:%M:%S')) #取选定时间内的最后一个时间，算这个时间与它前十分钟内的数据
+            real_start_time = real_end_time - 10 * 60
+            rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
+            rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+        else:
+            return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post="", thispostrate="" , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
+        post = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor where currenttime >= ? and currenttime <= ?;",(rstart_time, rend_time))[0][0]
+        thispostrate = round((float(post)/len(http_key_list)), 2)
+        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post=post, thispostrate=thispostrate , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
 
 #流量分析
 @app.route('/flowanalyzer/', methods=['POST', 'GET'])
@@ -920,8 +940,6 @@ def flowanalyzer():
             traffic_value_list.append(sum_value)
         lists=topo_traffic_analyzer(topodata_list)
         templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
-        # templist.append(tempstr)
-        # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
     else:
         t = time.time()
@@ -937,8 +955,6 @@ def flowanalyzer():
             traffic_value_list.append(value)
         lists=topo_traffic_analyzer(topodata_list)
         templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
-        # templist.append(tempstr)
-        # return str(templist)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=lists[0],templist=templist, topo_traffic_key=traffic_key_list,topo_traffic_value=traffic_value_list)
 #上报数量分析
 @app.route('/count_appdata/', methods=['POST', 'GET'])
