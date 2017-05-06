@@ -116,6 +116,56 @@ def upload_modify():
     else:
         return "Error when writing to the config.json file"
 
+# rtmetric展示
+@app.route('/rtmetricdisplay/', methods=['POST', 'GET'])
+@app.route('/rtmetricdisplay', methods=['POST', 'GET'])
+def rtmetricdisplay():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        ID_list = list()
+        rtx_dict = dict()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
+            if rtx:
+                rtx_dict[ID] = rtx[0][0]
+        rtx_dict = sorted(rtx_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        ID_list = list()
+        rtx_list = list()
+        for key, value in rtx_dict:
+            ID_list.append(key)
+            rtx_list.append(value)
+        return render_template('./dataanalyzer/rtmetricdisplay.html', nodecount = len(ID_list), ID_list = ID_list, rtx_list = rtx_list)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
+        ID_list = list()
+        rtx_dict = dict()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
+            if rtx:
+                rtx_dict[ID] = rtx[0][0]
+        rtx_dict = sorted(rtx_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        ID_list = list()
+        rtx_list = list()
+        for key, value in rtx_dict:
+            ID_list.append(key)
+            rtx_list.append(value)
+        return render_template('./dataanalyzer/rtmetricdisplay.html', ID_list = ID_list, rtx_list = rtx_list)
+
+
 # 部署信息表
 @app.route('/deploy_info/', methods=['POST', 'GET'])
 @app.route('/deploy_info', methods=['POST', 'GET'])
