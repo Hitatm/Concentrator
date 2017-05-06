@@ -164,6 +164,53 @@ def rtmetricdisplay():
             ID_list.append(key)
             rtx_list.append(value)
         return render_template('./dataanalyzer/rtmetricdisplay.html', ID_list = ID_list, rtx_list = rtx_list)
+# 节点能耗展示
+@app.route('/energydisplay/', methods=['POST', 'GET'])
+@app.route('/energydisplay', methods=['POST', 'GET'])
+def energydisplay():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        ID_list = list()
+        cpu_list = list()
+        lpm_list = list()
+        tx_list = list()
+        rx_list = list()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            energy = DATABASE.my_db_execute("select CPU,LPM,TX,RX from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
+            cpu_list.append(energy[0][0])
+            lpm_list.append(energy[0][1])
+            tx_list.append(energy[0][2])
+            rx_list.append(energy[0][3])
+        # print ID_list,cpu_list,lpm_list,tx_list,rx_list
+        return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=cpu_list, lpm_list=lpm_list, tx_list=tx_list, rx_list=rx_list)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
+        ID_list = list()
+        cpu_list = list()
+        lpm_list = list()
+        tx_list = list()
+        rx_list = list()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            energy = DATABASE.my_db_execute("select CPU,LPM,TX,RX from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
+            cpu_list.append(energy[0][0])
+            lpm_list.append(energy[0][1])
+            tx_list.append(energy[0][2])
+            rx_list.append(energy[0][3])
+        return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=cpu_list, lpm_list=lpm_list, tx_list=tx_list, rx_list=rx_list)
 
 
 # 部署信息表
