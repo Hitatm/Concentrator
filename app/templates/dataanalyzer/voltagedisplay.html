@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rtmetric展示</title>
+    <title>采样电压展示</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -103,7 +103,7 @@
 <body>
 <div>
     <div class="container ">
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('rtmetricdisplay')}}">
+        <form enctype="multipart/form-data" method="POST" action="{{url_for('voltagedisplay')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -172,7 +172,7 @@
                     xAxis : [
                         {
                             type : 'value',
-                            name:'个数',
+                            name:'电压',
                             nameLocation:'end',
                             boundaryGap : [0, 0.01],
                             position: 'top' 
@@ -188,7 +188,7 @@
                     ],
                     series : [
                         {
-                            name:'个数',
+                            name:'电压',
                             type:'bar',
                             markPoint : {
                                 data : [
@@ -201,7 +201,7 @@
                                     {type : 'average', name: '平均值'}
                                 ]
                             },        
-                            data: {{ rtx_list }}
+                            data: {{ voltage_list }}
                         },
                  
                     ]
@@ -211,13 +211,6 @@
             }
         );
     </script>
-
-
-
-
-
-
-
 
 
 

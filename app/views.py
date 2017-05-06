@@ -212,6 +212,54 @@ def energydisplay():
             rx_list.append(energy[0][3])
         return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=cpu_list, lpm_list=lpm_list, tx_list=tx_list, rx_list=rx_list)
 
+# 采样电压展示
+@app.route('/voltagedisplay/', methods=['POST', 'GET'])
+@app.route('/voltagedisplay', methods=['POST', 'GET'])
+def voltagedisplay():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        ID_list = list()
+        voltage_dict = dict()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            voltage = DATABASE.my_db_execute("select volage from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
+            if voltage:
+                voltage_dict[ID] = voltage[0][0]
+        voltage_dict = sorted(voltage_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        ID_list = list()
+        voltage_list = list()
+        for key, value in voltage_dict:
+            ID_list.append(key)
+            voltage_list.append(value)
+        return render_template('./dataanalyzer/voltagedisplay.html', nodecount = len(ID_list), ID_list = ID_list, voltage_list = voltage_list)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
+        ID_list = list()
+        voltage_dict = dict()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            voltage = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
+            if voltage:
+                voltage_dict[ID] = voltage[0][0]
+        voltage_dict = sorted(voltage_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        ID_list = list()
+        voltage_list = list()
+        for key, value in voltage_dict:
+            ID_list.append(key)
+            voltage_list.append(value)
+        return render_template('./dataanalyzer/voltagedisplay.html', ID_list = ID_list, voltage_list = voltage_list)
 
 # 部署信息表
 @app.route('/deploy_info/', methods=['POST', 'GET'])
