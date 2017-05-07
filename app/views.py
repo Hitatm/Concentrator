@@ -10,6 +10,7 @@ from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,
 from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_topo_analyzer import topo_statistic,appdata_statistic,topo_traffic_statistic,topo_traffic_analyzer
 from utils.gxn_get_sys_config import Config
+from utils.num_of_rounds import countrounds
 from utils.connect import Connect
 from utils.db_operate import DBClass
 
@@ -185,10 +186,10 @@ def energydisplay():
             ID_list.append(ID_set[i][0].encode('ascii'))
         for ID in ID_list:
             energy = DATABASE.my_db_execute("select CPU,LPM,TX,RX from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
-            cpu_list.append(energy[0][0])
-            lpm_list.append(energy[0][1])
-            tx_list.append(energy[0][2])
-            rx_list.append(energy[0][3])
+            cpu_list.append(round(float(energy[0][0])/32768,2))
+            lpm_list.append(round(float(energy[0][1])/32768,2))
+            tx_list.append(round(float(energy[0][2])/32768,2))
+            rx_list.append(round(float(energy[0][3])/32768,2))
         # print ID_list,cpu_list,lpm_list,tx_list,rx_list
         return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=cpu_list, lpm_list=lpm_list, tx_list=tx_list, rx_list=rx_list)
     else:
@@ -206,10 +207,10 @@ def energydisplay():
             ID_list.append(ID_set[i][0].encode('ascii'))
         for ID in ID_list:
             energy = DATABASE.my_db_execute("select CPU,LPM,TX,RX from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
-            cpu_list.append(energy[0][0])
-            lpm_list.append(energy[0][1])
-            tx_list.append(energy[0][2])
-            rx_list.append(energy[0][3])
+            cpu_list.append(round(float(energy[0][0])/32768,2))
+            lpm_list.append(round(float(energy[0][1])/32768,2))
+            tx_list.append(round(float(energy[0][2])/32768,2))
+            rx_list.append(round(float(energy[0][3])/32768,2))
         return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=cpu_list, lpm_list=lpm_list, tx_list=tx_list, rx_list=rx_list)
 
 # 采样电压展示
@@ -1009,7 +1010,6 @@ def protoanalyzer():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-
         topodata_list = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         http_dict = topo_statistic(topodata_list)
         http_dict = sorted(http_dict.iteritems(), key=lambda d:d[1], reverse=True)
@@ -1030,9 +1030,21 @@ def protoanalyzer():
             real_start_time = real_end_time - 10 * 60
             rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
             rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
-        post = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor where currenttime >= ? and currenttime <= ?;",(rstart_time, rend_time))[0][0]
-        thispostrate = round((float(post)/len(http_key_list)), 2)
-        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post=post, thispostrate=thispostrate , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
+            post = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor where currenttime >= ? and currenttime <= ?;",(rstart_time, rend_time))[0][0]
+            thispostrate = round((float(post)/len(http_key_list)), 4) * 100
+        else:
+            post = "?"
+            thispostrate = "?"
+        # 根据调度计算所选时间段内轮数
+        rounds = countrounds(start_time,end_time)
+        # print rounds
+        if rounds:
+            allposts = DATABASE.my_db_execute("select count(*) from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))[0][0]
+            # print allposts,rounds,num_of_nodes,rounds*num_of_nodes
+            postrate = round((float(allposts)/(rounds * num_of_nodes)), 4) * 100
+        else:
+            postrate = "?"
+        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes,postrate=postrate ,post=post, thispostrate=thispostrate , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -1057,10 +1069,22 @@ def protoanalyzer():
             real_start_time = real_end_time - 10 * 60
             rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
             rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
+            rounds = countrounds(start_time,end_time)
+            if rounds:
+                allposts = DATABASE.my_db_execute("select count(*) from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))[0][0]
+                postrate = round((float(allposts)/(rounds * num_of_nodes)), 4) * 100
+            else:
+                postrate = "?"
         else:
-            return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post="", thispostrate="" , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
+            return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post="?", thispostrate="?" , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
         post = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor where currenttime >= ? and currenttime <= ?;",(rstart_time, rend_time))[0][0]
-        thispostrate = round((float(post)/len(http_key_list)), 2)
+        thispostrate = round((float(post)/len(http_key_list)), 4) * 100
+        rounds = countrounds(start_time,end_time)
+        if rounds:
+            allposts = DATABASE.my_db_execute("select count(*) from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))[0][0]
+            postrate = round((float(allposts)/(rounds * num_of_nodes)), 4) * 100
+        else:
+            postrate = "?"
         return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=num_of_nodes, post=post, thispostrate=thispostrate , http_key=http_key_list, http_value=http_value_list ,nodecount=len(http_key_list))
 
 #流量分析
@@ -1124,7 +1148,7 @@ def count_appdata():
             if count%2==0:
                 node_key_list.append(key.encode('UTF-8'))
             else:
-                node_key_list.append(key.encode('UTF-8')+'   ')
+                node_key_list.append(key.encode('UTF-8')+'     ')
             node_value_list.append(value)
 
         return render_template('./dataanalyzer/count_appdata.html',nodelist=node_key_list, countlist=node_value_list)
@@ -1143,7 +1167,7 @@ def count_appdata():
             if count%2==0:
                 node_key_list.append(key.encode('UTF-8'))
             else:
-                node_key_list.append(key.encode('UTF-8')+'   ')
+                node_key_list.append(key.encode('UTF-8')+'     ')
             node_value_list.append(value)
 
         return render_template('./dataanalyzer/count_appdata.html',nodelist=node_key_list, countlist=node_value_list)
