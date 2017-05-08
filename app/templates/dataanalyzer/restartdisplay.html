@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rtmetric展示</title>
+    <title>重启情况展示</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -103,7 +103,7 @@
 <body>
 <div>
     <div class="container ">
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('rtmetricdisplay')}}">
+        <form enctype="multipart/form-data" method="POST" action="{{url_for('restartdisplay')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -148,7 +148,7 @@
 
                 option  = {
                     title : {
-                        text: 'Rtmetric-'+'节点总数('+{{ nodecount }}+')',
+                        text: '重启次数-'+'节点总数('+{{ nodecount }}+')',
                         x: 'center'
                     },
                     tooltip : {
@@ -188,7 +188,7 @@
                     ],
                     series : [
                         {
-                            name:'个数',
+                            name:'次',
                             type:'bar',
                             markPoint : {
                                 data : [
@@ -201,7 +201,7 @@
                                     {type : 'average', name: '平均值'}
                                 ]
                             },        
-                            data: {{ rtx_list }}
+                            data: {{ reboot_list }}
                         },
                  
                     ]
@@ -211,6 +211,7 @@
             }
         );
     </script>
+
 
 
 {% endautoescape %}

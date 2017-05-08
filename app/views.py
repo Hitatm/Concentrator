@@ -128,7 +128,7 @@ def rtmetricdisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        print start_time
+        # print start_time
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         ID_list = list()
         rtx_dict = dict()
@@ -262,6 +262,55 @@ def voltagedisplay():
             ID_list.append(key)
             voltage_list.append(value)
         return render_template('./dataanalyzer/voltagedisplay.html', ID_list = ID_list, voltage_list = voltage_list)
+#重启情况展示
+@app.route('/restartdisplay/', methods=['POST', 'GET'])
+@app.route('/restartdisplay', methods=['POST', 'GET'])
+def restartdisplay():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        # print start_time
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        ID_list = list()
+        reboot_dict = dict()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            reboot = DATABASE.my_db_execute("select reboot from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
+            if reboot:
+                reboot_dict[ID] = reboot[0][0]
+        reboot_dict = sorted(reboot_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        ID_list = list()
+        reboot_list = list()
+        for key, value in reboot_dict:
+            ID_list.append(key)
+            reboot_list.append(value)
+        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(ID_list), ID_list = ID_list, reboot_list = reboot_list)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+
+        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
+        ID_list = list()
+        reboot_dict = dict()
+        for i in range(len(ID_set)):
+            ID_list.append(ID_set[i][0].encode('ascii'))
+        for ID in ID_list:
+            reboot = DATABASE.my_db_execute("select reboot from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
+            if reboot:
+                reboot_dict[ID] = reboot[0][0]
+        reboot_dict = sorted(reboot_dict.iteritems(), key=lambda d:d[1], reverse=True)
+        ID_list = list()
+        reboot_list = list()
+        for key, value in reboot_dict:
+            ID_list.append(key)
+            reboot_list.append(value)
+        return render_template('./dataanalyzer/restartdisplay.html', ID_list = ID_list, reboot_list = reboot_list)
 
 # 部署信息表
 @app.route('/deploy_info/', methods=['POST', 'GET'])
@@ -1209,15 +1258,19 @@ def appdataanalyzer():
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
-        appdata= DATABASE.my_db_execute('select NodeID from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(previous_time, current_time, nodeid))
-        time_list = list()
-        data_list = list()
-        for i in range(len(appdata)):
-            time_list.append(appdata[i][0].encode('ascii'))
-            data_list.append(i+1)
-        time_list = sorted(time_list)
-        data_list = sorted(data_list)
-        return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=time_list,Datalist=data_list,NodeID=nodeid, nodelist = nodeid_list)
+        schedule_list = get_schedule_time(previous_time,current_time)
+        # print schedule_list
+        count = 0
+        Datalist = list()
+        for item in schedule_list:
+            this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+            this_end_time = this_start_time + 10 * 60
+            rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+            rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+            # print this_start_time,this_end_time
+            count += appdatacount(rstart_time,rend_time,nodepick)
+            Datalist.append(count)
+        return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=schedule_list,Datalist=Datalist,NodeID=nodeid, nodelist = nodeid_list)
     
 
 
