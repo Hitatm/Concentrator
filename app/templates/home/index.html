@@ -200,10 +200,34 @@
 							  拓扑流量分析
 							</a>
 						</li>
-
+						<li >
+							<a href="{{ url_for('rtmetricdisplay') }}"  target="main-content">
+							  Rtmetric展示
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('energydisplay') }}"  target="main-content">
+							  节点能耗展示
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('voltagedisplay') }}"  target="main-content">
+							  采样电压展示
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('restartdisplay') }}"  target="main-content">
+							  重启情况展示
+							</a>
+						</li>
                         <li >
 							<a href="{{ url_for('topodisplay') }}"  target="main-content">
 							  拓扑展示
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('netcountdisplay') }}"  target="main-content">
+							  随时间变化情况
 							</a>
 						</li>
 					    
@@ -275,6 +299,22 @@
 							   应用数据
 							</a>
 						</li>
+						<li >
+							<a href="{{ url_for('netcountdisplay') }}"  target="main-content">
+							  网络数据随时间变化
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('appdataanalyzer') }}"  target="main-content">
+							  应用数据随时间变化
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('syntimediffdisplay') }}"  target="main-content">
+							  同步时差随时间变化
+							</a>
+						</li>
+
 
 					</ul>
 				</li>

@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>应用数据分析</title>
+    <title>网络数据个数随时间变化</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -105,7 +105,7 @@
 <div>
     <div class="container ">
        
-        <form class="navbar-form navbar-left" enctype="multipart/form-data" method="POST" action="{{url_for('appdataanalyzer')}}">
+        <form class="navbar-form navbar-left" enctype="multipart/form-data" method="POST" action="{{url_for('netcountdisplay')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -161,7 +161,7 @@
 
                 option = {
                     title : {
-                        text: '节点上报应用数据个数随时间变化',
+                        text: '节点上报网络数据个数随时间变化',
                     },
                     tooltip : {
                         trigger: 'axis'

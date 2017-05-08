@@ -193,35 +193,35 @@ function ifnull() {
       <tbody>
 
 
-      {% for pcap in pcaps: %}
+      {% for i in range(length): %}
 
       <tr data-toggle="modal" data-target="#myModal">
-      <th scope="row" class="text-center" id="id">{{pcap[0]}}</th>
-          <td class="text-nowrap text-center">{{ pcap[16] }}</td>
-          <td class="text-center text-nowrap">{{ pcap[1] }}</td>
-          <td class="text-left text-nowrap">{{ pcap[2] }}</td>
-          <td class="text-center">{{ pcap[15] }}</td>
-          <td class="text-center">{{ pcap[8] }}</td>
-          <td class="text-center">{{ pcap[13] }}</td>
-          <td class="text-center">{{ pcap[14] }}</td>
-          {% if pcap[17]  > 25 %}
-          <td class="text-center" id="current" style="color:Red">{{ pcap[17] }}</td>
+      <th scope="row" class="text-center" id="id">{{i+1}}</th>
+          <td class="text-nowrap text-center">{{ pcaps[i][16] }}</td>
+          <td class="text-center text-nowrap">{{ pcaps[i][1] }}</td>
+          <td class="text-left text-nowrap">{{ pcaps[i][2] }}</td>
+          <td class="text-center">{{ pcaps[i][15] }}</td>
+          <td class="text-center">{{ pcaps[i][8] }}</td>
+          <td class="text-center">{{ pcaps[i][13] }}</td>
+          <td class="text-center">{{ pcaps[i][14] }}</td>
+          {% if pcaps[i][17]  > 600 %}
+          <td class="text-center" id="current" style="color:Red">{{ pcaps[i][17] }}</td>
           {% else %}
-          <td class="text-center" id="current">{{ pcap[17] }}</td>
+          <td class="text-center" id="current">{{ pcaps[i][17] }}</td>
           {% endif %}
-          <td class="text-center" id="tdcpu">{{ pcap[3] }}</td>
-          <td class="text-center" id="tdlpm">{{ pcap[4] }}</td>
-          <td class="text-center" id="tdtx">{{ pcap[6] }}</td>
-          <td class="text-center" id="tdrx">{{ pcap[5] }}</td>
-          {% if pcap[7]  < 3 %}
-          <td class="text-center text-nowrap" id="voltage" style="color:Red">{{ pcap[7] }}</td>
+          <td class="text-center" id="tdcpu">{{ pcaps[i][3] }}</td>
+          <td class="text-center" id="tdlpm">{{ pcaps[i][4] }}</td>
+          <td class="text-center" id="tdtx">{{ pcaps[i][6] }}</td>
+          <td class="text-center" id="tdrx">{{ pcaps[i][5] }}</td>
+          {% if pcaps[i][7]  < 3 %}
+          <td class="text-center text-nowrap" id="voltage" style="color:Red">{{ pcaps[i][7] }}</td>
           {% else %}
-          <td class="text-center text-nowrap" id="voltage">{{ pcap[7] }}</td>
+          <td class="text-center text-nowrap" id="voltage">{{ pcaps[i][7] }}</td>
           {% endif %}
-          <td class="text-left text-nowrap">{{ pcap[10] }}</td>
-          <td class="text-left text-nowrap">{{ pcap[12] }}</td>
-          <td class="text-left text-nowrap">{{ pcap[9] }}</td>
-          <td class="text-left text-nowrap">{{ pcap[11] }}</td>
+          <td class="text-left text-nowrap">{{ pcaps[i][10] }}</td>
+          <td class="text-left text-nowrap">{{ pcaps[i][12] }}</td>
+          <td class="text-left text-nowrap">{{ pcaps[i][9] }}</td>
+          <td class="text-left text-nowrap">{{ pcaps[i][11] }}</td>
         </tr>
 
       {% endfor %}

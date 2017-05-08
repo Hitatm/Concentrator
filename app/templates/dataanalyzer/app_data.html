@@ -174,13 +174,13 @@ function ifnull() {
       <tbody>
 
 
-      {% for item in appdata: %}
+      {% for i in range(length): %}
 
       <tr data-toggle="modal" data-target="#myModal">
-      <th scope="row" class="text-center" id="id">{{item[0]}}</th>
-          <td class="text-nowrap text-center">{{ item[1] }}</td>
-          <td class="text-center text-nowrap">{{ item[2] }}</td>
-          <td class="text-center" id="current">{{ lendict[item[0]] }}</td>
+      <th scope="row" class="text-center" id="id">{{i+1}}</th>
+          <td class="text-nowrap text-center">{{ appdata[i][1] }}</td>
+          <td class="text-center text-nowrap">{{ appdata[i][2] }}</td>
+          <td class="text-center" id="current">{{ lendict[appdata[i][0]] }}</td>
         </tr>
 
       {% endfor %}
