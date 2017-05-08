@@ -455,8 +455,10 @@ def deploy_add():
 @app.route('/node_search/', methods=['POST', 'GET'])
 @app.route('/node_search', methods=['POST', 'GET'])
 def node_search():
-    time_list = list()
+    time_list_1 = list()
+    time_list_2 = list()
     voltage_list = list()
+    current_list = list()
     nodeid_list = list()
 
     nodeid = DATABASE.my_db_execute('select distinct NodeID from NetMonitor;',None)
@@ -478,8 +480,12 @@ def node_search():
 
         voltage = DATABASE.my_db_execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
         for i in range(len(voltage)):
-            time_list.append(voltage[i][0].encode('ascii'))
+            time_list_1.append(voltage[i][0].encode('ascii'))
             voltage_list.append(voltage[i][1])
+        current = DATABASE.my_db_execute('select currenttime, electric from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        for i in range(len(current)):
+            time_list_2.append(current[i][0].encode('ascii'))
+            current_list.append(current[i][1])
 
 
         energycost = DATABASE.my_db_execute('select CPU,LPM,TX,RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
@@ -498,16 +504,20 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=nodepick,nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
-            voltage_list=voltage_list,time_list=time_list)
+            voltage_list=voltage_list,time_list_1=time_list_1,time_list_2=time_list_2,current_list=current_list)
     else:
         nodepick    =  nodeid_list[0]
         end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-        start_time  = strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 24*60*60))
+        start_time  = strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 6*60*60))
 
         voltage = DATABASE.my_db_execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
         for i in range(len(voltage)):
             time_list.append(voltage[i][0].encode('ascii'))
             voltage_list.append(voltage[i][1])
+        current = DATABASE.my_db_execute('select currenttime, electric from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        for i in range(len(current)):
+            time_list_2.append(current[i][0].encode('ascii'))
+            current_list.append(current[i][1])
 
         energycost = DATABASE.my_db_execute('select CPU,LPM,TX,RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(nodepick,))
         cpu= round(float(energycost[0][0])/32768,2)
@@ -520,7 +530,7 @@ def node_search():
         # print nodepick,nodeid_list,cpu,lpm,tx,rx,voltage_list,time_list
         return render_template('./dataanalyzer/node_search.html',
             nodeid=nodepick,nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
-            voltage_list=voltage_list,time_list=time_list)
+            voltage_list=voltage_list,time_list_1=time_list_1,time_list_2=time_list_2,current_list=current_list)
 
 @app.route('/network_data/', methods=['POST', 'GET'])
 @app.route('/network_data', methods=['POST', 'GET'])
