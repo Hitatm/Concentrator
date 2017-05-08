@@ -10,7 +10,7 @@ from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,
 from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_topo_analyzer import topo_statistic,appdata_statistic,topo_traffic_statistic,topo_traffic_analyzer
 from utils.gxn_get_sys_config import Config
-from utils.num_of_rounds import countrounds
+from utils.num_of_rounds import countrounds,get_schedule_time,appdatacount
 from utils.connect import Connect
 from utils.db_operate import DBClass
 
@@ -128,6 +128,7 @@ def rtmetricdisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
+        print start_time
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         ID_list = list()
         rtx_dict = dict()
@@ -1188,16 +1189,20 @@ def appdataanalyzer():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         nodepick  =  request.form['nodeselect']
-        
-        appdata = DATABASE.my_db_execute('select currenttime from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
-        time_list = list()
-        data_list = list()
-        for i in range(len(appdata)):
-            time_list.append(appdata[i][0].encode('ascii'))
-            data_list.append(i+1)
-        time_list = sorted(time_list)
-        data_list = sorted(data_list)
-        return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=time_list,Datalist=data_list,NodeID=nodepick, nodelist = nodeid_list)
+        schedule_list = get_schedule_time(start_time,end_time)
+        # print schedule_list
+        count = 0
+        Datalist = list()
+        for item in schedule_list:
+            this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+            this_end_time = this_start_time + 10 * 60
+            rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+            rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+            # print this_start_time,this_end_time
+            count += appdatacount(rstart_time,rend_time,nodepick)
+            Datalist.append(count)
+
+        return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=schedule_list,Datalist=Datalist,NodeID=nodepick, nodelist = nodeid_list)
     else:
         node = DATABASE.my_db_execute('select distinct NodeID from ApplicationData limit 1;',None)
         nodeid = (node[0][0].encode('ascii'))
