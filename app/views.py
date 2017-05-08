@@ -10,7 +10,7 @@ from utils.gxn_topo_handler import getfile_content,getall_topo,showdata_from_id,
 from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_topo_analyzer import topo_statistic,appdata_statistic,topo_traffic_statistic,topo_traffic_analyzer
 from utils.gxn_get_sys_config import Config
-from utils.num_of_rounds import countrounds,get_schedule_time,appdatacount
+from utils.num_of_rounds import countrounds,get_schedule_time,appdatacount,netdatacount
 from utils.connect import Connect
 from utils.db_operate import DBClass
 
@@ -552,14 +552,15 @@ def network_data():
             pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ? and ParentID == ?;",(start_time, end_time, nid))
         else:
             pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps)
+
+        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps,length=len(pcaps))
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
         pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps)
+        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps,length=len(pcaps))
 
 @app.route('/app_data/', methods=['POST', 'GET'])
 @app.route('/app_data', methods=['POST', 'GET'])
@@ -582,7 +583,7 @@ def app_data():
         lendict = dict()
         for pcap in pcaps:
             lendict[int(pcap[0])] = len(str(pcap[3]))
-        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict)
+        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict,length=len(pcaps))
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -592,7 +593,7 @@ def app_data():
         lendict = dict()
         for pcap in pcaps:
             lendict[int(pcap[0])] = len(str(pcap[3]))
-        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict)
+        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict,length=len(pcaps))
 
 
 #--------------------------------------------与后台通信----------------------------------------------------
@@ -1239,7 +1240,6 @@ def appdataanalyzer():
     appdata = DATABASE.my_db_execute('select distinct NodeID from ApplicationData;',None)
     for i in range(len(appdata)):
         nodeid_list.append(appdata[i][0].encode('ascii'))
-    # conn.close()
     if PCAPS == None:
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
@@ -1278,10 +1278,106 @@ def appdataanalyzer():
             rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
             rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
             # print this_start_time,this_end_time
-            count += appdatacount(rstart_time,rend_time,nodepick)
+            count += appdatacount(rstart_time,rend_time,nodeid)
             Datalist.append(count)
         return render_template('./dataanalyzer/appdataanalyzer.html',currenttime=schedule_list,Datalist=Datalist,NodeID=nodeid, nodelist = nodeid_list)
-    
+
+#网络数据个数随时间变化曲线
+@app.route('/netcountdisplay/', methods=['POST', 'GET'])
+def netcountdisplay():
+    nodeid_list = list()
+    appdata = DATABASE.my_db_execute('select distinct NodeID from NetMonitor;',None)
+    for i in range(len(appdata)):
+        nodeid_list.append(appdata[i][0].encode('ascii'))
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        nodepick  =  request.form['nodeselect']
+        schedule_list = get_schedule_time(start_time,end_time)
+        # print schedule_list
+        count = 0
+        Datalist = list()
+        for item in schedule_list:
+            this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+            this_end_time = this_start_time + 10 * 60
+            rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+            rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+            # print this_start_time,this_end_time
+            count += netdatacount(rstart_time,rend_time,nodepick)
+            Datalist.append(count)
+
+        return render_template('./dataanalyzer/netcountdisplay.html',currenttime=schedule_list,Datalist=Datalist,NodeID=nodepick, nodelist = nodeid_list)
+    else:
+        node = DATABASE.my_db_execute('select distinct NodeID from NetMonitor limit 1;',None)
+        nodeid = (node[0][0].encode('ascii'))
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
+        schedule_list = get_schedule_time(previous_time,current_time)
+        # print schedule_list
+        count = 0
+        Datalist = list()
+        for item in schedule_list:
+            this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+            this_end_time = this_start_time + 10 * 60
+            rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+            rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+            # print this_start_time,this_end_time
+            count += netdatacount(rstart_time,rend_time,nodeid)
+            Datalist.append(count)
+        return render_template('./dataanalyzer/netcountdisplay.html',currenttime=schedule_list,Datalist=Datalist,NodeID=nodeid, nodelist = nodeid_list)  
+#同步时差随时间变化
+@app.route('/syntimediffdisplay/', methods=['POST', 'GET'])
+@app.route('/syntimediffdisplay', methods=['POST', 'GET'])
+def syntimediffdisplay():
+    syntime_list = list()
+    time_list = list()
+    nodeid_list = list()
+    nodeid = DATABASE.my_db_execute('select distinct NodeID from NetMonitor;',None)
+    for i in range(len(nodeid)):
+        nodeid_list.append(nodeid[i][0].encode('ascii'))
+    nodeid_list.sort()
+
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        nodepick  =  request.form['nodeselect']
+
+        syntime = DATABASE.my_db_execute('select currenttime, syntime from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        for i in range(len(syntime)):
+            time_list.append(syntime[i][0].encode('ascii'))
+            syntime_list.append(syntime[i][1])
+
+        index_of_pick=nodeid_list.index(nodepick)
+        temp=nodeid_list[index_of_pick]
+        nodeid_list[index_of_pick]=nodeid_list[0]
+        nodeid_list[0]=temp
+        nodepick  =  "\""+nodepick+"\""
+
+        return render_template('./dataanalyzer/syntimediffdisplay.html',
+            nodeid=nodepick,nodelist = nodeid_list,time_list=time_list,syntime_list=syntime_list)
+    else:
+        nodepick    =  nodeid_list[0]
+        end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+        start_time  = strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 6*60*60))
+
+        syntime = DATABASE.my_db_execute('select currenttime, syntime from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, nodepick))
+        for i in range(len(syntime)):
+            time_list.append(syntime[i][0].encode('ascii'))
+            syntime_list.append(syntime[i][1])
+
+        nodepick  =  "\""+nodepick+"\""
+        # print nodepick,nodeid_list,cpu,lpm,tx,rx,voltage_list,time_list
+        return render_template('./dataanalyzer/syntimediffdisplay.html',
+            nodeid=nodepick,nodelist = nodeid_list,time_list=time_list,syntime_list=syntime_list)
 
 
 # 拓扑展示
@@ -1435,14 +1531,14 @@ def exceptinfo():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         # 电流过大
-        idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>25;',(start_time, end_time))
+        idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>600;',(start_time, end_time))
         for i in range (len(idata)):
             warning_dict["seqnum"] = idata[i][0]
             warning_dict["warn"] = "current = " + str(idata[i][1])
             warning_dict["ip_port"] = idata[i][2] #NodeID
             warning_dict["time"] = idata[i][3] #currenttime
             warning_list.append(warning_dict)
-        # 电压过高
+        # 电压过di
         vdata = DATABASE.my_db_execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage<3;',(start_time, end_time))
         for i in range (len(vdata)):
             warning_dict["seqnum"] = vdata[i][0]
@@ -1459,14 +1555,14 @@ def exceptinfo():
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         # 电流过大
-        idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>25;',(previous_time, current_time))
+        idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>600;',(previous_time, current_time))
         for i in range (len(idata)):
             warning_dict["seqnum"] = idata[i][0]
             warning_dict["warn"] = "current = " + idata[i][1]
             warning_dict["ip_port"] = idata[i][2] #NodeID
             warning_dict["time"] = idata[i][3] #currenttime
             warning_list.append(warning_dict)
-        # 电压过高
+        # 电压过di
         vdata = DATABASE.my_db_execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage<3;',(previous_time, current_time))       
         for i in range (len(vdata)):
             warning_dict["seqnum"] = vdata[i][0]

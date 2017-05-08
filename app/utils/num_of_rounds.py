@@ -78,6 +78,14 @@ def appdatacount(start_time, end_time, NodeID):
         exist = 1
     return exist
 
+def netdatacount(start_time, end_time, NodeID):
+    DATABASE = DBClass()
+    exist = 0
+    appdata = DATABASE.my_db_execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, NodeID))
+    if appdata:
+        exist = 1
+    return exist
+
 def date_addone(year, month, day):
     year = int(year)
     month = int(month)
@@ -106,11 +114,11 @@ def date_addone(year, month, day):
         newdate = str(year)+'-'+str(month+1)+'-01'
     elif month==12 and day>=31:
         newdate = str(year+1)+'-01-01'
-    elif month>10 and day>=10:
+    elif month>10 and day>=9:
         newdate = str(year)+'-'+str(month)+'-'+str(day+1)
-    elif month>10 and day<10:
+    elif month>10 and day<9:
         newdate = str(year)+'-'+str(month)+'-0'+str(day+1)
-    elif month<10 and day<10:
+    elif month<10 and day<9:
         newdate = str(year)+'-0'+str(month)+'-0'+str(day+1)
     else:
         newdate = str(year)+'-0'+str(month)+'-'+str(day+1)
