@@ -128,44 +128,79 @@ def rtmetricdisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        # print start_time
+
+        rtxdata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        ID_list = list()
-        rtx_dict = dict()
-        for i in range(len(ID_set)):
-            ID_list.append(ID_set[i][0].encode('ascii'))
-        for ID in ID_list:
-            rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
-            if rtx:
-                rtx_dict[ID] = rtx[0][0]
-        rtx_dict = sorted(rtx_dict.iteritems(), key=lambda d:d[1], reverse=True)
-        ID_list = list()
-        rtx_list = list()
-        for key, value in rtx_dict:
-            ID_list.append(key)
-            rtx_list.append(value)
-        return render_template('./dataanalyzer/rtmetricdisplay.html', nodecount = len(ID_list), ID_list = ID_list, rtx_list = rtx_list)
+        if ID_set:
+            ID_list = list()
+            for i in range(len(ID_set)):
+                ID_list.append(ID_set[i][0].encode('ascii'))
+            schedule_list = get_schedule_time(start_time,end_time) #取每层调度   
+            for ID in ID_list:
+                rtxlist = list()
+                for item in schedule_list:
+                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+                    this_end_time = this_start_time + 10 * 60
+                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+                    rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    if rtx:
+                        rtxlist.append(rtx[0][0])
+                    else:
+                        rtxlist.append("PacketLoss")
+                for i in range(len(rtxlist)):
+                    if rtxlist[i] == "PacketLoss" and i>=1:
+                        rtxlist[i] == rtxlist[i-1]
+                    elif rtxlist[i] == "PacketLoss" and i==1:
+                        rtxlist[i] = 0
+                    else:
+                        pass
+                dicts= {}
+                dicts["ID"] = ID
+                dicts["rtxlist"] = rtxlist
+                rtxdata_list.append(json.dumps(dicts))
+            # print rtxdata_list,schedule_list
+            return (schedule_list, rtxdata_list)
+        else:
+            return render_template('./dataanalyzer/rtmetricdisplay.html')
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
+        rtxdata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        ID_list = list()
-        rtx_dict = dict()
-        for i in range(len(ID_set)):
-            ID_list.append(ID_set[i][0].encode('ascii'))
-        for ID in ID_list:
-            rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
-            if rtx:
-                rtx_dict[ID] = rtx[0][0]
-        rtx_dict = sorted(rtx_dict.iteritems(), key=lambda d:d[1], reverse=True)
-        ID_list = list()
-        rtx_list = list()
-        for key, value in rtx_dict:
-            ID_list.append(key)
-            rtx_list.append(value)
-        return render_template('./dataanalyzer/rtmetricdisplay.html', ID_list = ID_list, rtx_list = rtx_list)
+        if ID_set:
+            ID_list = list()
+            for i in range(len(ID_set)):
+                ID_list.append(ID_set[i][0].encode('ascii'))
+            schedule_list = get_schedule_time(previous_time,current_time) #取每层调度   
+            for ID in ID_list:
+                rtxlist = list()
+                for item in schedule_list:
+                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+                    this_end_time = this_start_time + 10 * 60
+                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+                    rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    if rtx:
+                        rtxlist.append(rtx[0][0])
+                    else:
+                        rtxlist.append("PacketLoss")
+                for i in range(len(rtxlist)):
+                    if rtxlist[i] == "PacketLoss" and i>=1:
+                        rtxlist[i] == rtxlist[i-1]
+                    elif rtxlist[i] == "PacketLoss" and i==1:
+                        rtxlist[i] = 0
+                    else:
+                        pass
+                
+                data = {"ID": ID, "rtxlist": rtxlist}
+                rtxdata_list.append(json.dumps(data))
+            return (schedule_list,rtxdata_list)
+        else:
+            return render_template('./dataanalyzer/rtmetricdisplay.html')
+
 # 节点能耗展示
 @app.route('/energydisplay/', methods=['POST', 'GET'])
 @app.route('/energydisplay', methods=['POST', 'GET'])

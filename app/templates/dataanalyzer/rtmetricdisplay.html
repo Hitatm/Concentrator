@@ -139,77 +139,101 @@
         require(
             [
                 'echarts',
-                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
-                'echarts/chart/line' // 使用柱状图就加载line模块，按需加载
+                'echarts/chart/line', // 使用柱状图就加载bar模块，按需加载
             ],
             function (ec) {
                 // 基于准备好的dom，初始化echarts图表
                 var myChart = ec.init(document.getElementById('topo'));
 
                 option  = {
-                    title : {
-                        text: 'Rtmetric-'+'节点总数('+{{ nodecount }}+')',
-                        x: 'center'
-                    },
-                    tooltip : {
-                        trigger: 'axis'
-                    },
+    title : {
+        text: '心跳包个数',
+        subtext: '单位 /个'
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    legend: {
+        data:[]
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            magicType : {show: true, type: ['line']},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    dataZoom : {
+        show : false,
+        start : 0,
+        end : 100
+    },
+    xAxis : [
+        {
+            type : 'category',
+            // splitNumber:30,
+            boundaryGap : true,
+            data : []
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            scale: true,
+            name : '个数',
+            boundaryGap: [0.2, 0.2]
+        }
+    ],
+    series : [
 
-                    toolbox: {
-                        show : true,
-                        orient : 'vertical',
-                        x: 'right', 
-                        y: 'top',
-                        feature : {
-                            mark : {show: true},
-                            dataView : {show: true, readOnly: false},
-                            magicType: {show: true, type: ['line', 'bar']},
-                            restore : {show: true},
-                            saveAsImage : {show: true}
-                        }
-                    },
-                    calculable : true,
-                    xAxis : [
-                        {
-                            type : 'value',
-                            name:'个数',
-                            nameLocation:'end',
-                            boundaryGap : [0, 0.01],
-                            position: 'top' 
-                        }
-                    ],
-                    yAxis : [
-                        {
-                            type : 'category',
-                            name:'节点号',
-                            axisLabel:{interval:0},
-                            data: {{ ID_list }}
-                        }
-                    ],
-                    series : [
-                        {
-                            name:'个数',
-                            type:'bar',
-                            markPoint : {
-                                data : [
-                                    {type : 'max', name: '最大值'},
-                                    {type : 'min', name: '最小值'}
-                                ]
-                            },
-                            markLine : {
-                                data : [
-                                    {type : 'average', name: '平均值'}
-                                ]
-                            },        
-                            data: {{ rtx_list }}
-                        },
-                 
-                    ]
-                };
+    ]
+};
                 // 为echarts对象加载数据
                 myChart.setOption(option);
             }
         );
+
+var myArray = new Array();
+
+function (){
+    $.ajax({
+    type:"post",
+    url:"{{url_for('rtmetricdisplay')}}",
+    cache:false,
+    contentType: "application/json;charset=UTF-8",
+    dataType:"json",
+    success:function(msg)
+    {
+        // alert(msg);
+        var len = msg[1].length; 
+        var timelist = msg[0];
+        option.xAxis.data.push(timelist)
+        for (var x =0;x<len;x++) 
+        {
+            option.legend.data.push(ID);
+            var ID   = msg[1][x]['ID'];
+            var rtxlist = msg[1][x]['rtxlist'];
+        
+            option.series.push({
+                name: ID,     // 系列名称
+                type: 'line',  // 图表类型，折线图line、散点图scatter、柱状图bar、饼图pie、雷达图radar
+                symbolSize:3,
+                itemStyle: { normal: { lineStyle: { width:4 } }},      
+                data: rtxlist
+            });
+            
+            
+            myChart.setOption(option);
+        }
+
+    }
+}
+    )
+
+};
     </script>
 
 
