@@ -1814,7 +1814,6 @@ def exceptinfo():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     elif request.method == 'POST':
-        warning_dict = dict()
         warning_list = list() #取交集和并集要多查询两次数据库
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
@@ -1822,6 +1821,7 @@ def exceptinfo():
         # 电流过大
         idata = DATABASE.my_db_execute('select ID, electric, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and electric>600;',(start_time, end_time))
         for i in range (len(idata)):
+            warning_dict = dict()
             warning_dict["seqnum"] = idata[i][0]
             warning_dict["warn"] = "current = " + str(idata[i][1])
             warning_dict["ip_port"] = idata[i][2] #NodeID
@@ -1830,6 +1830,7 @@ def exceptinfo():
         # 电压过di
         vdata = DATABASE.my_db_execute('select ID, volage, NodeID, currenttime from NetMonitor where currenttime >= ? and currenttime <= ? and volage<3;',(start_time, end_time))
         for i in range (len(vdata)):
+            warning_dict = dict()
             warning_dict["seqnum"] = vdata[i][0]
             warning_dict["warn"] = "voltage = " + str(vdata[i][1])
             warning_dict["ip_port"] = vdata[i][2] #NodeID
@@ -1861,6 +1862,45 @@ def exceptinfo():
             warning_list.append(warning_dict)
 
         return render_template('./exceptions/exception.html', warning=warning_list)
+
+#时间同步节点异常列表
+@app.route('/synerror/', methods=['POST', 'GET'])
+def synerror():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        warning_list = list() #取交集和并集要多查询两次数据库
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        # 时间同步节点异常
+        idata = DATABASE.my_db_execute('select NodeID, currenttime, syntime from NetMonitor where currenttime >= ? and currenttime <= ? and (syntime>10 or syntime<-10) ;',(start_time, end_time))
+        # print idata
+        for data in idata:
+            warning_dict = dict()
+            warning_dict["NodeID"] = data[0]
+            warning_dict["warn"] = "syntime = " + str(data[2])
+            warning_dict["time"] = data[1] #currenttime
+            warning_list.append(warning_dict)
+        # print warning_list
+        return render_template('./exceptions/synerror.html', warning=warning_list)
+    else:
+        warning_dict = dict()
+        warning_list = list()
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        # 电流过大
+        idata = DATABASE.my_db_execute('select NodeID, currenttime, syntime from NetMonitor where currenttime >= ? and currenttime <= ? and (syntime>10 or syntime<-10);',(previous_time, current_time))
+        for i in range (len(idata)):
+            warning_dict["NodeID"] = idata[i][0]
+            warning_dict["warn"] = "syntime = " + str(idata[i][2])
+            warning_dict["time"] = idata[i][1] #currenttime
+            warning_list.append(warning_dict)
+        return render_template('./exceptions/synerror.html', warning=warning_list)
+
+
 
 
 # ----------------------------------------------进程监管---------------------------------------------
