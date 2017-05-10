@@ -120,6 +120,7 @@
         　</form> 
     </div>  
 </div>
+<h4 align="center">采样电压</h4>
 <br><!--常见协议和数据包长度图-->
 <div id="topo" style="height:1000px;width:90%;float:center"></div>
 
@@ -139,80 +140,62 @@
         require(
             [
                 'echarts',
-                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
-                'echarts/chart/line' // 使用柱状图就加载line模块，按需加载
+                'echarts/chart/line', // 使用柱状图就加载bar模块，按需加载
             ],
             function (ec) {
                 // 基于准备好的dom，初始化echarts图表
                 var myChart = ec.init(document.getElementById('topo'));
 
                 option  = {
-                    title : {
-                        text: 'Rtmetric-'+'节点总数('+{{ nodecount }}+')',
-                        x: 'center'
-                    },
-                    tooltip : {
-                        trigger: 'axis'
-                    },
-
-                    toolbox: {
-                        show : true,
-                        orient : 'vertical',
-                        x: 'right', 
-                        y: 'top',
-                        feature : {
-                            mark : {show: true},
-                            dataView : {show: true, readOnly: false},
-                            magicType: {show: true, type: ['line', 'bar']},
-                            restore : {show: true},
-                            saveAsImage : {show: true}
-                        }
-                    },
-                    calculable : true,
-                    xAxis : [
-                        {
-                            type : 'value',
-                            name:'电压',
-                            nameLocation:'end',
-                            boundaryGap : [0, 0.01],
-                            position: 'top' 
-                        }
-                    ],
-                    yAxis : [
-                        {
-                            type : 'category',
-                            name:'节点号',
-                            axisLabel:{interval:0},
-                            data: {{ ID_list }}
-                        }
-                    ],
-                    series : [
-                        {
-                            name:'电压',
-                            type:'bar',
-                            markPoint : {
-                                data : [
-                                    {type : 'max', name: '最大值'},
-                                    {type : 'min', name: '最小值'}
-                                ]
-                            },
-                            markLine : {
-                                data : [
-                                    {type : 'average', name: '平均值'}
-                                ]
-                            },        
-                            data: {{ voltage_list }}
-                        },
-                 
-                    ]
-                };
+    tooltip : {
+        trigger: 'axis'
+    },
+    grid: {
+        y: 200
+    },
+    legend: {
+        y: 30,
+        data:{{ID_list}}
+    },
+    toolbox: {
+        show : true,
+        feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            magicType : {show: true, type: ['line']},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    dataZoom : {
+        show : false,
+        start : 0,
+        end : 100
+    },
+    xAxis : [
+        {
+            type : 'category',
+            // splitNumber:30,
+            boundaryGap : true,
+            data : {{timelist}}
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value',
+            scale: true,
+            name : '个数',
+            boundaryGap: [0.2, 0.2]
+        }
+    ],
+    series : {{voltagedata_list}}
+};
                 // 为echarts对象加载数据
                 myChart.setOption(option);
             }
         );
+
     </script>
-
-
 
 
 {% endautoescape %}
