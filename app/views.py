@@ -821,6 +821,41 @@ def node_search():
             nodeid=nodepick,nodelist = nodeid_list,cpu=cpu,lpm=lpm,tx=tx,rx=rx,
             voltage_list=voltage_list,time_list_1=time_list_1,time_list_2=time_list_2,current_list=current_list)
 
+#节点部署信息查询
+@app.route('/deploysearch/', methods=['POST', 'GET'])
+@app.route('/deploysearch', methods=['POST', 'GET'])
+def deploysearch():
+    nodeid_list = list()
+    nodeid = DATABASE.my_db_execute('select distinct NodeID from NodePlace;',None)
+    for i in range(len(nodeid)):
+        nodeid_list.append(nodeid[i][0].encode('ascii'))
+    nodeid_list.sort()
+
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        nodepick  =  request.form['nodeselect']
+        # print nodepick
+        deploy_info = DATABASE.my_db_execute('select NodeID, MeterID, Place from NodePlace where NodeID == ?;',(nodepick,))
+        deploy = list()
+        deploy.append(deploy_info[0][0].encode('ascii'))
+        deploy.append(deploy_info[0][1].encode('ascii'))
+        deploy.append(deploy_info[0][2].encode('ascii'))
+
+        index_of_pick=nodeid_list.index(nodepick)
+        temp=nodeid_list[index_of_pick]
+        nodeid_list[index_of_pick]=nodeid_list[0]
+        nodeid_list[0]=temp
+        nodepick  =  "\""+nodepick+"\""
+
+        return render_template('./dataanalyzer/deploysearch.html',
+            nodeid=nodepick,nodelist = nodeid_list,deploy=deploy)
+    else:
+
+        return render_template('./dataanalyzer/deploysearch.html',
+            nodeid="",nodelist = nodeid_list,deploy=[])
+
 @app.route('/network_data/', methods=['POST', 'GET'])
 @app.route('/network_data', methods=['POST', 'GET'])
 def network_data():
