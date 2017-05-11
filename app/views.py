@@ -200,6 +200,7 @@ def currentdisplay():
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         if ID_set:
             ID_list = list()
+            time1 = time.clock()
             for i in range(len(ID_set)):
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(start_time,end_time) #取每层调度
@@ -217,7 +218,9 @@ def currentdisplay():
                 dicts = dict()
                 dicts["name"] = ID
                 dicts["data"] = currentlist
-                currentdata_list.append(dicts)    
+                currentdata_list.append(dicts) 
+                time2 = time.clock()
+            print time2 - time1   
             # print syntimedata_list        
             return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
         else:
