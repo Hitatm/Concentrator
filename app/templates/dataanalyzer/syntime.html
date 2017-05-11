@@ -3,13 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rtmetric展示</title>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head lang="en">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rtmetric展示</title>
+    <title>时间同步展示</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -109,7 +103,7 @@
 <body>
 <div>
     <div class="container ">
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('rtmetricdisplay')}}">
+        <form enctype="multipart/form-data" method="POST" action="{{url_for('syntime')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -126,8 +120,7 @@
         　</form> 
     </div>  
 </div>
-<h4 align="center">Rtmetric</h4>
-<br><!--常见协议和数据包长度图-->
+<h4 align="center">时间同步</h4>
 <div id="topo" style="height:1000px;width:90%;float:center"></div>
 
 {% autoescape false %}
@@ -194,53 +187,13 @@
             boundaryGap: [0.2, 0.2]
         }
     ],
-    series : {{rtxdata_list}}
+    series : {{syntimedata_list}}
 };
                 // 为echarts对象加载数据
                 myChart.setOption(option);
             }
         );
 
-
-// var myArray = new Array();
-
-// function (){
-//     $.ajax({
-//     type:"post",
-//     url:"{{url_for('rtmetricdisplay')}}",
-//     cache:false,
-//     contentType: "application/json;charset=UTF-8",
-//     dataType:"json",
-//     success:function(msg)
-//     {
-//         // alert(msg);
-//         var len = msg[1].length; 
-//         var timelist = msg[0];
-//         option.xAxis.data.push(timelist)
-//         for (var x =0;x<len;x++) 
-//         {
-//             option.legend.data.push(ID);
-//             // var ID   = msg[1][x]['ID'];
-//             // var rtxlist = msg[1][x]['rtxlist'];
-        
-//             option.series.push({
-//                 // name: ID,     // 系列名称
-//                 // type: 'line',  // 图表类型，折线图line、散点图scatter、柱状图bar、饼图pie、雷达图radar
-//                 // symbolSize:3,
-//                 // itemStyle: { normal: { lineStyle: { width:4 } }},      
-//                 // data: rtxlist
-//                 msg[1]
-//             });
-            
-            
-//             myChart.setOption(option);
-//         }
-
-//     }
-// }
-//     )
-
-// };
     </script>
 
 
