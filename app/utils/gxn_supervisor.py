@@ -48,7 +48,7 @@ def stopAllProcesses():
 	server=xmlrpclib.Server('http://localhost:9001/RPC2')
 	server.supervisor.stopAllProcesses()
 	return True
-stopAllProcesses()
+# stopAllProcesses()
 # print getAllProcessInfo()
 # print stopProcess('mytest')
 # print startProcess('mytest')
