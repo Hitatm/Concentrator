@@ -125,57 +125,79 @@ def rtmetricdisplay():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     elif request.method == 'POST':
+        time1=time.time()
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        rtxdata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(start_time,end_time) #取每层调度
-            for ID in ID_list:
-                rtxlist = list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if rtx:
-                        rtxlist.append(rtx[0][0])
-                    else:
-                        rtxlist.append("PacketLoss")
-                for i in range(len(rtxlist)):
-                    if rtxlist[i] == "PacketLoss" and i>=1:
-                        rtxlist[i] == rtxlist[i-1]
-                    elif rtxlist[i] == "PacketLoss" and i==1:
-                        rtxlist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
-                dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
-                dicts["data"] = rtxlist
-                rtxdata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/rtmetricdisplay.html',ID_list=ID_list,timelist = schedule_list, rtxdata_list=rtxdata_list)
-        else:
-            return render_template('./dataanalyzer/rtmetricdisplay.html')
+        rtxdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
+        # ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        # if ID_set:
+        #     ID_list = list()
+        #     for i in range(len(ID_set)):
+        #         ID_list.append(ID_set[i][0].encode('ascii'))
+        #     schedule_list = get_schedule_time(start_time,end_time) #取每层调度
+        #     for ID in ID_list:
+        #         rtxlist=  list()
+        #         for item in schedule_list:
+        #             this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+        #             this_end_time = this_start_time + 10 * 60
+        #             rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+        #             rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+        #             rtx = DATABASE.my_db_execute("select rtimetric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+        #             if rtx:
+        #                 timestamp = int(time.mktime(time.strptime(rtx[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+        #                 rtxlist.append([timestamp,rtx[0][0]])
+        #         dicts = dict()
+        #         dicts["name"] = ID
+        #         dicts["data"] = rtxlist
+        #         rtxdata_list.append(dicts)    
+        #     print rtxdata_list[0]
+        # sqlite 查询0.011s
+        
+        rtxlist=  list()
+        Rtmetric_set = DATABASE.my_db_execute("select NodeID,rtimetric,currenttime from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        
+        # print Rtmetric_set
+        
+        for x in Rtmetric_set:
+            dicts=dict()
+            time_ms = int(time.mktime(time.strptime(x[2],'%Y-%m-%d %H:%M:%S'))*1000)
+            dicts["name"] = x[0].encode('ascii')
+            dicts["data"] = [int(time_ms),int(x[1])]
+            rtxlist.append(dicts)     
+            # dicts[x[0]].append(x[1]) 
+            # {'data': [1493568035000L, 835], 'name': u'0101'}
+        print time.time()-time1
+        # print rtxlist[0]
+        dicttemp=dict()
+        for x in rtxlist:
+            if x["name"] in dicttemp:
+                dicttemp[x["name"]].append(x["data"])
+            else:
+                dicttemp[x["name"]]=[x["data"]]
+    
+        print time.time()-time1
+        # print dicttemp
+        for key,value in dicttemp.items():
+            dicts = dict()
+            dicts["name"] = key
+            dicts["data"] = value
+            print dicts
+            rtxdata_list.append(dicts)
+
+        print time.time()-time1
+        # print rtxdata_list[0]   
+
+        
+        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
+        # else:
+        #     return render_template('./dataanalyzer/rtmetricdisplay.html')
     else:
         t = time.time()
-        # t_start_time = time.mktime(time.strptime('2017-05-01 0:0:0','%Y-%m-%d %H:%M:%S'))
-        # t_end_time = t_start_time +  4 * 60 * 60
-        # previous_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_start_time))
-        # current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_end_time))
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
-        rtxdata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        rtxdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         if ID_set:
             ID_list = list()
@@ -183,36 +205,24 @@ def rtmetricdisplay():
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
             for ID in ID_list:
-                rtxlist = list()
+                rtxlist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    rtx = DATABASE.my_db_execute("select rtimetric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    rtx = DATABASE.my_db_execute("select rtimetric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if rtx:
-                        rtxlist.append(rtx[0][0])
-                    else:
-                        rtxlist.append("PacketLoss")
-                for i in range(len(rtxlist)):
-                    if rtxlist[i] == "PacketLoss" and i>=1:
-                        rtxlist[i] == rtxlist[i-1]
-                    elif rtxlist[i] == "PacketLoss" and i==1:
-                        rtxlist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(rtx[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        rtxlist.append([timestamp,rtx[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = rtxlist
                 rtxdata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/rtmetricdisplay.html',ID_list=ID_list,timelist = schedule_list, rtxdata_list=rtxdata_list)
+            return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
         else:
             return render_template('./dataanalyzer/rtmetricdisplay.html')
+            
 #电流随时间变化
 @app.route('/currentdisplay/', methods=['POST', 'GET'])
 @app.route('/currentdisplay', methods=['POST', 'GET'])
@@ -224,54 +234,41 @@ def currentdisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        currentdata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        currentdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         if ID_set:
             ID_list = list()
+            time1 = time.clock()
             for i in range(len(ID_set)):
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(start_time,end_time) #取每层调度
             for ID in ID_list:
-                currentlist = list()
+                currentlist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    current = DATABASE.my_db_execute("select electric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    current = DATABASE.my_db_execute("select electric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if current:
-                        currentlist.append(current[0][0])
-                    else:
-                        currentlist.append("PacketLoss")
-                for i in range(len(currentlist)):
-                    if currentlist[i] == "PacketLoss" and i>=1:
-                        currentlist[i] == currentlist[i-1]
-                    elif currentlist[i] == "PacketLoss" and i==1:
-                        currentlist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(current[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        currentlist.append([timestamp,current[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = currentlist
-                currentdata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/currentdisplay.html',ID_list=ID_list,timelist = schedule_list, currentdata_list=currentdata_list)
+                currentdata_list.append(dicts) 
+                time2 = time.clock()
+            print time2 - time1   
+            # print syntimedata_list        
+            return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
         else:
             return render_template('./dataanalyzer/currentdisplay.html')
     else:
         t = time.time()
-        # t_start_time = time.mktime(time.strptime('2017-05-01 0:0:0','%Y-%m-%d %H:%M:%S'))
-        # t_end_time = t_start_time +  4 * 60 * 60
-        # previous_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_start_time))
-        # current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_end_time))
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
-        currentdata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        currentdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         if ID_set:
             ID_list = list()
@@ -279,36 +276,24 @@ def currentdisplay():
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
             for ID in ID_list:
-                currentlist = list()
+                currentlist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    current = DATABASE.my_db_execute("select electric from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    current = DATABASE.my_db_execute("select electric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if current:
-                        currentlist.append(current[0][0])
-                    else:
-                        currentlist.append("PacketLoss")
-                for i in range(len(currentlist)):
-                    if currentlist[i] == "PacketLoss" and i>=1:
-                        currentlist[i] == currentlist[i-1]
-                    elif currentlist[i] == "PacketLoss" and i==1:
-                        currentlist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(current[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        currentlist.append([timestamp,current[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = currentlist
                 currentdata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/currentdisplay.html',ID_list=ID_list,timelist = schedule_list, currentdata_list=currentdata_list)
+            return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
         else:
             return render_template('./dataanalyzer/currentdisplay.html')
+
 #时间同步展示
 @app.route('/syntime/', methods=['POST', 'GET'])
 @app.route('/syntime', methods=['POST', 'GET'])
@@ -320,7 +305,7 @@ def syntime():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        syntimedata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        syntimedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         if ID_set:
             ID_list = list()
@@ -328,46 +313,30 @@ def syntime():
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(start_time,end_time) #取每层调度
             for ID in ID_list:
-                syntimelist = list()
+                syntimelist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    syntime = DATABASE.my_db_execute("select syntime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    syntime = DATABASE.my_db_execute("select syntime,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if syntime:
-                        syntimelist.append(syntime[0][0])
-                    else:
-                        syntimelist.append("PacketLoss")
-                for i in range(len(syntimelist)):
-                    if syntimelist[i] == "PacketLoss" and i>=1:
-                        syntimelist[i] == syntimelist[i-1]
-                    elif syntimelist[i] == "PacketLoss" and i==1:
-                        syntimelist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(syntime[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        syntimelist.append([timestamp,syntime[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = syntimelist
-                syntimedata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/syntime.html',ID_list=ID_list,timelist = schedule_list, syntimedata_list=syntimedata_list)
+                syntimedata_list.append(dicts)    
+            # print syntimedata_list        
+            return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
         else:
             return render_template('./dataanalyzer/syntime.html')
     else:
         t = time.time()
-        # t_start_time = time.mktime(time.strptime('2017-05-01 0:0:0','%Y-%m-%d %H:%M:%S'))
-        # t_end_time = t_start_time +  4 * 60 * 60
-        # previous_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_start_time))
-        # current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_end_time))
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
-        syntimedata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        syntimedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         if ID_set:
             ID_list = list()
@@ -375,34 +344,21 @@ def syntime():
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
             for ID in ID_list:
-                syntimelist = list()
+                syntimelist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    syntime = DATABASE.my_db_execute("select syntime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    syntime = DATABASE.my_db_execute("select syntime,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if syntime:
-                        syntimelist.append(syntime[0][0])
-                    else:
-                        syntimelist.append("PacketLoss")
-                for i in range(len(syntimelist)):
-                    if syntimelist[i] == "PacketLoss" and i>=1:
-                        syntimelist[i] == syntimelist[i-1]
-                    elif syntimelist[i] == "PacketLoss" and i==1:
-                        syntimelist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(syntime[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        syntimelist.append([timestamp,syntime[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = syntimelist
                 syntimedata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/syntime.html',ID_list=ID_list,timelist = schedule_list, syntimedata_list=syntimedata_list)
+            return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
         else:
             return render_template('./dataanalyzer/syntime.html')
 
@@ -465,7 +421,7 @@ def voltagedisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        voltagedata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        voltagedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
         if ID_set:
             ID_list = list()
@@ -473,46 +429,30 @@ def voltagedisplay():
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(start_time,end_time) #取每层调度
             for ID in ID_list:
-                voltagelist = list()
+                voltagelist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    voltage = DATABASE.my_db_execute("select volage from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    voltage = DATABASE.my_db_execute("select volage,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if voltage:
-                        voltagelist.append(voltage[0][0])
-                    else:
-                        voltagelist.append("PacketLoss")
-                for i in range(len(voltagelist)):
-                    if voltagelist[i] == "PacketLoss" and i>=1:
-                        voltagelist[i] == voltagelist[i-1]
-                    elif voltagelist[i] == "PacketLoss" and i==1:
-                        voltagelist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(voltage[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        voltagelist.append([timestamp,voltage[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = voltagelist
-                voltagedata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/voltagedisplay.html',ID_list=ID_list,timelist = schedule_list, voltagedata_list=voltagedata_list)
+                voltagedata_list.append(dicts)    
+            # print syntimedata_list        
+            return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
         else:
             return render_template('./dataanalyzer/voltagedisplay.html')
     else:
         t = time.time()
-        # t_start_time = time.mktime(time.strptime('2017-05-01 0:0:0','%Y-%m-%d %H:%M:%S'))
-        # t_end_time = t_start_time +  4 * 60 * 60
-        # previous_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_start_time))
-        # current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t_end_time))
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
 
-        voltagedata_list = list() #形如[{ID:0001, rtxlist:[]},{ID:0002,rtxlist:[]}......]
+        voltagedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
         ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         if ID_set:
             ID_list = list()
@@ -520,34 +460,21 @@ def voltagedisplay():
                 ID_list.append(ID_set[i][0].encode('ascii'))
             schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
             for ID in ID_list:
-                voltagelist = list()
+                voltagelist=  list()
                 for item in schedule_list:
                     this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
                     this_end_time = this_start_time + 10 * 60
                     rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
                     rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    voltage = DATABASE.my_db_execute("select volage from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+                    voltage = DATABASE.my_db_execute("select volage,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
                     if voltage:
-                        voltagelist.append(voltage[0][0])
-                    else:
-                        voltagelist.append("PacketLoss")
-                for i in range(len(voltagelist)):
-                    if voltagelist[i] == "PacketLoss" and i>=1:
-                        voltagelist[i] == voltagelist[i-1]
-                    elif voltagelist[i] == "PacketLoss" and i==1:
-                        voltagelist[i] = 0
-                    else:
-                        pass
-                dicts = {}
-                # dicts["ID"] = ID
-                # dicts["rtxlist"] = rtxlist
+                        timestamp = int(time.mktime(time.strptime(voltage[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+                        voltagelist.append([timestamp,voltage[0][0]])
+                dicts = dict()
                 dicts["name"] = ID
-                dicts["type"] = "line"
-                dicts["symbolSize"] = 3
                 dicts["data"] = voltagelist
                 voltagedata_list.append(dicts)
-            # print rtxdata_list,schedule_list
-            return render_template('./dataanalyzer/voltagedisplay.html',ID_list=ID_list,timelist = schedule_list, voltagedata_list=voltagedata_list)
+            return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
         else:
             return render_template('./dataanalyzer/voltagedisplay.html')
 
