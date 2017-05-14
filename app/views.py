@@ -125,35 +125,73 @@ def rtmetricdisplay():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     elif request.method == 'POST':
+        time1=time.time()
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         rtxdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(start_time,end_time) #取每层调度
-            for ID in ID_list:
-                rtxlist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    rtx = DATABASE.my_db_execute("select rtimetric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if rtx:
-                        timestamp = int(time.mktime(time.strptime(rtx[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        rtxlist.append([timestamp,rtx[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = rtxlist
-                rtxdata_list.append(dicts)    
-            # print syntimedata_list        
-            return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
-        else:
-            return render_template('./dataanalyzer/rtmetricdisplay.html')
+        # ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        # if ID_set:
+        #     ID_list = list()
+        #     for i in range(len(ID_set)):
+        #         ID_list.append(ID_set[i][0].encode('ascii'))
+        #     schedule_list = get_schedule_time(start_time,end_time) #取每层调度
+        #     for ID in ID_list:
+        #         rtxlist=  list()
+        #         for item in schedule_list:
+        #             this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
+        #             this_end_time = this_start_time + 10 * 60
+        #             rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
+        #             rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
+        #             rtx = DATABASE.my_db_execute("select rtimetric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
+        #             if rtx:
+        #                 timestamp = int(time.mktime(time.strptime(rtx[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
+        #                 rtxlist.append([timestamp,rtx[0][0]])
+        #         dicts = dict()
+        #         dicts["name"] = ID
+        #         dicts["data"] = rtxlist
+        #         rtxdata_list.append(dicts)    
+        #     print rtxdata_list[0]
+        # sqlite 查询0.011s
+        
+        rtxlist=  list()
+        Rtmetric_set = DATABASE.my_db_execute("select NodeID,rtimetric,currenttime from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+        
+        # print Rtmetric_set
+        
+        for x in Rtmetric_set:
+            dicts=dict()
+            time_ms = int(time.mktime(time.strptime(x[2],'%Y-%m-%d %H:%M:%S'))*1000)
+            dicts["name"] = x[0].encode('ascii')
+            dicts["data"] = [int(time_ms),int(x[1])]
+            rtxlist.append(dicts)     
+            # dicts[x[0]].append(x[1]) 
+            # {'data': [1493568035000L, 835], 'name': u'0101'}
+        print time.time()-time1
+        # print rtxlist[0]
+        dicttemp=dict()
+        for x in rtxlist:
+            if x["name"] in dicttemp:
+                dicttemp[x["name"]].append(x["data"])
+            else:
+                dicttemp[x["name"]]=[x["data"]]
+    
+        print time.time()-time1
+        # print dicttemp
+        for key,value in dicttemp.items():
+            dicts = dict()
+            dicts["name"] = key
+            dicts["data"] = value
+            print dicts
+            rtxdata_list.append(dicts)
+
+        print time.time()-time1
+        # print rtxdata_list[0]   
+
+        
+        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
+        # else:
+        #     return render_template('./dataanalyzer/rtmetricdisplay.html')
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
