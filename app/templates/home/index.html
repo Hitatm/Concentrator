@@ -222,7 +222,7 @@
 						</li>
 						<li >
 							<a href="{{ url_for('currentdisplay') }}"  target="main-content">
-							  采样电流展示
+							  节点平均电流展示
 							</a>
 						</li>
 						<li >
@@ -324,6 +324,11 @@
 							  同步时差随时间变化
 							</a>
 						</li>
+						<li >
+							<a href="{{ url_for('deploysearch') }}"  target="main-content">
+							  部署信息查询
+							</a>
+						</li>
 
 
 					</ul>
@@ -344,9 +349,13 @@
 					<ul class="sub-menu">
 
 						<li >
-
 							<a href="{{ url_for('exceptinfo') }}" target="main-content">
 							   异常警告
+							</a>
+						</li>
+						<li >
+							<a href="{{ url_for('synerror') }}" target="main-content">
+							   时间同步节点异常列表
 							</a>
 						</li>
 

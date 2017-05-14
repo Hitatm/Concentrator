@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>时间同步展示</title>
+    <title>节点平均电流展示</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -120,7 +120,7 @@
         　</form> 
     </div>  
 </div>
-<h4 align="center">电流随时间变化</h4>
+<h4 align="center">节点平均电流随时间变化</h4>
 <div id="topo" style="height:1000px;width:90%;float:center"></div>
 
 {% autoescape false %}
@@ -183,7 +183,7 @@
         {
             type : 'value',
             scale: true,
-            name : 'mA',
+            name : 'μA',
             boundaryGap: [0.2, 0.2]
         }
     ],
