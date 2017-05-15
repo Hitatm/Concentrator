@@ -13,6 +13,7 @@ from utils.gxn_get_sys_config import Config
 from utils.num_of_rounds import countrounds,get_schedule_time,appdatacount,netdatacount
 from utils.connect import Connect
 from utils.db_operate import DBClass
+from utils.display import multipledisplay,singledisplay,NetID_list
 
 from utils.old_data_display import Display, Modify
 from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,startAllProcesses,stopAllProcesses
@@ -129,99 +130,16 @@ def rtmetricdisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        rtxdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        # ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        # if ID_set:
-        #     ID_list = list()
-        #     for i in range(len(ID_set)):
-        #         ID_list.append(ID_set[i][0].encode('ascii'))
-        #     schedule_list = get_schedule_time(start_time,end_time) #取每层调度
-        #     for ID in ID_list:
-        #         rtxlist=  list()
-        #         for item in schedule_list:
-        #             this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-        #             this_end_time = this_start_time + 10 * 60
-        #             rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-        #             rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-        #             rtx = DATABASE.my_db_execute("select rtimetric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-        #             if rtx:
-        #                 timestamp = int(time.mktime(time.strptime(rtx[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-        #                 rtxlist.append([timestamp,rtx[0][0]])
-        #         dicts = dict()
-        #         dicts["name"] = ID
-        #         dicts["data"] = rtxlist
-        #         rtxdata_list.append(dicts)    
-        #     print rtxdata_list[0]
-        # sqlite 查询0.011s
-        
-        rtxlist=  list()
-        Rtmetric_set = DATABASE.my_db_execute("select NodeID,rtimetric,currenttime from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        
-        # print Rtmetric_set
-        
-        for x in Rtmetric_set:
-            dicts=dict()
-            time_ms = int(time.mktime(time.strptime(x[2],'%Y-%m-%d %H:%M:%S'))*1000)
-            dicts["name"] = x[0].encode('ascii')
-            dicts["data"] = [int(time_ms),int(x[1])]
-            rtxlist.append(dicts)     
-            # dicts[x[0]].append(x[1]) 
-            # {'data': [1493568035000L, 835], 'name': u'0101'}
-        print time.time()-time1
-        # print rtxlist[0]
-        dicttemp=dict()
-        for x in rtxlist:
-            if x["name"] in dicttemp:
-                dicttemp[x["name"]].append(x["data"])
-            else:
-                dicttemp[x["name"]]=[x["data"]]
-    
-        print time.time()-time1
-        # print dicttemp
-        for key,value in dicttemp.items():
-            dicts = dict()
-            dicts["name"] = key
-            dicts["data"] = value
-            # print dicts
-            rtxdata_list.append(dicts)
-
-        # print time.time()-time1
-        # print rtxdata_list[0]   
-
+        rtxdata_list = multipledisplay(start_time,end_time,"rtimetric")
         
         return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
-        # else:
-        #     return render_template('./dataanalyzer/rtmetricdisplay.html')
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-
-        rtxdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
-            for ID in ID_list:
-                rtxlist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    rtx = DATABASE.my_db_execute("select rtimetric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if rtx:
-                        timestamp = int(time.mktime(time.strptime(rtx[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        rtxlist.append([timestamp,rtx[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = rtxlist
-                rtxdata_list.append(dicts)
-            return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
-        else:
-            return render_template('./dataanalyzer/rtmetricdisplay.html')
+        rtxdata_list = multipledisplay(previous_time,current_time,"rtimetric")
+        
+        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
             
 #电流随时间变化
 @app.route('/currentdisplay/', methods=['POST', 'GET'])
@@ -234,65 +152,14 @@ def currentdisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        currentdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        if ID_set:
-            ID_list = list()
-            time1 = time.clock()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(start_time,end_time) #取每层调度
-            for ID in ID_list:
-                currentlist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    current = DATABASE.my_db_execute("select electric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if current:
-                        timestamp = int(time.mktime(time.strptime(current[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        currentlist.append([timestamp,current[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = currentlist
-                currentdata_list.append(dicts) 
-                time2 = time.clock()
-            print time2 - time1   
-            # print syntimedata_list        
-            return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
-        else:
-            return render_template('./dataanalyzer/currentdisplay.html')
+        currentdata_list = multipledisplay(start_time,end_time,"electric")
+        return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-
-        currentdata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
-            for ID in ID_list:
-                currentlist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    current = DATABASE.my_db_execute("select electric,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if current:
-                        timestamp = int(time.mktime(time.strptime(current[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        currentlist.append([timestamp,current[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = currentlist
-                currentdata_list.append(dicts)
-            return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
-        else:
-            return render_template('./dataanalyzer/currentdisplay.html')
+        currentdata_list = multipledisplay(previous_time,current_time,"electric")
+        return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
 
 #时间同步展示
 @app.route('/syntime/', methods=['POST', 'GET'])
@@ -305,62 +172,15 @@ def syntime():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        syntimedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(start_time,end_time) #取每层调度
-            for ID in ID_list:
-                syntimelist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    syntime = DATABASE.my_db_execute("select syntime,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if syntime:
-                        timestamp = int(time.mktime(time.strptime(syntime[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        syntimelist.append([timestamp,syntime[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = syntimelist
-                syntimedata_list.append(dicts)    
-            # print syntimedata_list        
-            return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
-        else:
-            return render_template('./dataanalyzer/syntime.html')
+        syntimedata_list = multipledisplay(start_time,end_time,"syntime")
+        return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        syntimedata_list = multipledisplay(previous_time,current_time,"syntime")
+        return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
 
-        syntimedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
-            for ID in ID_list:
-                syntimelist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    syntime = DATABASE.my_db_execute("select syntime,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if syntime:
-                        timestamp = int(time.mktime(time.strptime(syntime[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        syntimelist.append([timestamp,syntime[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = syntimelist
-                syntimedata_list.append(dicts)
-            return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
-        else:
-            return render_template('./dataanalyzer/syntime.html')
 
 # 节点能耗展示
 @app.route('/energydisplay/', methods=['POST', 'GET'])
@@ -373,14 +193,11 @@ def energydisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        ID_list = list()
+        ID_list = NetID_list(start_time,end_time)
         cpu_list = list()
         lpm_list = list()
         tx_list = list()
         rx_list = list()
-        for i in range(len(ID_set)):
-            ID_list.append(ID_set[i][0].encode('ascii'))
         for ID in ID_list:
             energy = DATABASE.my_db_execute("select CPU,LPM,TX,RX from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
             cpu_list.append(round(float(energy[0][0])/32768,2))
@@ -393,15 +210,11 @@ def energydisplay():
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        ID_list = list()
+        ID_list = NetID_list(previous_time,current_time)
         cpu_list = list()
         lpm_list = list()
         tx_list = list()
         rx_list = list()
-        for i in range(len(ID_set)):
-            ID_list.append(ID_set[i][0].encode('ascii'))
         for ID in ID_list:
             energy = DATABASE.my_db_execute("select CPU,LPM,TX,RX from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
             cpu_list.append(round(float(energy[0][0])/32768,2))
@@ -421,62 +234,14 @@ def voltagedisplay():
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        voltagedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(start_time,end_time) #取每层调度
-            for ID in ID_list:
-                voltagelist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    voltage = DATABASE.my_db_execute("select volage,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if voltage:
-                        timestamp = int(time.mktime(time.strptime(voltage[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        voltagelist.append([timestamp,voltage[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = voltagelist
-                voltagedata_list.append(dicts)    
-            # print syntimedata_list        
-            return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
-        else:
-            return render_template('./dataanalyzer/voltagedisplay.html')
+        voltagedata_list = multipledisplay(start_time,end_time,"syntime")
+        return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-
-        voltagedata_list = list() #形如[ [Date.UTC(1970,  9, 27), 0],[Date.UTC(1970, 10, 10), 0.6 ],...]
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        if ID_set:
-            ID_list = list()
-            for i in range(len(ID_set)):
-                ID_list.append(ID_set[i][0].encode('ascii'))
-            schedule_list = get_schedule_time(previous_time,current_time) #取每层调度
-            for ID in ID_list:
-                voltagelist=  list()
-                for item in schedule_list:
-                    this_start_time = time.mktime(time.strptime(item,'%Y-%m-%d %H:%M:%S'))
-                    this_end_time = this_start_time + 10 * 60
-                    rstart_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_start_time))
-                    rend_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(this_end_time))
-                    voltage = DATABASE.my_db_execute("select volage,currenttime from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime ;",(ID, rstart_time, rend_time))
-                    if voltage:
-                        timestamp = int(time.mktime(time.strptime(voltage[0][1],'%Y-%m-%d %H:%M:%S'))*1000)
-                        voltagelist.append([timestamp,voltage[0][0]])
-                dicts = dict()
-                dicts["name"] = ID
-                dicts["data"] = voltagelist
-                voltagedata_list.append(dicts)
-            return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
-        else:
-            return render_template('./dataanalyzer/voltagedisplay.html')
+        voltagedata_list = multipledisplay(previous_time,current_time,"syntime")
+        return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
 
 #重启情况展示
 @app.route('/restartdisplay/', methods=['POST', 'GET'])
@@ -490,43 +255,14 @@ def restartdisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         # print start_time
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-        ID_list = list()
-        reboot_dict = dict()
-        for i in range(len(ID_set)):
-            ID_list.append(ID_set[i][0].encode('ascii'))
-        for ID in ID_list:
-            reboot = DATABASE.my_db_execute("select reboot from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, start_time, end_time))
-            if reboot:
-                reboot_dict[ID] = reboot[0][0]
-        reboot_dict = sorted(reboot_dict.iteritems(), key=lambda d:d[1], reverse=True)
-        ID_list = list()
-        reboot_list = list()
-        for key, value in reboot_dict:
-            ID_list.append(key)
-            reboot_list.append(value)
-        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(ID_list), ID_list = ID_list, reboot_list = reboot_list)
+        dataset = singledisplay(start_time,end_time,"reboot")
+        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
-
-        ID_set = DATABASE.my_db_execute("select distinct NodeID from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        ID_list = list()
-        reboot_dict = dict()
-        for i in range(len(ID_set)):
-            ID_list.append(ID_set[i][0].encode('ascii'))
-        for ID in ID_list:
-            reboot = DATABASE.my_db_execute("select reboot from NetMonitor where NodeID == ? and currenttime >= ? and currenttime <= ? order by currenttime desc LIMIT 1;",(ID, previous_time, current_time))
-            if reboot:
-                reboot_dict[ID] = reboot[0][0]
-        reboot_dict = sorted(reboot_dict.iteritems(), key=lambda d:d[1], reverse=True)
-        ID_list = list()
-        reboot_list = list()
-        for key, value in reboot_dict:
-            ID_list.append(key)
-            reboot_list.append(value)
-        return render_template('./dataanalyzer/restartdisplay.html', ID_list = ID_list, reboot_list = reboot_list)
+        dataset = singledisplay(previous_time,current_time,"reboot")
+        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1])
 
 # 部署信息表
 @app.route('/deploy_info/', methods=['POST', 'GET'])
