@@ -1,7 +1,7 @@
 #coding:UTF-8
 __author__ = 'dj'
 
-from scapy.all import *
+
 import collections
 #数据包大小统计
 from gxn_get_sys_config import Config

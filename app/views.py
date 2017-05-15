@@ -182,10 +182,10 @@ def rtmetricdisplay():
             dicts = dict()
             dicts["name"] = key
             dicts["data"] = value
-            print dicts
+            # print dicts
             rtxdata_list.append(dicts)
 
-        print time.time()-time1
+        # print time.time()-time1
         # print rtxdata_list[0]   
 
         
