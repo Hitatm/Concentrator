@@ -70,21 +70,13 @@ def countrounds(start_time, end_time):
         count = days * num_in_schedule
         return count
 
-def appdatacount(start_time, end_time, NodeID):
-    DATABASE = DBClass()
-    exist = 0
-    appdata = DATABASE.my_db_execute('select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, NodeID))
-    if appdata:
-        exist = 1
-    return exist
-
-def netdatacount(start_time, end_time, NodeID):
-    DATABASE = DBClass()
-    exist = 0
-    appdata = DATABASE.my_db_execute('select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, NodeID))
-    if appdata:
-        exist = 1
-    return exist
+# def datacount(start_time, end_time, db, NodeID):
+#     DATABASE = DBClass()
+#     exist = 0
+#     appdata = DATABASE.my_db_execute('select * from '+ db +'where currenttime >= ? and currenttime <= ? and NodeID == ?;',(start_time, end_time, NodeID))
+#     if appdata:
+#         exist = 1
+#     return exist
 
 def date_addone(year, month, day):
     year = int(year)
