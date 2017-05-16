@@ -400,7 +400,7 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=nodepick,nodelist = data[0],cpu=data[1],lpm=data[2],tx=data[3],rx=data[4],
-            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8])
+            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10])
     else:
         nodepick    =  nodeid_list[0]
         end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
@@ -409,7 +409,7 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=str(nodepick),nodelist = data[0],cpu=data[1],lpm=data[2],tx=data[3],rx=data[4],
-            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8])
+            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10])
 
 #节点部署信息查询
 @app.route('/deploysearch/', methods=['POST', 'GET'])

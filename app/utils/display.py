@@ -151,8 +151,10 @@ def protodisplay(time1,time2):
 def nodesearch_display(time1,time2,node):
     time_list_1 = list()
     time_list_2 = list()
+    time_list_3 = list()
     voltage_list = list()
     current_list = list()
+    rtx_list = list()
     nodeid_list = NetID_all()
     nodeid_list.sort()
     cpu ,lpm ,tx ,rx=[0,0,0,0]
@@ -164,7 +166,11 @@ def nodesearch_display(time1,time2,node):
     current = DATABASE.my_db_execute('select currenttime, electric from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(time1, time2, node))
     for i in range(len(current)):
         time_list_2.append(current[i][0].encode('ascii'))
-        current_list.append(current[i][1])
+        current_list.append(round(float(current[i][1]),2))
+    rtx = DATABASE.my_db_execute('select currenttime, rtimetric from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(time1, time2, node))
+    for i in range(len(rtx)):
+        time_list_3.append(rtx[i][0].encode('ascii'))
+        rtx_list.append(rtx[i][1])
 
     energycost = DATABASE.my_db_execute('select CPU,LPM,TX,RX from NetMonitor where NodeID==? order by ID desc LIMIT 1',(node,))
     cpu= round(float(energycost[0][0])/32768,2)
@@ -177,7 +183,7 @@ def nodesearch_display(time1,time2,node):
     nodeid_list[index_of_pick]=nodeid_list[0]
     nodeid_list[0]=temp
     nodepick  =  "\""+node+"\""
-    return nodeid_list,str(cpu),str(lpm),str(tx),str(rx),voltage_list,time_list_1,time_list_2,current_list
+    return nodeid_list,str(cpu),str(lpm),str(tx),str(rx),voltage_list,time_list_1,time_list_2,current_list,time_list_3,rtx_list
 
 
 def node_time_display(time1,time2,db,node):
