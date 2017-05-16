@@ -243,6 +243,45 @@ def restartdisplay():
         dataset = singledisplay(previous_time,current_time,"reboot")
         return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1])
 
+#节点邻居数展示
+@app.route('/nbdisplay/', methods=['POST', 'GET'])
+@app.route('/nbdisplay', methods=['POST', 'GET'])
+def nbdisplay():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        data_list = multipledisplay(start_time,end_time,"numneighbors")
+        return render_template('./dataanalyzer/nbdisplay.html',data_list=data_list)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        data_list = multipledisplay(previous_time,current_time,"numneighbors")
+        return render_template('./dataanalyzer/nbdisplay.html',data_list=data_list)
+#信标间隔展示
+@app.route('/beacondisplay/', methods=['POST', 'GET'])
+@app.route('/beacondisplay', methods=['POST', 'GET'])
+def beacondisplay():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        data_list = multipledisplay(start_time,end_time,"beacon")
+        return render_template('./dataanalyzer/beacondisplay.html',data_list=data_list)
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        data_list = multipledisplay(previous_time,current_time,"beacon")
+        return render_template('./dataanalyzer/beacondisplay.html',data_list=data_list)
+
 # 部署信息表
 @app.route('/deploy_info/', methods=['POST', 'GET'])
 @app.route('/deploy_info', methods=['POST', 'GET'])
@@ -400,7 +439,7 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=nodepick,nodelist = data[0],cpu=data[1],lpm=data[2],tx=data[3],rx=data[4],
-            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10])
+            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10],deploy=data[11])
     else:
         nodepick    =  nodeid_list[0]
         end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
@@ -409,7 +448,7 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=str(nodepick),nodelist = data[0],cpu=data[1],lpm=data[2],tx=data[3],rx=data[4],
-            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10])
+            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10],deploy=data[11])
 
 #节点部署信息查询
 @app.route('/deploysearch/', methods=['POST', 'GET'])

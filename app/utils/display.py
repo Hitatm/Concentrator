@@ -159,6 +159,14 @@ def nodesearch_display(time1,time2,node):
     nodeid_list.sort()
     cpu ,lpm ,tx ,rx=[0,0,0,0]
 
+    deploy_info = DATABASE.my_db_execute('select NodeID, MeterID, Place from NodePlace where NodeID == ?;',(node,))
+    if deploy_info:
+        deploy = list()
+        deploy.append(deploy_info[0][0].encode('ascii'))
+        deploy.append(deploy_info[0][1].encode('ascii'))
+        deploy.append(deploy_info[0][2].encode('ascii'))
+    else:
+        deploy = ["no data","no data","no data"]
     voltage = DATABASE.my_db_execute('select currenttime, volage from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;',(time1, time2, node))
     for i in range(len(voltage)):
         time_list_1.append(voltage[i][0].encode('ascii'))
@@ -183,7 +191,7 @@ def nodesearch_display(time1,time2,node):
     nodeid_list[index_of_pick]=nodeid_list[0]
     nodeid_list[0]=temp
     nodepick  =  "\""+node+"\""
-    return nodeid_list,str(cpu),str(lpm),str(tx),str(rx),voltage_list,time_list_1,time_list_2,current_list,time_list_3,rtx_list
+    return nodeid_list,str(cpu),str(lpm),str(tx),str(rx),voltage_list,time_list_1,time_list_2,current_list,time_list_3,rtx_list,deploy
 
 
 def node_time_display(time1,time2,db,node):

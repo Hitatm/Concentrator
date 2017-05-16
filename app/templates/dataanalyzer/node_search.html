@@ -113,6 +113,7 @@
 
 <div>
 <h1 align="center">节点信息查询</h1>
+
     <div class="container ">
        
         <form class="navbar-form navbar-left" enctype="multipart/form-data" method="POST" action="{{url_for('node_search')}}">
@@ -149,13 +150,7 @@
 
                     </div>
 
-                         
                   
-
-                  
-                        
-                        
-                    
         　</form> 
 
 
@@ -166,6 +161,26 @@
 
          </div> 
 </div>
+<table class="table table-bordered">
+      <thead>
+        <tr>
+            <th class="text-center">节点ID</th>
+            <th class="text-center">表ID</th>
+            <th class="text-center">存放位置</th>
+
+        </tr>
+      </thead>
+      <tbody>
+
+      <tr data-toggle="modal" data-target="#myModal">
+          <td class="text-nowrap text-center">{{ deploy[0] }}</td>
+          <td class="text-center text-nowrap">{{ deploy[1] }}</td>
+          <td class="text-center text-nowrap">{{ deploy[2] }}</td>
+         
+        </tr>
+      </tbody>
+    </table>                  
+
 <!-- <div style="height: 400px; width: 95%"> -->
     <div id="energy_consume" style="height: 300px;width: 45%;float:left;"></div>
 <!-- </div> -->
