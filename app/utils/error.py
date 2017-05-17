@@ -149,8 +149,8 @@ def data_error_new(time1,time2):
     for info in nodeinfo:
         if info[1] in (inodeset | vnodeset):
             lists.append([info[1],info[2],info[3]])
-
-    return warning_list_v,warning_list_i,lists
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return warning_list_v,warning_list_i,lists,timedisplay
 
 def syn_error(time1,time2):
     # warning_list= list()    
@@ -241,4 +241,5 @@ def syn_error(time1,time2):
     for info in nodeinfo:
         if info[1] in nodes:
             lists.append([info[1],info[2],info[3]])
-    return data_list,lists
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return data_list,lists,timedisplay

@@ -131,14 +131,14 @@ def rtmetricdisplay():
         end_time = selectime.encode("utf-8")[22:41]
         rtxdata_list = multipledisplay(start_time,end_time,"rtimetric")
         
-        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
+        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list[0],time=rtxdata_list[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         rtxdata_list = multipledisplay(previous_time,current_time,"rtimetric")
         
-        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list)
+        return render_template('./dataanalyzer/rtmetricdisplay.html',rtxdata_list=rtxdata_list[0],time=rtxdata_list[1])
             
 #电流随时间变化
 @app.route('/currentdisplay/', methods=['POST', 'GET'])
@@ -152,13 +152,13 @@ def currentdisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         currentdata_list = multipledisplay(start_time,end_time,"electric")
-        return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
+        return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list[0],time=currentdata_list[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         currentdata_list = multipledisplay(previous_time,current_time,"electric")
-        return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list)
+        return render_template('./dataanalyzer/currentdisplay.html',currentdata_list=currentdata_list[0],time=currentdata_list[1])
 
 #时间同步展示
 @app.route('/syntime/', methods=['POST', 'GET'])
@@ -172,13 +172,13 @@ def syntime():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         syntimedata_list = multipledisplay(start_time,end_time,"syntime")
-        return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
+        return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list[0],time=syntimedata_list[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         syntimedata_list = multipledisplay(previous_time,current_time,"syntime")
-        return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list)
+        return render_template('./dataanalyzer/syntime.html',syntimedata_list=syntimedata_list[0],time=syntimedata_list[1])
 
 
 # 节点能耗展示
@@ -194,14 +194,14 @@ def energydisplay():
         end_time = selectime.encode("utf-8")[22:41]
         ID_list = NetID_list(start_time,end_time)
         data = energy_display(start_time,end_time)
-        return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=data[0], lpm_list=data[1], tx_list=data[2], rx_list=data[3])
+        return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=data[0], lpm_list=data[1], tx_list=data[2], rx_list=data[3],time=data[4])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         ID_list = NetID_list(previous_time,current_time)
         data = energy_display(previous_time,current_time)
-        return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=data[0], lpm_list=data[1], tx_list=data[2], rx_list=data[3])
+        return render_template('./dataanalyzer/energydisplay.html', nodecount=len(ID_list), ID_list=ID_list, cpu_list=data[0], lpm_list=data[1], tx_list=data[2], rx_list=data[3],time=data[4])
 
 # 采样电压展示
 @app.route('/voltagedisplay/', methods=['POST', 'GET'])
@@ -215,13 +215,13 @@ def voltagedisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         voltagedata_list = multipledisplay(start_time,end_time,"volage")
-        return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
+        return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list[0],time=voltagedata_list[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         voltagedata_list = multipledisplay(previous_time,current_time,"volage")
-        return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list)
+        return render_template('./dataanalyzer/voltagedisplay.html',voltagedata_list=voltagedata_list[0],time=voltagedata_list[1])
 
 #重启情况展示
 @app.route('/restartdisplay/', methods=['POST', 'GET'])
@@ -235,13 +235,13 @@ def restartdisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         dataset = singledisplay(start_time,end_time,"reboot")
-        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1])
+        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1],time=dataset[2])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         dataset = singledisplay(previous_time,current_time,"reboot")
-        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1])
+        return render_template('./dataanalyzer/restartdisplay.html', nodecount = len(dataset[0]), ID_list = dataset[0], reboot_list = dataset[1],time=dataset[2])
 
 #节点邻居数展示
 @app.route('/nbdisplay/', methods=['POST', 'GET'])
@@ -255,13 +255,13 @@ def nbdisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         data_list = multipledisplay(start_time,end_time,"numneighbors")
-        return render_template('./dataanalyzer/nbdisplay.html',data_list=data_list)
+        return render_template('./dataanalyzer/nbdisplay.html',data_list=data_list[0],time=data_list[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         data_list = multipledisplay(previous_time,current_time,"numneighbors")
-        return render_template('./dataanalyzer/nbdisplay.html',data_list=data_list)
+        return render_template('./dataanalyzer/nbdisplay.html',data_list=data_list[0],time=data_list[1])
 #信标间隔展示
 @app.route('/beacondisplay/', methods=['POST', 'GET'])
 @app.route('/beacondisplay', methods=['POST', 'GET'])
@@ -274,13 +274,13 @@ def beacondisplay():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         data_list = multipledisplay(start_time,end_time,"beacon")
-        return render_template('./dataanalyzer/beacondisplay.html',data_list=data_list)
+        return render_template('./dataanalyzer/beacondisplay.html',data_list=data_list[0],time=data_list[1])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         data_list = multipledisplay(previous_time,current_time,"beacon")
-        return render_template('./dataanalyzer/beacondisplay.html',data_list=data_list)
+        return render_template('./dataanalyzer/beacondisplay.html',data_list=data_list[0],time=data_list[1])
 
 # 部署信息表
 @app.route('/deploy_info/', methods=['POST', 'GET'])
@@ -439,7 +439,7 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=nodepick,nodelist = data[0],cpu=data[1],lpm=data[2],tx=data[3],rx=data[4],
-            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10],deploy=data[11])
+            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10],deploy=data[11],time=data[12])
     else:
         nodepick    =  nodeid_list[0]
         end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
@@ -448,7 +448,7 @@ def node_search():
 
         return render_template('./dataanalyzer/node_search.html',
             nodeid=str(nodepick),nodelist = data[0],cpu=data[1],lpm=data[2],tx=data[3],rx=data[4],
-            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10],deploy=data[11])
+            voltage_list=data[5],time_list_1=data[6],time_list_2=data[7],current_list=data[8],time_list_3=data[9],rtx_list=data[10],deploy=data[11],time=data[12])
 
 #节点部署信息查询
 @app.route('/deploysearch/', methods=['POST', 'GET'])
@@ -499,21 +499,25 @@ def network_data():
         nid = request.form['value']
         if select == "all":
             pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",查询所有节点")
         elif select == "ID":
             pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ? and NodeID == ?;",(start_time, end_time, nid))
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",节点ID为:\""+nid+"\"")
         elif select == "parentID":
             pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ? and ParentID == ?;",(start_time, end_time, nid))
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",父节点ID为:\""+nid+"\"")
         else:
             pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
-
-        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps,length=len(pcaps))
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",查询所有节点")
+        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps,length=len(pcaps),time=timedisplay)
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        timedisplay = ("\""+previous_time + ' - ' + current_time+u"\",未选取节点")
 
         pcaps = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
-        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps,length=len(pcaps))
+        return render_template('./dataanalyzer/network_data.html',pcaps=pcaps,length=len(pcaps),time=timedisplay)
 
 @app.route('/app_data/', methods=['POST', 'GET'])
 @app.route('/app_data', methods=['POST', 'GET'])
@@ -529,24 +533,28 @@ def app_data():
         nid = request.form['value']
         if select == "all":
             pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",查询所有节点")
         elif select == "ID":
             pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ? and NodeID == ?;",(start_time, end_time, nid))
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",节点ID为:\""+nid+"\"")
         else:
             pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(start_time, end_time)) 
+            timedisplay = ("\""+start_time + ' - ' + end_time+u"\",查询所有节点")
         lendict = dict()
         for pcap in pcaps:
             lendict[int(pcap[0])] = len(str(pcap[3]))
-        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict,length=len(pcaps))
+        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict,length=len(pcaps),time=timedisplay)
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        timedisplay = ("\""+previous_time + ' - ' + current_time+u"\",未选取节点")
 
         pcaps = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(previous_time, current_time))
         lendict = dict()
         for pcap in pcaps:
             lendict[int(pcap[0])] = len(str(pcap[3]))
-        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict,length=len(pcaps))
+        return render_template('./dataanalyzer/app_data.html',appdata=pcaps,lendict = lendict,length=len(pcaps),time=timedisplay)
 
 
 #--------------------------------------------与后台通信----------------------------------------------------
@@ -1024,13 +1032,13 @@ def protoanalyzer():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         data = protodisplay(start_time,end_time)
-        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=data[0],postrate=data[1] ,post=data[2], thispostrate=data[3] , http_key=data[4], http_value=data[5] ,nodecount=len(data[4]))
+        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=data[0],postrate=data[1] ,post=data[2], thispostrate=data[3] , http_key=data[4], http_value=data[5] ,nodecount=len(data[4]),time=data[6])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         data = protodisplay(previous_time,current_time)
-        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=data[0],postrate=data[1] ,post=data[2], thispostrate=data[3] , http_key=data[4], http_value=data[5] ,nodecount=len(data[4]))
+        return render_template('./dataanalyzer/protoanalyzer.html',num_of_nodes=data[0],postrate=data[1] ,post=data[2], thispostrate=data[3] , http_key=data[4], http_value=data[5] ,nodecount=len(data[4]),time=data[6])
 
 #流量分析
 @app.route('/flowanalyzer/', methods=['POST', 'GET'])
@@ -1043,13 +1051,13 @@ def flowanalyzer():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         data = flowdisplay(start_time,end_time)
-        return render_template('./dataanalyzer/trafficanalyzer.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3])
+        return render_template('./dataanalyzer/trafficanalyzer.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3],time=data[4])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         data = flowdisplay(previous_time,current_time)
-        return render_template('./dataanalyzer/trafficanalyzer.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3])
+        return render_template('./dataanalyzer/trafficanalyzer.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3],time=data[4])
 
         #上报数量分析
 @app.route('/count_appdata/', methods=['POST', 'GET'])
@@ -1063,13 +1071,13 @@ def count_appdata():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         dataset = selectall(start_time,end_time,"ApplicationData")
-        return render_template('./dataanalyzer/count_appdata.html',nodelist=dataset[0], countlist=dataset[1])
+        return render_template('./dataanalyzer/count_appdata.html',nodelist=dataset[0], countlist=dataset[1],time=dataset[2])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
         dataset = selectall(previous_time,current_time,"ApplicationData")
-        return render_template('./dataanalyzer/count_appdata.html',nodelist=dataset[0], countlist=dataset[1])
+        return render_template('./dataanalyzer/count_appdata.html',nodelist=dataset[0], countlist=dataset[1],time=dataset[2])
 
 # 应用数据分析
 @app.route('/appdataanalyzer/', methods=['POST', 'GET'])
@@ -1084,7 +1092,7 @@ def appdataanalyzer():
         end_time = selectime.encode("utf-8")[22:41]
         nodepick  =  request.form['nodeselect']
         timelist = node_time_display(start_time,end_time,"ApplicationData",nodepick)
-        return render_template('./dataanalyzer/appdataanalyzer.html',timelist=timelist, nodelist = nodeid_list)
+        return render_template('./dataanalyzer/appdataanalyzer.html',timelist=timelist[0], nodelist = nodeid_list,time=timelist[1],node=nodepick)
     else:
         node = DATABASE.my_db_execute('select distinct NodeID from ApplicationData limit 1;',None)
         nodeid = (node[0][0].encode('ascii'))
@@ -1092,7 +1100,7 @@ def appdataanalyzer():
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
         timelist = node_time_display(previous_time,current_time,"ApplicationData",nodeid)
-        return render_template('./dataanalyzer/appdataanalyzer.html',timelist=timelist, nodelist = nodeid_list)
+        return render_template('./dataanalyzer/appdataanalyzer.html',timelist=timelist[0], nodelist = nodeid_list,time=timelist[1],node=nodeid)
 
 #网络数据个数随时间变化曲线
 @app.route('/netcountdisplay/', methods=['POST', 'GET'])
@@ -1110,7 +1118,7 @@ def netcountdisplay():
         end_time = selectime.encode("utf-8")[22:41]
         nodepick  =  request.form['nodeselect']
         timelist = node_time_display(start_time,end_time,"NetMonitor",nodepick)
-        return render_template('./dataanalyzer/netcountdisplay.html',timelist=timelist, nodelist = nodeid_list)
+        return render_template('./dataanalyzer/netcountdisplay.html',timelist=timelist[0], nodelist = nodeid_list,time=timelist[1],node=nodepick)
     else:
         node = DATABASE.my_db_execute('select distinct NodeID from NetMonitor limit 1;',None)
         nodeid = (node[0][0].encode('ascii'))
@@ -1118,7 +1126,7 @@ def netcountdisplay():
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))   
         timelist = node_time_display(previous_time,current_time,"NetMonitor",nodeid)
-        return render_template('./dataanalyzer/netcountdisplay.html',timelist=timelist, nodelist = nodeid_list)
+        return render_template('./dataanalyzer/netcountdisplay.html',timelist=timelist[0], nodelist = nodeid_list,time=timelist[1],node=nodeid)
 
 #同步时差随时间变化
 @app.route('/syntimediffdisplay/', methods=['POST', 'GET'])
@@ -1142,15 +1150,9 @@ def syntimediffdisplay():
         for i in range(len(syntime)):
             time_list.append(syntime[i][0].encode('ascii'))
             syntime_list.append(syntime[i][1])
-
-        index_of_pick=nodeid_list.index(nodepick)
-        temp=nodeid_list[index_of_pick]
-        nodeid_list[index_of_pick]=nodeid_list[0]
-        nodeid_list[0]=temp
-        nodepick  =  "\""+nodepick+"\""
-
+        timedisplay = ("\""+start_time + ' - ' + end_time+"\"").encode('ascii')
         return render_template('./dataanalyzer/syntimediffdisplay.html',
-            nodeid=nodepick,nodelist = nodeid_list,time_list=time_list,syntime_list=syntime_list)
+            nodeid=nodepick,nodelist = nodeid_list,time_list=time_list,syntime_list=syntime_list,time=timedisplay)
     else:
         nodepick    =  nodeid_list[0]
         end_time    = strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
@@ -1160,11 +1162,10 @@ def syntimediffdisplay():
         for i in range(len(syntime)):
             time_list.append(syntime[i][0].encode('ascii'))
             syntime_list.append(syntime[i][1])
-
-        nodepick  =  "\""+nodepick+"\""
+        timedisplay = ("\""+start_time + ' - ' + end_time+"\"").encode('ascii')
         # print nodepick,nodeid_list,cpu,lpm,tx,rx,voltage_list,time_list
         return render_template('./dataanalyzer/syntimediffdisplay.html',
-            nodeid=nodepick,nodelist = nodeid_list,time_list=time_list,syntime_list=syntime_list)
+            nodeid=nodepick,nodelist = nodeid_list,time_list=time_list,syntime_list=syntime_list,time=timedisplay)
 
 
 # 拓扑展示
@@ -1179,7 +1180,7 @@ def topodisplay():
         echarts_end_time = selectime.encode("utf-8")[22:41]
         topodata = topo_display(echarts_start_time,echarts_end_time)
 
-        return render_template('./dataanalyzer/topodisplay.html',nodes = topodata[0], links = topodata[1])
+        return render_template('./dataanalyzer/topodisplay.html',nodes = topodata[0], links = topodata[1],time=topodata[2])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -1227,7 +1228,7 @@ def topodisplay():
         #             m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
         #             links.append(m)
 
-        return render_template('./dataanalyzer/topodisplay.html',nodes = topodata[0], links = topodata[1])
+        return render_template('./dataanalyzer/topodisplay.html',nodes = topodata[0], links = topodata[1],time=topodata[2])
 
 
 
@@ -1258,14 +1259,14 @@ def exceptinfo():
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
         data = data_error_new(start_time,end_time)
-        return render_template('./exceptions/exception.html', vwarning=data[0],iwarning=data[1],lists=data[2])
+        return render_template('./exceptions/exception.html', vwarning=data[0],iwarning=data[1],lists=data[2],time=data[3])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         # 电流过大
         data = data_error_new(previous_time,current_time)
-        return render_template('./exceptions/exception.html', vwarning=data[0],iwarning=data[1],lists=data[2])
+        return render_template('./exceptions/exception.html', vwarning=data[0],iwarning=data[1],lists=data[2],time=data[3])
 
 #时间同步节点异常列表
 @app.route('/synerror/', methods=['POST', 'GET'])
@@ -1279,13 +1280,13 @@ def synerror():
         end_time = selectime.encode("utf-8")[22:41]
         # 时间同步节点异常
         warning_list = syn_error(start_time,end_time)
-        return render_template('./exceptions/synerror.html', warning=warning_list[0],lists=warning_list[1])
+        return render_template('./exceptions/synerror.html', warning=warning_list[0],lists=warning_list[1],time=warning_list[2])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         warning_list = syn_error(previous_time,current_time)
-        return render_template('./exceptions/synerror.html', warning=warning_list,lists=warning_list[1])
+        return render_template('./exceptions/synerror.html', warning=warning_list,lists=warning_list[1],time=warning_list[2])
 
 
 

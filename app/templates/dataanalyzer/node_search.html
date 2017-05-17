@@ -34,7 +34,7 @@
     <script type="text/javascript">
         $(document).ready(function (){
                     // 时间插件
-                    $('#reportrange span').html(moment().subtract('hours', 24).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
+                    $('#reportrange span').html(moment().subtract('hours', 6).format('YYYY-MM-DD HH:mm:ss') + ' - ' + moment().format('YYYY-MM-DD HH:mm:ss'));
                     $('#timesrange').val(($('#reportrange span').html()));
                     
                     $('#reportrange').daterangepicker(
@@ -113,6 +113,7 @@
 
 <div>
 <h1 align="center">节点信息查询</h1>
+<h4 align="center">当前选取时间为:{{time}},节点为"{{nodeid}}"</h4>
 
     <div class="container ">
        

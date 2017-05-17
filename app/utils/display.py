@@ -38,7 +38,8 @@ def multipledisplay(time1,time2,dbitems):
         dicts["data"] = value
         # print dicts
         data_list.append(dicts)
-    return data_list
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return data_list,timedisplay
 
 def NetID_list(time1,time2):
     ID_list = list()
@@ -86,7 +87,8 @@ def singledisplay(time1,time2,dbitem):
             data_list.append(value)
     else:
         data_list=[]
-    return ID_list,data_list
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return ID_list,data_list,timedisplay
 
 def energy_display(time1,time2):
     cpu_list = list()
@@ -107,7 +109,8 @@ def energy_display(time1,time2):
                 rx_list.append(round(float(energy[counter][3])/32768,2))
                 ID_set.remove(energy[counter][4])
             counter=counter-1
-    return cpu_list,lpm_list,tx_list,rx_list
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return cpu_list,lpm_list,tx_list,rx_list,timedisplay
 
 def flowdisplay(time1,time2):
     topodata_list = DATABASE.my_db_execute("select * from NetMonitor where currenttime >= ? and currenttime <= ?;",(time1, time2))
@@ -121,7 +124,8 @@ def flowdisplay(time1,time2):
         traffic_value_list.append(sum_value)
     lists=topo_traffic_analyzer(topodata_list)
     templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
-    return lists[0],templist,traffic_key_list,traffic_value_list
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return lists[0],templist,traffic_key_list,traffic_value_list,timedisplay
 
 def protodisplay(time1,time2):
     num_of_nodes = DATABASE.my_db_execute("select count(distinct NodeID) from NetMonitor;",None)[0][0]
@@ -146,7 +150,8 @@ def protodisplay(time1,time2):
         postrate = round((float(allposts)/(rounds * num_of_nodes)), 4) * 100
     else:
         postrate = "?"
-    return num_of_nodes,postrate,post,thispostrate,http_set[0],http_set[1]
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return num_of_nodes,postrate,post,thispostrate,http_set[0],http_set[1],timedisplay
 
 def nodesearch_display(time1,time2,node):
     time_list_1 = list()
@@ -186,12 +191,8 @@ def nodesearch_display(time1,time2,node):
     tx = round(float(energycost[0][2])/32768,2)
     rx = round(float(energycost[0][3])/32768,2)           
 
-    index_of_pick=nodeid_list.index(node)
-    temp=nodeid_list[index_of_pick]
-    nodeid_list[index_of_pick]=nodeid_list[0]
-    nodeid_list[0]=temp
-    nodepick  =  "\""+node+"\""
-    return nodeid_list,str(cpu),str(lpm),str(tx),str(rx),voltage_list,time_list_1,time_list_2,current_list,time_list_3,rtx_list,deploy
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return nodeid_list,str(cpu),str(lpm),str(tx),str(rx),voltage_list,time_list_1,time_list_2,current_list,time_list_3,rtx_list,deploy,timedisplay
 
 
 def node_time_display(time1,time2,db,node):
@@ -207,7 +208,8 @@ def node_time_display(time1,time2,db,node):
     dicts["data"] = timelist
     lists = list()
     lists.append(dicts)
-    return lists
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return lists,timedisplay
 
 def selectall(time1,time2,db):
     data = DATABASE.my_db_execute("select * from " + db + " where currenttime >= ? and currenttime <= ?;",(time1, time2))
@@ -223,7 +225,8 @@ def selectall(time1,time2,db):
         else:
             data_key_list.append(key.encode('UTF-8')+'     ')
         data_value_list.append(value)
-    return data_key_list,data_value_list
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return data_key_list,data_value_list,timedisplay
 
 def topo_display(time1,time2):
     getrootaddr = Connect()
@@ -235,7 +238,8 @@ def topo_display(time1,time2):
         start_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_start_time))
         end_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(real_end_time))
     else:
-        return ([],[])
+        timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+        return ([],[],timedisplay)
     ID_list = DATABASE.my_db_execute("select distinct NodeID, ParentID from NetMonitor where currenttime >= ? and currenttime <= ?;",(start_time, end_time))
     Parentnode = dict()
     for node in ID_list:
@@ -271,4 +275,5 @@ def topo_display(time1,time2):
                 nodes.append(n)
                 m = {"source":value.encode('ascii'), "target":key.encode('ascii'), "weight":1}
                 links.append(m)
-    return nodes,links
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return nodes,links,timedisplay
