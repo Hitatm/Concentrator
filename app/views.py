@@ -12,7 +12,7 @@ from utils.gxn_get_sys_config import Config
 from utils.connect import Connect
 from utils.db_operate import DBClass
 from utils.display import multipledisplay,singledisplay,NetID_list,NetID_all,AppID_all,selectall,node_time_display,topo_display,energy_display,flowdisplay,protodisplay,nodesearch_display
-from utils.error import data_error,syn_error
+from utils.error import data_error_new,syn_error
 
 from utils.old_data_display import Display, Modify
 from utils.gxn_supervisor import getAllProcessInfo,stopProcess,startProcess,startAllProcesses,stopAllProcesses
@@ -1254,19 +1254,18 @@ def exceptinfo():
         flash(u"请完成认证登陆!")
         return redirect(url_for('login'))
     elif request.method == 'POST':
-        warning_list = list() #取交集和并集要多查询两次数据库
         selectime  =  request.form['field_name']
         start_time = selectime.encode("utf-8")[0:19]
         end_time = selectime.encode("utf-8")[22:41]
-        warning_list = data_error(start_time,end_time)
-        return render_template('./exceptions/exception.html', warning=warning_list)
+        data = data_error_new(start_time,end_time)
+        return render_template('./exceptions/exception.html', vwarning=data[0],iwarning=data[1],lists=data[2])
     else:
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         # 电流过大
-        warning_list = data_error(previous_time,current_time)
-        return render_template('./exceptions/exception.html', warning=warning_list)
+        data = data_error_new(previous_time,current_time)
+        return render_template('./exceptions/exception.html', vwarning=data[0],iwarning=data[1],lists=data[2])
 
 #时间同步节点异常列表
 @app.route('/synerror/', methods=['POST', 'GET'])
@@ -1361,7 +1360,22 @@ def supervisor_stop_all():
 
 @app.route('/test/', methods=['POST', 'GET'])
 def test():
-    return render_template('./upload/timestamp.html')
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        data = data_error_new(start_time,end_time)
+        # print data
+        return render_template('./upload/timestamp.html', vwarning=data[0],iwarning=data[1])
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        data = data_error_new(previous_time,current_time)
+        return render_template('./upload/timestamp.html', vwarning=data[0],iwarning=data[1])
 # ----------------------------------------------数据包构造页面---------------------------------------------
 #协议说明
 @app.route('/nettools/', methods=['POST', 'GET'])
