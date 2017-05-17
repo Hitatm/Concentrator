@@ -1279,15 +1279,13 @@ def synerror():
         end_time = selectime.encode("utf-8")[22:41]
         # 时间同步节点异常
         warning_list = syn_error(start_time,end_time)
-        return render_template('./exceptions/synerror.html', warning=warning_list)
+        return render_template('./exceptions/synerror.html', warning=warning_list[0],lists=warning_list[1])
     else:
-        warning_dict = dict()
-        warning_list = list()
         t = time.time()
         current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
         previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
         warning_list = syn_error(previous_time,current_time)
-        return render_template('./exceptions/synerror.html', warning=warning_list)
+        return render_template('./exceptions/synerror.html', warning=warning_list,lists=warning_list[1])
 
 
 
