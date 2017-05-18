@@ -26,29 +26,34 @@
     var ret = strData.toString()+"%";
     return ret;
     }
-    var timeTicket;
-    clearInterval(timeTicket);
-    timeTicket = setInterval(function (){
-            $.ajax({
-            type:"get",
-            url:"{{url_for('update_net')}}",
-            cache:false,
-            contentType: "application/json;charset=UTF-8",
-            dataType:"json",
-            success:function(msg)
-            {
-                var rate = msg['now']/msg['total'];
-                rate = toPercent(rate);
-                var r = "width:" + rate + ";";
-                var div1 = document.getElementById('bar');  
-                div1.style=r;
-                // $('.ui-label').text(rate);
-                $('.value').text(rate);
-            }
+    $(function(){
+//按钮单击时执行
+    $("#getmonitor").click(function(){
+        var timeTicket;
+        clearInterval(timeTicket);
+        timeTicket = setInterval(function (){
+                $.ajax({
+                type:"get",
+                url:"{{url_for('update_net')}}",
+                cache:false,
+                contentType: "application/json;charset=UTF-8",
+                dataType:"json",
+                success:function(msg)
+                {
+                    var rate = msg['now']/msg['total'];
+                    rate = toPercent(rate);
+                    var r = "width:" + rate + ";";
+                    var div1 = document.getElementById('bar');  
+                    div1.style=r;
+                    // $('.ui-label').text(rate);
+                    $('.value').text(rate);
+                }
 
-            })
+                })
 
     }, 2000);
+    });
+});
     
 
     </script>
@@ -84,7 +89,7 @@
                                     </div>
                                     <!-- /Progress bar -->
                                 </div>
-                                <button type="submit" class="btn btn-success">&nbsp;提&nbsp;&nbsp;交&nbsp;</button>
+                                <button type="button" class="btn btn-success" id="getmonitor" name="getmonitor">&nbsp;提&nbsp;&nbsp;交&nbsp;</button>
                                 </form> 
                             
                             </td>

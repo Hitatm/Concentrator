@@ -810,6 +810,7 @@ def instruction3():
 #获取网络监测数据
 def update_net():
     global NODE_DICT_NET
+    dicts= {}
     for node ,value in NODE_DICT_NET.items():
         # print node,value
         temp = DATABASE.my_db_execute("select nodeID, count(nodeID) from NetMonitor where nodeID == ?", (node,))
@@ -818,9 +819,12 @@ def update_net():
             # NUMBER_NET+= 1
             if(str(temp[0][0])  in NODE_SET):
                 NODE_SET.remove(str(temp[0][0]))
-    dicts= {}
-    dicts["total"] = len(NODE_DICT_NET)
-    dicts["now"] = dicts["total"] - len(NODE_SET)
+    if len(NODE_DICT_NET):
+        dicts["total"] = len(NODE_DICT_NET)
+        dicts["now"] = dicts["total"] - len(NODE_SET)
+    else:
+        dicts["total"] = 1
+        dicts["now"] = 0
     ins = json.dumps(dicts)
     # print ins
     return ins
