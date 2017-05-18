@@ -48,24 +48,26 @@ We are creating a web server running on embedded Linux systems, and having acces
 |18| 1 					|  47|1   |时间同步level  |
 
 # 数据库格式
-|0| ID INTEGER PRIMARY KEY AUTOINCREMENT|
-|1| NodeID varchar|
-|2| ParentID varchar|
-|3| CPU bigint|
-|4| LPM bigint|
-|5| TX bigint|
-|6| RX bigint|
-|7| volage float|
-|8| syntime int|
-|9| beacon int|
-|10| numneighbors int|
-|11| rtimetric int|
-|12| reboot int|
-|13| cycletime int|
-|14| cycletimeDirection varchar|
-|15| Nodecurrenttime time |
-|16| currenttime time |
-|17| electric float|
+|标号  |条目                |格式                              |
+|:---:|:-----------------:|:--------------------------------:|
+|0    | ID                | INTEGER PRIMARY KEY AUTOINCREMENT|
+|1    | NodeID            | varchar                          |
+|2    | ParentID          | varchar                          |
+|3    | CPU               | bigint                           |
+|4    | LPM               | bigint                           |
+|5    | TX                | bigint                           |
+|6    | RX                | bigint                           |
+|7    | volage            | float                            |
+|8    | syntime           | int                              |
+|9    | beacon            | int                              |
+|10   | numneighbors      | int                              |
+|11   | rtimetric         | int                              |
+|12   | reboot            | int                              |
+|13   | cycletime         | int                              |
+|14   | cycletimeDirection| varchar                          |
+|15   | Nodecurrenttime   | time                             |
+|16   | currenttime       | time                             |
+|17   | electric          | float                            |
 
 
 ## 前台与后台通信
