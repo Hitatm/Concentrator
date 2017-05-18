@@ -3,7 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>拓扑流量分析</title>
+    <title>应用数据流量分析</title>
 
     <link href="../../static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../../static/bootstrap-3.3.5/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
@@ -103,7 +103,7 @@
 <div>
     <div class="container">
            
-        <form enctype="multipart/form-data" method="POST" action="{{url_for('flowanalyzer')}}">
+        <form enctype="multipart/form-data" method="POST" action="{{url_for('appflowanalyzer')}}">
 
                            <h4>请选择时间段:</h4>
                     <div class="controls">
@@ -240,7 +240,7 @@
 
                 var option  = {
     title : {
-        text : '拓扑上报个数随时间变化情况',
+        text : '应用数据上报个数随时间变化情况',
         // subtext : '',
         x:'center',
         y:'top'
@@ -282,7 +282,7 @@
         end:100
     },
     legend : {
-        data : ['number of topo message'],
+        data : ['number of app message'],
         x:'center',
         y:45
     },

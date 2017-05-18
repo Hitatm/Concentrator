@@ -6,7 +6,7 @@ import sqlite3
 from db_operate import DBClass
 from gxn_topo_analyzer import topo_statistic
 from connect import Connect
-from gxn_topo_analyzer import topo_traffic_statistic,topo_traffic_analyzer
+from gxn_topo_analyzer import topo_traffic_statistic,topo_traffic_analyzer,app_traffic_analyzer,app_traffic_statistic
 from num_of_rounds import countrounds
 
 DATABASE = DBClass()
@@ -123,6 +123,21 @@ def flowdisplay(time1,time2):
         sum_value = sum_value+value
         traffic_value_list.append(sum_value)
     lists=topo_traffic_analyzer(topodata_list)
+    templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
+    timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
+    return lists[0],templist,traffic_key_list,traffic_value_list,timedisplay
+
+def appflowdisplay(time1,time2):
+    appdata_list = DATABASE.my_db_execute("select * from ApplicationData where currenttime >= ? and currenttime <= ?;",(time1, time2))
+    app_traff_dict=app_traffic_statistic(appdata_list)
+    traffic_key_list = list()
+    traffic_value_list = list()
+    sum_value = 0
+    for key ,value in app_traff_dict.items():
+        traffic_key_list.append(key.encode('ascii'))
+        sum_value = sum_value+value
+        traffic_value_list.append(sum_value)
+    lists=app_traffic_analyzer(appdata_list)
     templist=[lists[1],lists[2],lists[3],lists[4],lists[5],lists[6],lists[7]]
     timedisplay = ("\""+time1 + ' - ' + time2+"\"").encode('ascii')
     return lists[0],templist,traffic_key_list,traffic_value_list,timedisplay

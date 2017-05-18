@@ -11,7 +11,7 @@ from utils.gxn_topo_decode  import TopoDecode
 from utils.gxn_get_sys_config import Config
 from utils.connect import Connect
 from utils.db_operate import DBClass
-from utils.display import multipledisplay,singledisplay,NetID_list,NetID_all,AppID_all,selectall,node_time_display,topo_display,energy_display,flowdisplay,protodisplay,nodesearch_display
+from utils.display import multipledisplay,singledisplay,NetID_list,NetID_all,AppID_all,selectall,node_time_display,topo_display,energy_display,flowdisplay,protodisplay,nodesearch_display,appflowdisplay
 from utils.error import data_error_new,syn_error
 
 from utils.old_data_display import Display, Modify
@@ -1063,7 +1063,25 @@ def flowanalyzer():
         data = flowdisplay(previous_time,current_time)
         return render_template('./dataanalyzer/trafficanalyzer.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3],time=data[4])
 
-        #上报数量分析
+@app.route('/appflowanalyzer/', methods=['POST', 'GET'])
+def appflowanalyzer():
+    if PCAPS == None:
+        flash(u"请完成认证登陆!")
+        return redirect(url_for('login'))
+    elif request.method == 'POST':
+        selectime  =  request.form['field_name']
+        start_time = selectime.encode("utf-8")[0:19]
+        end_time = selectime.encode("utf-8")[22:41]
+        data = appflowdisplay(start_time,end_time)
+        return render_template('./dataanalyzer/appflowdisplay.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3],time=data[4])
+    else:
+        t = time.time()
+        current_time = strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
+        previous_time = strftime('%Y-%m-%d %H:%M:%S', time.localtime(t - 6*60*60))
+        data = appflowdisplay(previous_time,current_time)
+        return render_template('./dataanalyzer/appflowdisplay.html', timeline=data[0],templist=data[1], topo_traffic_key=data[2],topo_traffic_value=data[3],time=data[4])
+
+#上报数量分析
 @app.route('/count_appdata/', methods=['POST', 'GET'])
 def count_appdata():
     databasepath = os.path.join(app.config['TOPO_FOLDER'],"topo3.db")
